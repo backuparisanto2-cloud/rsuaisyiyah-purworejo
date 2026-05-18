@@ -131,7 +131,7 @@ function HomePage() {
       <section className="py-16 px-6 bg-primary text-primary-foreground">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold">JAM BESUK RESMI</h2>
-          <p className="mt-1 text-sm opacity-80">RS PKU Muhammadiyah Karanganyar</p>
+          <p className="mt-1 text-sm opacity-80">RSU Aisyiyah Purworejo</p>
           <div className="mt-8 grid sm:grid-cols-2 gap-6">
             <div className="rounded-2xl bg-white/10 backdrop-blur p-8 border border-white/15">
               <Clock className="h-10 w-10 mx-auto text-gold" />
@@ -284,8 +284,8 @@ function HomePage() {
             <div className="flex items-center gap-3">
               <img src={logo} alt="Logo" className="h-14 w-14" />
               <div>
-                <div className="font-bold">RS PKU Muhammadiyah</div>
-                <div className="text-sm opacity-80">Karanganyar</div>
+                <div className="font-bold">RSU Aisyiyah</div>
+                <div className="text-sm opacity-80">Purworejo</div>
               </div>
             </div>
             <p className="mt-4 text-sm opacity-80 font-script text-gold text-xl">Keramahan Sebenarnya</p>
