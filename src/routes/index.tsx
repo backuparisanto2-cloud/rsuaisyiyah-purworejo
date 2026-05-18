@@ -60,7 +60,7 @@ const TESTI = [
   { quote: "Pelayanan sangat profesional, dokter dan perawat ramah, tempatnya bersih dan nyaman. Saya selalu memilih berobat di sini.", name: "P***** K****", role: "Pasien Rutin Rawat Jalan" },
   { quote: "Alhamdulillah dua kali anak saya dirawat di sini, pelayanan tidak pernah mengecewakan. Di Paviliun Multazam pasien dan keluarga sangat dimanjakan.", name: "N*** G********", role: "Pasien Paviliun Multazam" },
   { quote: "Pelayanan IGD cepat dan tanggap, satpam juga sangat membantu dalam mengarahkan keluarga pasien.", name: "M******* M*******", role: "Pasien IGD" },
-  { quote: "Selama dialisis ada kajian rohaninya, perawat dan dokter ramah. Sukses selalu RS PKU.", name: "D**** A** S**********", role: "Keluarga Pasien Dialisis" },
+  { quote: "Selama dialisis ada kajian rohaninya, perawat dan dokter ramah. Sukses selalu RSU Aisyiyah.", name: "D**** A** S**********", role: "Keluarga Pasien Dialisis" },
 ];
 
 function HomePage() {
@@ -244,7 +244,7 @@ function HomePage() {
             <div className="rounded-2xl overflow-hidden border shadow-lg aspect-video bg-muted">
               <iframe
                 title="Lokasi RS"
-                src="https://www.google.com/maps?q=RS+PKU+Muhammadiyah+Karanganyar&output=embed"
+                src="https://www.google.com/maps?q=RSU+Aisyiyah+Purworejo&output=embed"
                 className="w-full h-full border-0"
                 loading="lazy"
               />
@@ -254,7 +254,7 @@ function HomePage() {
                 <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><MapPin className="h-5 w-5" /></div>
                 <div>
                   <div className="font-bold">Alamat</div>
-                  <p className="text-muted-foreground text-sm">Jl. Papahan – Tasikmadu, Karanganyar, Jawa Tengah</p>
+                  <p className="text-muted-foreground text-sm">Jl. Jend. Sudirman No. 12, Purworejo, Jawa Tengah</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -308,7 +308,7 @@ function HomePage() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/10 text-xs opacity-70 text-center">
-          © {new Date().getFullYear()} RS PKU Muhammadiyah Karanganyar. All rights reserved.
+          © {new Date().getFullYear()} RSU Aisyiyah Purworejo. All rights reserved.
         </div>
       </footer>
     </div>
