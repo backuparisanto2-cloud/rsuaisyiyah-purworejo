@@ -79,3 +79,34 @@
   50% { transform: translateY(-6px); }
 }
 .animate-float { animation: float-y 3s ease-in-out infinite; }
+
+.input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-foreground);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+.input:focus { box-shadow: 0 0 0 2px var(--color-ring); }
+
+html.a11y-contrast {
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.1 0 0);
+  --card-foreground: oklch(1 0 0);
+  --muted: oklch(0.15 0 0);
+  --muted-foreground: oklch(0.9 0 0);
+  --border: oklch(1 0 0);
+  --primary: oklch(0.95 0.2 90);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.95 0.2 90);
+  --secondary-foreground: oklch(0 0 0);
+}
+html.a11y-grayscale { filter: grayscale(1); }
+html.a11y-underline a { text-decoration: underline !important; text-underline-offset: 2px; }
+html.a11y-big-cursor, html.a11y-big-cursor * {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'><path fill='black' stroke='white' stroke-width='1.5' d='M3 2l7 18 2-8 8-2z'/></svg>") 2 2, auto !important;
+}
