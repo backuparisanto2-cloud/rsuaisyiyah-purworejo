@@ -73,7 +73,7 @@ function HomePage() {
       <Header />
       <SideSocial />
       <ChatbotArini />
-      <WhatsAppButton />
+      
       <AccessibilityWidget />
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
