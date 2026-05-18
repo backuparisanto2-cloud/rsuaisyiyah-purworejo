@@ -1,10 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import ChatbotArini from "@/components/ChatbotArini";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import AccessibilityWidget from "@/components/AccessibilityWidget";
+import PendaftaranModal from "@/components/PendaftaranModal";
 import logo from "@/assets/logo-pku.png";
+
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "RSU Aisyiyah Purworejo — Keramahan Sebenarnya" },
+      { name: "description", content: "RSU Aisyiyah Purworejo — pelayanan kesehatan prima berbasis syariah dengan fasilitas modern, dokter spesialis berpengalaman, dan layanan ramah difabel." },
+    ],
+  }),
+  component: HomePage,
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
