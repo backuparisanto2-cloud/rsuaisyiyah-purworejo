@@ -19,15 +19,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "RS PKU Muhammadiyah Karanganyar — Keramahan Sebenarnya" },
-      { name: "description", content: "Rumah Sakit PKU Muhammadiyah Karanganyar — pelayanan kesehatan prima berbasis syariah dengan fasilitas modern dan dokter spesialis berpengalaman." },
-    ],
-  }),
-  component: HomePage,
-});
+
 
 const PROMO = [
   { title: "Audiometri", color: "from-sky-500 to-blue-700" },
