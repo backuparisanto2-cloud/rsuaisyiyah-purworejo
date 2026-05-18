@@ -33,7 +33,7 @@ export default function ChatbotArini() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "bot", text: "Assalamu'alaikum 👋 Saya Arini, asisten virtual RS PKU Muhammadiyah Karanganyar. Ada yang bisa saya bantu?" },
+    { role: "bot", text: "Assalamu'alaikum 👋 Saya Arini, asisten virtual RSU Aisyiyah Purworejo. Ada yang bisa saya bantu?" },
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -59,9 +59,9 @@ export default function ChatbotArini() {
           className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-2xl hover:bg-primary-dark transition-all animate-float"
           aria-label="Buka chat Arini"
         >
-          <div className="relative">
-            <img src={arini} alt="Arini" className="h-12 w-12 rounded-full object-cover bg-white" />
-            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-secondary ring-2 ring-white" />
+          <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white shrink-0">
+            <img src={arini} alt="Arini" className="absolute inset-0 h-full w-full object-cover object-center" />
+            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary ring-2 ring-white" />
           </div>
           <div className="text-left pr-2">
             <div className="text-xs opacity-80 leading-none">Tanya</div>
@@ -73,7 +73,9 @@ export default function ChatbotArini() {
       {open && (
         <div className="fixed bottom-6 right-6 z-50 w-[92vw] max-w-sm rounded-2xl bg-card shadow-2xl border overflow-hidden flex flex-col" style={{ height: "min(560px, 80vh)" }}>
           <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
-            <img src={arini} alt="Arini" className="h-12 w-12 rounded-full object-cover bg-white ring-2 ring-white/50" />
+            <div className="h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white/50 shrink-0">
+              <img src={arini} alt="Arini" className="h-full w-full object-cover object-center" />
+            </div>
             <div className="flex-1">
               <div className="font-bold">Arini</div>
               <div className="text-xs opacity-90 flex items-center gap-1">

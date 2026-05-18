@@ -54,9 +54,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "RS PKU Muhammadiyah Karanganyar — Keramahan Sebenarnya" },
-      { name: "description", content: "Rumah Sakit PKU Muhammadiyah Karanganyar — pelayanan kesehatan prima berbasis syariah." },
-      { property: "og:title", content: "RS PKU Muhammadiyah Karanganyar" },
+      { title: "RSU Aisyiyah Purworejo — Keramahan Sebenarnya" },
+      { name: "description", content: "RSU Aisyiyah Purworejo — pelayanan kesehatan prima berbasis syariah dengan fasilitas modern dan layanan ramah difabel." },
+      { property: "og:title", content: "RSU Aisyiyah Purworejo" },
       { property: "og:description", content: "Keramahan Sebenarnya & Mutu Pelayanan Syariah" },
       { property: "og:type", content: "website" },
     ],

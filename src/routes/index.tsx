@@ -1,20 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import ChatbotArini from "@/components/ChatbotArini";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import AccessibilityWidget from "@/components/AccessibilityWidget";
+import PendaftaranModal from "@/components/PendaftaranModal";
 import logo from "@/assets/logo-pku.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RS PKU Muhammadiyah Karanganyar — Keramahan Sebenarnya" },
-      { name: "description", content: "Rumah Sakit PKU Muhammadiyah Karanganyar — pelayanan kesehatan prima berbasis syariah dengan fasilitas modern dan dokter spesialis berpengalaman." },
+      { title: "RSU Aisyiyah Purworejo — Keramahan Sebenarnya" },
+      { name: "description", content: "RSU Aisyiyah Purworejo — pelayanan kesehatan prima berbasis syariah dengan fasilitas modern, dokter spesialis berpengalaman, dan layanan ramah difabel." },
     ],
   }),
   component: HomePage,
 });
+
+
 
 const PROMO = [
   { title: "Audiometri", color: "from-sky-500 to-blue-700" },
@@ -55,11 +60,12 @@ const TESTI = [
   { quote: "Pelayanan sangat profesional, dokter dan perawat ramah, tempatnya bersih dan nyaman. Saya selalu memilih berobat di sini.", name: "P***** K****", role: "Pasien Rutin Rawat Jalan" },
   { quote: "Alhamdulillah dua kali anak saya dirawat di sini, pelayanan tidak pernah mengecewakan. Di Paviliun Multazam pasien dan keluarga sangat dimanjakan.", name: "N*** G********", role: "Pasien Paviliun Multazam" },
   { quote: "Pelayanan IGD cepat dan tanggap, satpam juga sangat membantu dalam mengarahkan keluarga pasien.", name: "M******* M*******", role: "Pasien IGD" },
-  { quote: "Selama dialisis ada kajian rohaninya, perawat dan dokter ramah. Sukses selalu RS PKU.", name: "D**** A** S**********", role: "Keluarga Pasien Dialisis" },
+  { quote: "Selama dialisis ada kajian rohaninya, perawat dan dokter ramah. Sukses selalu RSU Aisyiyah.", name: "D**** A** S**********", role: "Keluarga Pasien Dialisis" },
 ];
 
 function HomePage() {
   const [search, setSearch] = useState("");
+  const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
   const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -67,6 +73,9 @@ function HomePage() {
       <Header />
       <SideSocial />
       <ChatbotArini />
+      <WhatsAppButton />
+      <AccessibilityWidget />
+      <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO */}
       <section id="beranda" className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden bg-primary">
@@ -78,15 +87,17 @@ function HomePage() {
         <div className="absolute inset-0 bg-primary/70" />
 
         <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
-          <img src={logo} alt="Logo RS PKU" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
+          <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
           <h1 className="mt-6 text-3xl md:text-5xl font-bold tracking-tight">
-            RS PKU MUHAMMADIYAH<br/><span className="text-gold">KARANGANYAR</span>
+            RSU AISYIYAH<br/><span className="text-gold">PURWOREJO</span>
           </h1>
           <p className="mt-4 text-2xl md:text-4xl font-script text-gold">Keramahan Sebenarnya</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <button onClick={() => setPendaftaranOpen(true)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-primary-dark font-bold hover:scale-105 transition-transform shadow-lg">
+              <CalendarCheck className="h-5 w-5" /> Pendaftaran Online
+            </button>
             <span className="px-4 py-2 rounded-full bg-gold/20 border border-gold/40 text-sm font-semibold">★ PARIPURNA</span>
             <span className="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-semibold">Akreditasi LARSI</span>
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-semibold">SIRSMA Certified</span>
           </div>
         </div>
       </section>
@@ -102,9 +113,9 @@ function HomePage() {
             <h2 className="mt-2 text-3xl md:text-4xl font-bold text-primary">
               Keramahan Sebenarnya & Mutu Pelayanan Syariah
             </h2>
-            <h3 className="mt-3 text-lg font-semibold text-muted-foreground">RS PKU Muhammadiyah Karanganyar</h3>
+            <h3 className="mt-3 text-lg font-semibold text-muted-foreground">RSU Aisyiyah Purworejo</h3>
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              RS PKU Muhammadiyah Karanganyar berdedikasi memberikan pelayanan kesehatan prima berbasis syariah dengan integritas tinggi, mengutamakan keselamatan pasien dan mewujudkan keramahan sebenarnya dalam setiap layanan.
+              RSU Aisyiyah Purworejo berdedikasi memberikan pelayanan kesehatan prima berbasis syariah dengan integritas tinggi, mengutamakan keselamatan pasien dan mewujudkan keramahan sebenarnya dalam setiap layanan, termasuk fasilitas ramah difabel.
             </p>
             <p className="mt-3 text-muted-foreground leading-relaxed">
               Kami terus mengembangkan fasilitas berkualitas dan modern, menyediakan layanan spesialis dan subspesialis unggulan, ditunjang peralatan medis berteknologi terkini serta layanan penunjang diagnostik mutakhir.
@@ -120,7 +131,7 @@ function HomePage() {
       <section className="py-16 px-6 bg-primary text-primary-foreground">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold">JAM BESUK RESMI</h2>
-          <p className="mt-1 text-sm opacity-80">RS PKU Muhammadiyah Karanganyar</p>
+          <p className="mt-1 text-sm opacity-80">RSU Aisyiyah Purworejo</p>
           <div className="mt-8 grid sm:grid-cols-2 gap-6">
             <div className="rounded-2xl bg-white/10 backdrop-blur p-8 border border-white/15">
               <Clock className="h-10 w-10 mx-auto text-gold" />
@@ -233,7 +244,7 @@ function HomePage() {
             <div className="rounded-2xl overflow-hidden border shadow-lg aspect-video bg-muted">
               <iframe
                 title="Lokasi RS"
-                src="https://www.google.com/maps?q=RS+PKU+Muhammadiyah+Karanganyar&output=embed"
+                src="https://www.google.com/maps?q=RSU+Aisyiyah+Purworejo&output=embed"
                 className="w-full h-full border-0"
                 loading="lazy"
               />
@@ -243,7 +254,7 @@ function HomePage() {
                 <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><MapPin className="h-5 w-5" /></div>
                 <div>
                   <div className="font-bold">Alamat</div>
-                  <p className="text-muted-foreground text-sm">Jl. Papahan – Tasikmadu, Karanganyar, Jawa Tengah</p>
+                  <p className="text-muted-foreground text-sm">Jl. Jend. Sudirman No. 12, Purworejo, Jawa Tengah</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -273,8 +284,8 @@ function HomePage() {
             <div className="flex items-center gap-3">
               <img src={logo} alt="Logo" className="h-14 w-14" />
               <div>
-                <div className="font-bold">RS PKU Muhammadiyah</div>
-                <div className="text-sm opacity-80">Karanganyar</div>
+                <div className="font-bold">RSU Aisyiyah</div>
+                <div className="text-sm opacity-80">Purworejo</div>
               </div>
             </div>
             <p className="mt-4 text-sm opacity-80 font-script text-gold text-xl">Keramahan Sebenarnya</p>
@@ -297,7 +308,7 @@ function HomePage() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/10 text-xs opacity-70 text-center">
-          © {new Date().getFullYear()} RS PKU Muhammadiyah Karanganyar. All rights reserved.
+          © {new Date().getFullYear()} RSU Aisyiyah Purworejo. All rights reserved.
         </div>
       </footer>
     </div>
