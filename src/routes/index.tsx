@@ -4,7 +4,7 @@ import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, 
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import ChatbotArini from "@/components/ChatbotArini";
-import WhatsAppButton from "@/components/WhatsAppButton";
+
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import PendaftaranModal from "@/components/PendaftaranModal";
 import logo from "@/assets/logo-pku.png";
@@ -73,7 +73,7 @@ function HomePage() {
       <Header />
       <SideSocial />
       <ChatbotArini />
-      <WhatsAppButton />
+      
       <AccessibilityWidget />
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
