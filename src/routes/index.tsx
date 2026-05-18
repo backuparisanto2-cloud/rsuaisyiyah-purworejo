@@ -65,6 +65,7 @@ const TESTI = [
 
 function HomePage() {
   const [search, setSearch] = useState("");
+  const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
   const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -72,6 +73,9 @@ function HomePage() {
       <Header />
       <SideSocial />
       <ChatbotArini />
+      <WhatsAppButton />
+      <AccessibilityWidget />
+      <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO */}
       <section id="beranda" className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden bg-primary">
@@ -83,15 +87,17 @@ function HomePage() {
         <div className="absolute inset-0 bg-primary/70" />
 
         <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
-          <img src={logo} alt="Logo RS PKU" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
+          <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
           <h1 className="mt-6 text-3xl md:text-5xl font-bold tracking-tight">
-            RS PKU MUHAMMADIYAH<br/><span className="text-gold">KARANGANYAR</span>
+            RSU AISYIYAH<br/><span className="text-gold">PURWOREJO</span>
           </h1>
           <p className="mt-4 text-2xl md:text-4xl font-script text-gold">Keramahan Sebenarnya</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <button onClick={() => setPendaftaranOpen(true)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-primary-dark font-bold hover:scale-105 transition-transform shadow-lg">
+              <CalendarCheck className="h-5 w-5" /> Pendaftaran Online
+            </button>
             <span className="px-4 py-2 rounded-full bg-gold/20 border border-gold/40 text-sm font-semibold">★ PARIPURNA</span>
             <span className="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-semibold">Akreditasi LARSI</span>
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-semibold">SIRSMA Certified</span>
           </div>
         </div>
       </section>
@@ -107,9 +113,9 @@ function HomePage() {
             <h2 className="mt-2 text-3xl md:text-4xl font-bold text-primary">
               Keramahan Sebenarnya & Mutu Pelayanan Syariah
             </h2>
-            <h3 className="mt-3 text-lg font-semibold text-muted-foreground">RS PKU Muhammadiyah Karanganyar</h3>
+            <h3 className="mt-3 text-lg font-semibold text-muted-foreground">RSU Aisyiyah Purworejo</h3>
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              RS PKU Muhammadiyah Karanganyar berdedikasi memberikan pelayanan kesehatan prima berbasis syariah dengan integritas tinggi, mengutamakan keselamatan pasien dan mewujudkan keramahan sebenarnya dalam setiap layanan.
+              RSU Aisyiyah Purworejo berdedikasi memberikan pelayanan kesehatan prima berbasis syariah dengan integritas tinggi, mengutamakan keselamatan pasien dan mewujudkan keramahan sebenarnya dalam setiap layanan, termasuk fasilitas ramah difabel.
             </p>
             <p className="mt-3 text-muted-foreground leading-relaxed">
               Kami terus mengembangkan fasilitas berkualitas dan modern, menyediakan layanan spesialis dan subspesialis unggulan, ditunjang peralatan medis berteknologi terkini serta layanan penunjang diagnostik mutakhir.
