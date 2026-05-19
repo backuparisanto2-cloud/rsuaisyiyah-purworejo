@@ -57,16 +57,11 @@ const CLINICS = [
   { name: "Laboratorium", icon: Microscope },
 ];
 
-const IG_HIGHLIGHTS = [
-  { label: "Layanan Unggulan", img: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?auto=format&fit=crop&w=600&q=70" },
-  { label: "Edukasi Kesehatan", img: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?auto=format&fit=crop&w=600&q=70" },
-  { label: "Kegiatan Rumah Sakit", img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=70" },
-  { label: "Tim Dokter Kami", img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=70" },
-  { label: "Promo Terkini", img: "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=600&q=70" },
-  { label: "Testimoni Pasien", img: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=600&q=70" },
-];
-
 function HomePage() {
+  const [search, setSearch] = useState("");
+  const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
+  const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+
   const [search, setSearch] = useState("");
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
   const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
