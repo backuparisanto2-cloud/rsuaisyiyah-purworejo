@@ -18,7 +18,7 @@ export default function SideSocial() {
       label: "Instagram",
       bg: "bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]",
       icon: (
-        <svg viewBox="0 0 24 24" className="h-7 w-7 fill-none stroke-white" strokeWidth="2">
+        <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-white" strokeWidth="2">
           <rect x="3" y="3" width="18" height="18" rx="5" />
           <circle cx="12" cy="12" r="4" />
           <circle cx="17.5" cy="6.5" r="1.2" fill="white" stroke="none" />
@@ -28,7 +28,7 @@ export default function SideSocial() {
   ];
 
   return (
-    <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3">
+    <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
       {items.map((it) => (
         <a
           key={it.label}
@@ -36,7 +36,7 @@ export default function SideSocial() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={it.label}
-          className={`${it.bg} h-14 w-14 rounded-2xl flex items-center justify-center shadow-xl ring-2 ring-white/70 hover:scale-110 transition-transform`}
+          className={`${it.bg} h-10 w-10 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform`}
         >
           {it.icon}
         </a>
