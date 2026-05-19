@@ -221,13 +221,12 @@ function HomePage() {
             Update terbaru seputar layanan, edukasi kesehatan, dan kegiatan RSU Aisyiyah Purworejo langsung dari akun resmi kami.
           </p>
 
-          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto max-w-3xl">
+          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full">
             <iframe
               title="Instagram @rsu_aisyiyah"
               src="https://www.instagram.com/rsu_aisyiyah/embed"
-              className="w-full h-[900px] md:h-[1100px] bg-white"
+              className="block w-full h-[1100px] md:h-[1300px] bg-white"
               loading="lazy"
-              scrolling="no"
               frameBorder={0}
               allow="encrypted-media"
               allowFullScreen
