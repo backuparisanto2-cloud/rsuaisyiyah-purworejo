@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
+import JadwalDokter from "@/components/JadwalDokter";
 import ChatbotArini from "@/components/ChatbotArini";
 import HeroVideo from "@/components/HeroVideo";
 
@@ -205,6 +206,8 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <JadwalDokter />
 
       {/* INSTAGRAM */}
       <section id="instagram" className="py-20 px-6 bg-gradient-to-br from-primary to-primary-dark text-primary-foreground">
