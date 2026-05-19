@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import heroVideo from "../../public/video/hero-poli.mp4.asset.json";
 
 export default function HeroVideo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -37,8 +38,7 @@ export default function HeroVideo() {
           poster="/video/hero-poli-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/video/hero-poli.webm" type="video/webm" />
-          <source src="/video/hero-poli.mp4" type="video/mp4" />
+          <source src={heroVideo.url} type="video/mp4" />
         </video>
       )}
     </div>
