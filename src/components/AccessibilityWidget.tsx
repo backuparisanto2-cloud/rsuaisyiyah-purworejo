@@ -45,13 +45,13 @@ export default function AccessibilityWidget() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Buka menu aksesibilitas difabel"
-        className="fixed right-6 bottom-28 z-50 h-12 w-12 rounded-full bg-secondary text-secondary-foreground shadow-2xl hover:scale-110 transition-transform flex items-center justify-center ring-2 ring-white"
+        className="fixed right-3 top-1/2 z-40 mt-[60px] h-10 w-10 rounded-xl bg-secondary text-secondary-foreground shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform flex items-center justify-center"
       >
-        <Accessibility className="h-6 w-6" />
+        <Accessibility className="h-5 w-5" />
       </button>
 
       {open && (
-        <div className="fixed right-6 bottom-44 z-50 w-72 rounded-2xl bg-card border shadow-2xl overflow-hidden">
+        <div className="fixed right-3 top-1/2 mt-[110px] z-50 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card border shadow-2xl overflow-hidden">
           <div className="bg-secondary text-secondary-foreground p-3 flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold">
               <Accessibility className="h-5 w-5" /> Aksesibilitas
