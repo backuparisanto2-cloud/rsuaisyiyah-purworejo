@@ -222,7 +222,7 @@ function HomePage() {
             <iframe
               title="Instagram @rsu_aisyiyah"
               src="https://www.instagram.com/rsu_aisyiyah/embed"
-              className="w-full h-[720px] md:h-[820px] bg-white"
+              className="w-full h-[900px] md:h-[1100px] bg-white"
               loading="lazy"
               scrolling="no"
               frameBorder={0}
