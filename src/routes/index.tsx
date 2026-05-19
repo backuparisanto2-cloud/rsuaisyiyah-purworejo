@@ -62,10 +62,6 @@ function HomePage() {
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
   const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
-  const [search, setSearch] = useState("");
-  const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
-  const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
