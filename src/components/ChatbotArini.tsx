@@ -60,7 +60,7 @@ export default function ChatbotArini() {
           aria-label="Buka chat Arini"
         >
           <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white shrink-0">
-            <img src={arini} alt="Arini" className="absolute inset-0 h-full w-full object-cover object-center" />
+            <img src={arini} alt="Arini" className="absolute inset-0 h-full w-full object-cover object-top scale-110" />
             <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary ring-2 ring-white" />
           </div>
           <div className="text-left pr-2">
@@ -74,7 +74,7 @@ export default function ChatbotArini() {
         <div className="fixed bottom-6 right-6 z-50 w-[92vw] max-w-sm rounded-2xl bg-card shadow-2xl border overflow-hidden flex flex-col" style={{ height: "min(560px, 80vh)" }}>
           <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
             <div className="h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white/50 shrink-0">
-              <img src={arini} alt="Arini" className="h-full w-full object-cover object-center" />
+              <img src={arini} alt="Arini" className="h-full w-full object-cover object-top scale-110" />
             </div>
             <div className="flex-1">
               <div className="font-bold">Arini</div>
