@@ -19,7 +19,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 lg:px-8 h-20 flex items-center gap-4">
         <a href="#beranda" className="flex items-center gap-3 shrink-0">
           <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-14 w-14 object-contain" />
-          <div className="hidden sm:block leading-tight">
+          <div className="leading-tight text-white shine-text">
             <div className="text-[10px] font-semibold tracking-widest opacity-80">RSU</div>
             <div className="font-bold text-sm">AISYIYAH</div>
             <div className="text-xs opacity-90">PURWOREJO</div>

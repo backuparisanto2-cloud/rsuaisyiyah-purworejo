@@ -80,6 +80,28 @@
 }
 .animate-float { animation: float-y 3s ease-in-out infinite; }
 
+@keyframes text-shine {
+  0% { transform: translateX(-150%); }
+  20% { transform: translateX(150%); }
+  100% { transform: translateX(150%); }
+}
+.shine-text {
+  position: relative;
+  overflow: hidden;
+}
+.shine-text::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  transform: translateX(-150%);
+  animation: text-shine 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
 .input {
   width: 100%;
   border: 1px solid var(--color-border);
