@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import ChatbotArini from "@/components/ChatbotArini";
@@ -57,11 +57,13 @@ const CLINICS = [
   { name: "Laboratorium", icon: Microscope },
 ];
 
-const TESTI = [
-  { quote: "Pelayanan sangat profesional, dokter dan perawat ramah, tempatnya bersih dan nyaman. Saya selalu memilih berobat di sini.", name: "P***** K****", role: "Pasien Rutin Rawat Jalan" },
-  { quote: "Alhamdulillah dua kali anak saya dirawat di sini, pelayanan tidak pernah mengecewakan. Di Paviliun Multazam pasien dan keluarga sangat dimanjakan.", name: "N*** G********", role: "Pasien Paviliun Multazam" },
-  { quote: "Pelayanan IGD cepat dan tanggap, satpam juga sangat membantu dalam mengarahkan keluarga pasien.", name: "M******* M*******", role: "Pasien IGD" },
-  { quote: "Selama dialisis ada kajian rohaninya, perawat dan dokter ramah. Sukses selalu RSU Aisyiyah.", name: "D**** A** S**********", role: "Keluarga Pasien Dialisis" },
+const IG_HIGHLIGHTS = [
+  { label: "Layanan Unggulan", img: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?auto=format&fit=crop&w=600&q=70" },
+  { label: "Edukasi Kesehatan", img: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?auto=format&fit=crop&w=600&q=70" },
+  { label: "Kegiatan Rumah Sakit", img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=70" },
+  { label: "Tim Dokter Kami", img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=70" },
+  { label: "Promo Terkini", img: "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=600&q=70" },
+  { label: "Testimoni Pasien", img: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=600&q=70" },
 ];
 
 function HomePage() {
@@ -213,22 +215,51 @@ function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONI */}
-      <section id="testimoni" className="py-20 px-6 bg-gradient-to-br from-primary to-primary-dark text-primary-foreground">
+      {/* INSTAGRAM */}
+      <section id="instagram" className="py-20 px-6 bg-gradient-to-br from-primary to-primary-dark text-primary-foreground">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center">APA KATA MEREKA?</h2>
-          <p className="mt-2 text-center text-gold font-script text-2xl">Testimoni Pasien</p>
-          <div className="mt-12 grid md:grid-cols-2 gap-6">
-            {TESTI.map((t, i) => (
-              <div key={i} className="rounded-2xl bg-white/10 backdrop-blur p-6 border border-white/15">
-                <div className="text-gold text-4xl leading-none font-serif">"</div>
-                <p className="mt-2 text-sm leading-relaxed italic opacity-95">{t.quote}</p>
-                <div className="mt-4 pt-4 border-t border-white/15">
-                  <div className="font-semibold">{t.name}</div>
-                  <div className="text-xs opacity-80">{t.role}</div>
+          <div className="flex items-center justify-center gap-3">
+            <Instagram className="h-8 w-8 text-gold" />
+            <h2 className="text-2xl md:text-3xl font-bold text-center">IKUTI KAMI DI INSTAGRAM</h2>
+          </div>
+          <p className="mt-2 text-center text-gold font-script text-2xl">@rsu_aisyiyah</p>
+          <p className="mt-3 text-center text-sm opacity-85 max-w-xl mx-auto">
+            Update terbaru seputar layanan, edukasi kesehatan, dan kegiatan RSU Aisyiyah Purworejo langsung dari akun resmi kami.
+          </p>
+
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
+            {IG_HIGHLIGHTS.map((p) => (
+              <a
+                key={p.label}
+                href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl"
+                target="_blank"
+                rel="noreferrer"
+                className="group relative aspect-square overflow-hidden rounded-xl border border-white/15 bg-white/5"
+              >
+                <img
+                  src={p.img}
+                  alt={p.label}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/20 to-transparent" />
+                <div className="absolute inset-0 p-3 flex flex-col justify-between">
+                  <Instagram className="h-5 w-5 text-white/90 opacity-0 group-hover:opacity-100 transition-opacity self-end" />
+                  <div className="text-xs md:text-sm font-semibold">{p.label}</div>
                 </div>
-              </div>
+              </a>
             ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <a
+              href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] font-bold text-white shadow-lg hover:scale-105 transition-transform"
+            >
+              <Instagram className="h-5 w-5" /> Kunjungi Instagram Kami
+            </a>
           </div>
         </div>
       </section>
