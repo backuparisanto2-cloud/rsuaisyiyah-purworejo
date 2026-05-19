@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, 
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import ChatbotArini from "@/components/ChatbotArini";
+import HeroVideo from "@/components/HeroVideo";
 
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import PendaftaranModal from "@/components/PendaftaranModal";
@@ -79,19 +80,8 @@ function HomePage() {
 
       {/* HERO */}
       <section id="beranda" className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/video/hero-poli-poster.jpg"
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/video/hero-poli.webm" type="video/webm" />
-          <source src="/video/hero-poli.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-primary/60" />
+        <HeroVideo />
+        <div className="absolute inset-0 bg-primary-dark/60" />
 
         <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
           <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
