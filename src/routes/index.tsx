@@ -57,15 +57,6 @@ const CLINICS = [
   { name: "Laboratorium", icon: Microscope },
 ];
 
-const IG_HIGHLIGHTS = [
-  { label: "Layanan Unggulan", img: "https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?auto=format&fit=crop&w=600&q=70" },
-  { label: "Edukasi Kesehatan", img: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?auto=format&fit=crop&w=600&q=70" },
-  { label: "Kegiatan Rumah Sakit", img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=70" },
-  { label: "Tim Dokter Kami", img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=70" },
-  { label: "Promo Terkini", img: "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=600&q=70" },
-  { label: "Testimoni Pasien", img: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=600&q=70" },
-];
-
 function HomePage() {
   const [search, setSearch] = useState("");
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
@@ -227,33 +218,22 @@ function HomePage() {
             Update terbaru seputar layanan, edukasi kesehatan, dan kegiatan RSU Aisyiyah Purworejo langsung dari akun resmi kami.
           </p>
 
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-            {IG_HIGHLIGHTS.map((p) => (
-              <a
-                key={p.label}
-                href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl"
-                target="_blank"
-                rel="noreferrer"
-                className="group relative aspect-square overflow-hidden rounded-xl border border-white/15 bg-white/5"
-              >
-                <img
-                  src={p.img}
-                  alt={p.label}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/20 to-transparent" />
-                <div className="absolute inset-0 p-3 flex flex-col justify-between">
-                  <Instagram className="h-5 w-5 text-white/90 opacity-0 group-hover:opacity-100 transition-opacity self-end" />
-                  <div className="text-xs md:text-sm font-semibold">{p.label}</div>
-                </div>
-              </a>
-            ))}
+          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto max-w-3xl">
+            <iframe
+              title="Instagram @rsu_aisyiyah"
+              src="https://www.instagram.com/rsu_aisyiyah/embed"
+              className="w-full h-[720px] md:h-[820px] bg-white"
+              loading="lazy"
+              scrolling="no"
+              frameBorder={0}
+              allow="encrypted-media"
+              allowFullScreen
+            />
           </div>
 
           <div className="mt-10 text-center">
             <a
-              href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl"
+              href="https://www.instagram.com/rsu_aisyiyah?igsh=MWVqZDVtODdreXVqbg=="
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] font-bold text-white shadow-lg hover:scale-105 transition-transform"
