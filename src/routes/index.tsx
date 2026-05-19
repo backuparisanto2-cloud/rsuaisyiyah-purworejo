@@ -78,13 +78,20 @@ function HomePage() {
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO */}
-      <section id="beranda" className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden bg-primary">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(0.4_0.15_260),oklch(0.18_0.1_260))]" />
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=1920&q=60')",
-          backgroundSize: "cover", backgroundPosition: "center", filter: "blur(2px)"
-        }} />
-        <div className="absolute inset-0 bg-primary/70" />
+      <section id="beranda" className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/video/hero-poli-poster.jpg"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/video/hero-poli.webm" type="video/webm" />
+          <source src="/video/hero-poli.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-primary/60" />
 
         <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
           <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
