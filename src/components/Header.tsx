@@ -17,12 +17,12 @@ export default function Header() {
   return (
     <header className="fixed top-0 inset-x-0 z-30 bg-primary text-primary-foreground shadow-md">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 h-20 flex items-center gap-4">
-        <a href="#beranda" className="flex items-center gap-3 shrink-0">
-          <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-14 w-14 object-contain" />
-          <div className="leading-tight text-white shine-text">
-            <div className="text-[10px] font-semibold tracking-widest opacity-80">RSU</div>
-            <div className="font-bold text-sm">AISYIYAH</div>
-            <div className="text-xs opacity-90">PURWOREJO</div>
+        <a href="#beranda" className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
+          <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-10 w-10 sm:h-14 sm:w-14 object-contain shrink-0" />
+          <div className="leading-tight text-white shine-text min-w-0">
+            <div className="text-[9px] sm:text-[10px] font-semibold tracking-[0.15em] sm:tracking-widest opacity-80">RSU</div>
+            <div className="font-bold text-[11px] sm:text-sm tracking-tight sm:tracking-normal">AISYIYAH</div>
+            <div className="text-[10px] sm:text-xs opacity-90 tracking-tight sm:tracking-normal">PURWOREJO</div>
           </div>
         </a>
 
