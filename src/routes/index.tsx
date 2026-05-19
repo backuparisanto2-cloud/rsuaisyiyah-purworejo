@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
+import JadwalDokter from "@/components/JadwalDokter";
 import ChatbotArini from "@/components/ChatbotArini";
 import HeroVideo from "@/components/HeroVideo";
 
@@ -206,6 +207,8 @@ function HomePage() {
         </div>
       </section>
 
+      <JadwalDokter />
+
       {/* INSTAGRAM */}
       <section id="instagram" className="py-20 px-6 bg-gradient-to-br from-primary to-primary-dark text-primary-foreground">
         <div className="max-w-6xl mx-auto">
@@ -222,7 +225,7 @@ function HomePage() {
             <iframe
               title="Instagram @rsu_aisyiyah"
               src="https://www.instagram.com/rsu_aisyiyah/embed"
-              className="w-full h-[720px] md:h-[820px] bg-white"
+              className="w-full h-[900px] md:h-[1100px] bg-white"
               loading="lazy"
               scrolling="no"
               frameBorder={0}
