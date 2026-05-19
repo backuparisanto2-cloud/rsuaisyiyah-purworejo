@@ -1,41 +1,35 @@
 ## Tujuan
-Mengganti background hero di halaman utama dengan video baru bertema suasana poliklinik RSU Aisyiyah Purworejo, dilapisi overlay biru (primary) opacity 60%, serta dioptimalkan agar halaman tetap cepat.
+- Hero video di-lazy load (mulai unduh & putar hanya saat hero terlihat di viewport).
+- Regenerate video agar talent (pasien/dokter/perawat) eksplisit orang Indonesia berhijab.
+- Overlay biru tua opacity 60% di atas video.
+- Perkecil tombol floating WhatsApp & Instagram.
+- Wajah Arini di tengah lingkaran (object-position dirapikan).
+- Tombol Aksesibilitas dipindah ke kanan bawah, sejajar (vertikal) dengan tombol chatbot Arini.
 
 ## Langkah
 
-1. **Generate video hero**
-   - Tool: `videogen--generate_video`
-   - Prompt: suasana poliklinik rumah sakit modern Indonesia — pasien antre dengan tenang di lobi poli, perawat berjilbab ramah melayani di meja registrasi, dokter berjas putih berjalan di koridor terang, kursi tunggu rapi, pencahayaan natural hangat, gerakan kamera lambat (slow dolly), sinematik, profesional, bersih.
-   - Resolusi `1080p`, aspect ratio `16:9`, durasi `10` detik, `camera_fixed: false`.
-   - Simpan ke `src/assets/hero-poli.mp4`.
+1. **Regenerate video hero** (`videogen--generate_video`, 1080p 16:9, 10 detik)
+   - Prompt: "Indonesian outpatient hospital clinic — Indonesian female patients wearing hijab and Indonesian male patients waiting calmly on neat rows of chairs, Indonesian female nurses wearing white hijab and uniform serving warmly at registration desk, Indonesian doctor in white coat walking through bright corridor, warm natural lighting, slow cinematic dolly camera, professional, clean, modern hospital."
+   - Simpan `src/assets/hero-poli-raw2.mp4`, lalu transcode via ffmpeg → `public/video/hero-poli.mp4` (H.264 CRF 28 720p, faststart, no audio), `public/video/hero-poli.webm` (VP9), dan `public/video/hero-poli-poster.jpg`. Timpa file lama.
 
-2. **Optimasi ukuran & format**
-   - Setelah video dihasilkan, jalankan `ffmpeg` untuk transcoding 2 varian:
-     - `hero-poli.mp4` → H.264, CRF 28, preset slow, `-movflags +faststart`, audio dihapus (`-an`), scale 1280x720 (cukup untuk background blur+overlay), `-pix_fmt yuv420p`.
-     - `hero-poli.webm` → VP9, CRF 34, `-an`, 1280x720 (fallback modern lebih ringan).
-   - Target ukuran < 1.5 MB tiap file.
+2. **Lazy load hero video** (`src/routes/index.tsx`)
+   - Buat komponen kecil `LazyHeroVideo`: pakai `IntersectionObserver` pada `<section id="beranda">`. Saat `isIntersecting`, baru render `<video>` dengan `<source>`. Sebelum itu hanya tampil `poster` image sebagai `<img>` background (LCP cepat).
+   - `preload="none"` (bukan `metadata`) karena sudah di-gate observer.
+   - Pastikan tetap `muted autoPlay loop playsInline`.
+   - Hapus preload link jika ada (tidak perlu lagi karena lazy).
 
-3. **Update Hero di `src/routes/index.tsx`**
-   - Ganti `div` background image dengan elemen `<video>`:
-     ```
-     <video autoPlay muted loop playsInline preload="metadata"
-            poster={posterImg}
-            className="absolute inset-0 w-full h-full object-cover">
-       <source src={heroWebm} type="video/webm" />
-       <source src={heroMp4} type="video/mp4" />
-     </video>
-     ```
-   - Pertahankan overlay biru: `<div className="absolute inset-0 bg-primary/60" />` (ganti dari `/70` menjadi `/60` sesuai permintaan).
-   - Hapus radial gradient dan image Unsplash lama agar video terlihat jelas.
-   - Tambahkan `poster` (frame pertama, di-extract via ffmpeg ke `hero-poli-poster.jpg`) untuk LCP cepat sebelum video dimainkan.
+3. **Overlay biru tua 60%** — Ganti `bg-primary/60` menjadi `bg-primary-dark/60` agar warnanya biru tua lebih pekat.
 
-4. **Optimasi performa**
-   - `preload="metadata"` agar tidak unduh penuh saat first paint.
-   - `poster` image (~50KB JPG) jadi LCP candidate, di-preload via `head().links` route index: `{ rel: "preload", as: "image", href: posterUrl, fetchpriority: "high" }`.
-   - `muted` + `playsInline` + `autoPlay` agar berjalan di mobile tanpa user interaction.
-   - Video tanpa audio track → ukuran lebih kecil & menghindari kebijakan autoplay.
-   - Lapisan overlay biru tetap di atas video, konten hero (logo, judul, tombol) di `z-10`.
+4. **Perkecil tombol sosial** (`src/components/SideSocial.tsx`)
+   - Ubah ukuran dari `h-14 w-14` → `h-10 w-10`, icon `h-7 w-7` → `h-5 w-5`, `rounded-2xl` → `rounded-xl`, gap → `gap-2`, ring tetap.
+
+5. **Wajah Arini di tengah** (`src/components/ChatbotArini.tsx`)
+   - Pada tombol floating: tetap `rounded-full overflow-hidden`, ubah `object-center` menjadi `object-top` (wajah biasanya di atas frame); tambah `scale-110` halus jika perlu agar wajah pas. Sama untuk header chat panel.
+
+6. **Tombol aksesibilitas sejajar chatbot** (`src/components/AccessibilityWidget.tsx`)
+   - Pindahkan dari `left-4 bottom-24` ke kanan: `right-6 bottom-28` agar berada tepat di atas tombol Arini (yang ada di `bottom-6 right-6`), membentuk kolom vertikal sejajar di kanan bawah.
+   - Panel pop-up juga dipindah ke `right-6 bottom-44`.
 
 ## Catatan teknis
-- Video di-generate AI; suasana mendekati poli rumah sakit Indonesia tapi bukan rekaman asli RSU Aisyiyah Purworejo. Bila perlu otentik, user dapat menyediakan rekaman asli untuk menggantikan file `hero-poli.mp4`.
-- Aset video ada di `src/assets/` agar di-hash & di-cache oleh Vite build.
+- Video lama akan ditimpa, sehingga ukuran tetap kecil.
+- IntersectionObserver dengan `rootMargin: "200px"` agar video mulai load sedikit sebelum hero benar-benar terlihat (mencegah flash poster saat scroll cepat). Karena hero ada di paling atas, efektif video baru load setelah user benar-benar di halaman (saat halaman dibuka pertama, hero pasti terlihat sehingga akan load — namun ini terjadi setelah render awal, bukan saat parsing HTML; jadi LCP tetap poster image yang ringan).
