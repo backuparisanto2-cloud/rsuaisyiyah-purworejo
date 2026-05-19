@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import ChatbotArini from "@/components/ChatbotArini";
