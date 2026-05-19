@@ -218,33 +218,22 @@ function HomePage() {
             Update terbaru seputar layanan, edukasi kesehatan, dan kegiatan RSU Aisyiyah Purworejo langsung dari akun resmi kami.
           </p>
 
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-            {IG_HIGHLIGHTS.map((p) => (
-              <a
-                key={p.label}
-                href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl"
-                target="_blank"
-                rel="noreferrer"
-                className="group relative aspect-square overflow-hidden rounded-xl border border-white/15 bg-white/5"
-              >
-                <img
-                  src={p.img}
-                  alt={p.label}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary-dark/20 to-transparent" />
-                <div className="absolute inset-0 p-3 flex flex-col justify-between">
-                  <Instagram className="h-5 w-5 text-white/90 opacity-0 group-hover:opacity-100 transition-opacity self-end" />
-                  <div className="text-xs md:text-sm font-semibold">{p.label}</div>
-                </div>
-              </a>
-            ))}
+          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto max-w-3xl">
+            <iframe
+              title="Instagram @rsu_aisyiyah"
+              src="https://www.instagram.com/rsu_aisyiyah/embed"
+              className="w-full h-[720px] md:h-[820px] bg-white"
+              loading="lazy"
+              scrolling="no"
+              frameBorder={0}
+              allow="encrypted-media"
+              allowFullScreen
+            />
           </div>
 
           <div className="mt-10 text-center">
             <a
-              href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl"
+              href="https://www.instagram.com/rsu_aisyiyah?igsh=MWVqZDVtODdreXVqbg=="
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] font-bold text-white shadow-lg hover:scale-105 transition-transform"
