@@ -73,7 +73,7 @@ function HomePage() {
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO */}
-      <section id="beranda" className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
+      <section id="beranda" className="relative pt-24 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <HeroVideo />
         <div className="absolute inset-0 bg-primary-dark/60" />
 
