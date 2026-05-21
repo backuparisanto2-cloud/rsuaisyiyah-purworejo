@@ -75,7 +75,7 @@ function HomePage() {
       {/* HERO */}
       <section id="beranda" className="relative pt-24 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <HeroVideo />
-        <div className="absolute inset-0 bg-primary-dark/60" />
+        <div className="absolute inset-0 bg-primary-dark/75" />
 
         <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
           <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
@@ -221,16 +221,9 @@ function HomePage() {
             Update terbaru seputar layanan, edukasi kesehatan, dan kegiatan RSU Aisyiyah Purworejo langsung dari akun resmi kami.
           </p>
 
-          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full max-w-2xl">
-            <iframe
-              title="Instagram @rsu_aisyiyah"
-              src="https://www.instagram.com/rsu_aisyiyah/embed"
-              className="block w-full h-[760px] sm:h-[820px] md:h-[880px] bg-white"
-              loading="lazy"
-              frameBorder={0}
-              allow="encrypted-media"
-              allowFullScreen
-            />
+          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full max-w-5xl">
+            <script src="https://elfsightcdn.com/platform.js" async />
+            <div className="elfsight-app-feb3351d-45de-424a-a93b-4e602e938274" data-elfsight-app-lazy />
           </div>
 
 
