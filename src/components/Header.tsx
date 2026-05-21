@@ -16,11 +16,12 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 inset-x-0 z-30 bg-primary text-primary-foreground shadow-md">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 h-20 flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 h-24 flex items-center gap-4">
         <a href="#beranda" className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
-          <span className="shrink-0 inline-flex items-center justify-center rounded-full bg-white/5 p-0.5 ring-[3px] ring-gold shadow-[0_0_18px_rgba(234,179,8,0.55)]">
-            <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-14 w-14 sm:h-[72px] sm:w-[72px] object-contain rounded-full" />
+          <span className="shrink-0 inline-flex items-center justify-center rounded-full ring-[3px] ring-gold shadow-[0_0_18px_rgba(234,179,8,0.55)]">
+            <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-20 sm:w-20 object-contain rounded-full" />
           </span>
+
           <div className="leading-[1.15] sm:leading-tight text-white shine-text min-w-0 max-w-[190px] sm:max-w-none whitespace-nowrap">
             <div className="text-[10px] sm:text-xs font-semibold tracking-[0.14em] sm:tracking-widest opacity-80">RSU</div>
             <div className="font-bold text-[14px] sm:text-lg tracking-tight sm:tracking-normal">AISYIYAH</div>
