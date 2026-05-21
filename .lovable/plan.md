@@ -1,32 +1,36 @@
-## Rencana Perubahan
+## 1. Logo navbar — diperbesar & hilangkan background hitam
 
-### 1. Logo navbar — proporsional, lebih besar, ring kuning bercahaya
 File: `src/components/Header.tsx`
-- Ukuran logo: `h-14 w-14` di mobile, `h-[72px] w-[72px]` di desktop (≥sm).
-- Bungkus `<img>` dengan `<span>` bundar: `rounded-full ring-[3px] ring-gold` + box-shadow lembut warna gold (`shadow-[0_0_18px_rgba(234,179,8,0.55)]`) agar terlihat bercahaya.
-- Padding tipis (`p-0.5`) di pembungkus supaya ring tidak menempel ke ikon logo, dan logo tetap proporsional bulat (object-contain, background transparan).
-- Tinggi navbar disesuaikan agar logo tidak terpotong (`h-20` tetap, padding internal cukup).
 
-### 2. Embed Instagram — tinggi diperbesar
+- Hapus `bg-white/5` di pembungkus logo (sumber "background hitam" yang terlihat — sebenarnya transparan tapi berada di atas navbar gelap, jadi tampak hitam).
+- Hilangkan juga `p-0.5` agar logo mengisi penuh ring (tidak ada cincin gelap di dalam outline kuning).
+- Perbesar ukuran logo:
+  - Mobile: `h-16 w-16` (sebelumnya 14)
+  - Desktop: `h-20 w-20` (sebelumnya 72px)
+- Tinggi navbar dinaikkan: `h-20` → `h-24` agar logo besar tidak terpotong.
+- Ring kuning + glow tetap dipertahankan (`ring-[3px] ring-gold` + `shadow-[0_0_18px_rgba(234,179,8,0.55)]`).
+
+## 2. Embed Instagram — ukuran tepat & alternatif tampilan
+
+**Masalah sebenarnya:** iframe resmi `instagram.com/{user}/embed` **dibatasi Instagram hanya menampilkan ±6 post terakhir + header profil**. Memperbesar `height` iframe **tidak** menambah post — hanya menghasilkan area putih kosong di bawahnya (itu yang Anda lihat). Tidak ada parameter resmi untuk menambah jumlah post.
+
 File: `src/routes/index.tsx` (section `#instagram`)
-- Tinggi iframe naik: `h-[900px] md:h-[1100px]` (sebelumnya 720/820) agar 4–5 post terlihat tanpa scroll dalam iframe.
-- Lebar tetap `max-w-3xl` sesuai konteks section.
 
-### 3. Section baru: Tabel Jadwal Dokter & Poli
-File baru: `src/components/JadwalDokter.tsx`, dipakai di `src/routes/index.tsx` (disisipkan sebelum section Instagram).
-- Heading: "JADWAL DOKTER & POLIKLINIK".
-- Filter sederhana di atas tabel: dropdown Poli + input cari nama dokter (client-side filter, tanpa backend).
-- Tabel responsif (overflow-x-auto di mobile, grid card di breakpoint sangat kecil) dengan kolom:
-  - Poli, Dokter, Hari, Jam, Catatan.
-- Data dummy ±15 baris (Anda ganti manual nanti) — contoh: Poli Anak / dr. Andi Wibowo, SpA / Senin–Jumat / 09.00–12.00.
-- Styling konsisten dengan token: `bg-card`, border, header tabel `bg-primary text-primary-foreground`, baris hover `hover:bg-accent/30`.
-- Catatan kecil "Jadwal dapat berubah sewaktu-waktu" di bawah tabel.
+**Perbaikan langsung (default, gratis, tanpa dependency):**
+- Turunkan tinggi iframe ke ukuran yang pas dengan konten aslinya: `h-[760px] sm:h-[820px] md:h-[880px]` — supaya 6 post tampil utuh **tanpa ruang putih kosong** dan enak di-scroll di semua ukuran layar.
+- Lebar dibatasi `max-w-2xl mx-auto` agar embed tidak terlalu lebar di desktop (embed Instagram dirancang untuk lebar ±540px, melar membuat layout pecah).
+- Tambah tombol "Buka di Instagram" yang sudah ada (sudah oke).
 
-### 4. Penyesuaian kecil
-- Pastikan tidak mengubah elemen lain (hero video, animasi shine, section lain) selain yang disebut di atas.
-- Tidak ada perubahan dependency / routing / backend.
+**Alternatif tampilan embed (saya rekomendasikan pilih salah satu — jawab di chat berikutnya kalau mau saya implementasi):**
 
-### Detail teknis singkat
-- Tidak ada API call ke Instagram (sesuai pilihan Anda).
-- Semua data dokter berupa array konstanta dalam komponen, mudah diedit.
-- Filter pakai `useState` + `Array.filter`.
+| Opsi | Jumlah post | Biaya | Catatan |
+|---|---|---|---|
+| **A. Iframe resmi (sekarang)** | 6 post | Gratis | Paling simple. Saya rapikan tingginya. |
+| **B. Grid manual 6–12 post** | Manual | Gratis | Saya buat grid 3×3/3×4 berisi link ke post Instagram pilihan Anda. Anda kirim URL post-nya, saya pasang sebagai card dengan gambar + caption pendek. Tampilan paling rapi & cepat dimuat. |
+| **C. SnapWidget / LightWidget / Elfsight** | 9–24 post otomatis | Gratis (tier dasar) / berbayar | Auto sync dari Instagram. Perlu daftar akun di pihak ketiga, lalu paste 1 script. Saya bisa pasang setelah Anda kasih embed code-nya. |
+| **D. Instagram Graph API + Lovable Cloud** | Tanpa batas, auto sync | Gratis (perlu app Meta) | Paling powerful tapi butuh setup Meta Developer App + token. Effort paling besar. |
+
+**Rencana sekarang:** kerjakan **Opsi A** (rapikan tinggi iframe) supaya tampilan langsung enak. Untuk opsi B/C/D, saya tunggu konfirmasi Anda.
+
+## 3. Tidak ada perubahan lain
+Section lain (hero, jadwal dokter, modal, WhatsApp button) tidak disentuh.

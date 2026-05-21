@@ -73,7 +73,7 @@ function HomePage() {
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO */}
-      <section id="beranda" className="relative pt-20 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
+      <section id="beranda" className="relative pt-24 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <HeroVideo />
         <div className="absolute inset-0 bg-primary-dark/60" />
 
@@ -221,17 +221,18 @@ function HomePage() {
             Update terbaru seputar layanan, edukasi kesehatan, dan kegiatan RSU Aisyiyah Purworejo langsung dari akun resmi kami.
           </p>
 
-          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full">
+          <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full max-w-2xl">
             <iframe
               title="Instagram @rsu_aisyiyah"
               src="https://www.instagram.com/rsu_aisyiyah/embed"
-              className="block w-full h-[1100px] md:h-[1300px] bg-white"
+              className="block w-full h-[760px] sm:h-[820px] md:h-[880px] bg-white"
               loading="lazy"
               frameBorder={0}
               allow="encrypted-media"
               allowFullScreen
             />
           </div>
+
 
           <div className="mt-10 text-center">
             <a
