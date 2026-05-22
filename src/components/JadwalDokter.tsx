@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { CalendarDays, MessageCircle, X, User } from "lucide-react";
+import { CalendarDays, MessageCircle, X } from "lucide-react";
+import dokter1 from "@/assets/dokter/dokter-1.jpg";
+import dokter2 from "@/assets/dokter/dokter-2.jpg";
+import dokter3 from "@/assets/dokter/dokter-3.jpg";
+import dokter4 from "@/assets/dokter/dokter-4.jpg";
+import dokter5 from "@/assets/dokter/dokter-5.jpg";
+import dokter6 from "@/assets/dokter/dokter-6.jpg";
+import dokter7 from "@/assets/dokter/dokter-7.jpg";
+import dokter8 from "@/assets/dokter/dokter-8.jpg";
+import dokter9 from "@/assets/dokter/dokter-9.jpg";
+import dokter10 from "@/assets/dokter/dokter-10.jpg";
 
 type Schedule = { hari: string; jam: string };
 type Dokter = {
@@ -8,48 +18,49 @@ type Dokter = {
   jadwal: Schedule[];
   isNew?: boolean;
   catatan?: string;
+  foto: string;
 };
 
 const WA_NUMBER = "6281333334192";
 
 const DOKTERS: Dokter[] = [
-  { spesialis: "SPESIALIS ANAK", nama: "dr. Sulistyo Suharto, M.Si.,Med.,Sp.A", jadwal: [{ hari: "Senin s.d Sabtu", jam: "10.00 – 13.00 WIB" }] },
-  { spesialis: "SPESIALIS SARAF", nama: "dr. Lestari Handayani, Sp.N", jadwal: [
+  { spesialis: "SPESIALIS ANAK", nama: "dr. Sulistyo Suharto, M.Si.,Med.,Sp.A", foto: dokter1, jadwal: [{ hari: "Senin s.d Sabtu", jam: "10.00 – 13.00 WIB" }] },
+  { spesialis: "SPESIALIS SARAF", nama: "dr. Lestari Handayani, Sp.N", foto: dokter2, jadwal: [
     { hari: "Selasa, Rabu", jam: "14.00 – 16.00" },
     { hari: "Kamis", jam: "12.30 – 14.00" },
     { hari: "Jumat", jam: "13.00 – 15.00" },
   ]},
-  { spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Padmi Bektilestari, Sp.PD", jadwal: [
+  { spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Padmi Bektilestari, Sp.PD", foto: dokter3, jadwal: [
     { hari: "Senin, Rabu, Jumat", jam: "07.30 – 09.30" },
     { hari: "Selasa, Kamis, Sabtu", jam: "10.00 – 12.00" },
     { hari: "Selasa, Rabu, Jumat", jam: "15.00 – 17.00" },
   ]},
-  { spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Yudha Irla Saputra, Sp.PD, M.M.R", isNew: true, jadwal: [
+  { spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Yudha Irla Saputra, Sp.PD, M.M.R", foto: dokter4, isNew: true, jadwal: [
     { hari: "Senin", jam: "13.00 – 15.00" },
     { hari: "Rabu", jam: "13.00 – 15.00" },
     { hari: "Jumat", jam: "13.00 – 15.00" },
   ]},
-  { spesialis: "SPESIALIS KANDUNGAN", nama: "dr. Albert Novriadi, Sp.OG", jadwal: [
+  { spesialis: "SPESIALIS KANDUNGAN", nama: "dr. Albert Novriadi, Sp.OG", foto: dokter5, jadwal: [
     { hari: "Senin", jam: "12.00 – 14.00" },
     { hari: "Selasa, Rabu", jam: "16.00 – 18.00" },
     { hari: "Sabtu", jam: "12.00 – 14.00" },
   ]},
-  { spesialis: "POLI GIGI", nama: "drg. Idha Widiastuti, SE, MM", jadwal: [
+  { spesialis: "POLI GIGI", nama: "drg. Idha Widiastuti, SE, MM", foto: dokter6, jadwal: [
     { hari: "Senin s.d Sabtu", jam: "10.00 – 12.00" },
     { hari: "Senin s.d Sabtu", jam: "16.00 – 18.00" },
   ]},
-  { spesialis: "SPESIALIS BEDAH", nama: "dr. Proginova Dian Yudatama, Sp.B", jadwal: [
+  { spesialis: "SPESIALIS BEDAH", nama: "dr. Proginova Dian Yudatama, Sp.B", foto: dokter7, jadwal: [
     { hari: "Senin", jam: "13.00 – 15.00" },
     { hari: "Rabu", jam: "13.00 – 15.00" },
     { hari: "Jumat", jam: "13.30 – 15.00" },
   ]},
-  { spesialis: "SPESIALIS RADIOLOGI", nama: "dr. Muhammad Fandi G, Sp.Rad., M.Med.Sc", jadwal: [
+  { spesialis: "SPESIALIS RADIOLOGI", nama: "dr. Muhammad Fandi G, Sp.Rad., M.Med.Sc", foto: dokter8, jadwal: [
     { hari: "Selasa, Rabu, Jumat", jam: "14.00 – 17.00 WIB" },
   ]},
-  { spesialis: "SPESIALIS JANTUNG & PEMBULUH DARAH", nama: "dr. Arif Setyo Hutomo, Sp.JP", jadwal: [
+  { spesialis: "SPESIALIS JANTUNG & PEMBULUH DARAH", nama: "dr. Arif Setyo Hutomo, Sp.JP", foto: dokter9, jadwal: [
     { hari: "Senin, Kamis, Sabtu", jam: "09.00 – 13.00 WIB" },
   ]},
-  { spesialis: "PATOLOGI KLINIK", nama: "dr. Dianing Pratiwi, M.Med.Sc.PK", jadwal: [
+  { spesialis: "PATOLOGI KLINIK", nama: "dr. Dianing Pratiwi, M.Med.Sc.PK", foto: dokter10, jadwal: [
     { hari: "Senin, Rabu, Jumat", jam: "17.00 – 19.00 WIB" },
   ]},
 ];
@@ -118,9 +129,12 @@ export default function JadwalDokter() {
 
               {/* Body */}
               <div className="p-4 flex gap-4 items-start">
-                <div className="shrink-0 h-20 w-20 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 flex items-center justify-center text-primary">
-                  <User className="h-9 w-9" />
-                </div>
+                <img
+                  src={d.foto}
+                  alt={d.nama}
+                  loading="lazy"
+                  className="shrink-0 h-20 w-20 rounded-xl object-cover object-top border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-semibold text-primary mb-1.5">
                     Jadwal Poliklinik Spesialis:

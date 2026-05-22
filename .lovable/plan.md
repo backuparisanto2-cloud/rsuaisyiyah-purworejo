@@ -1,36 +1,42 @@
-## 1. Logo navbar — diperbesar & hilangkan background hitam
+# Tambahkan Foto Dokter ke Kartu Jadwal Poliklinik
 
-File: `src/components/Header.tsx`
+## Tujuan
+Mengganti placeholder ikon `User` pada setiap kartu dokter di section **JADWAL POLIKLINIK RAWAT JALAN** dengan foto dokter masing-masing. Foto akan di-enhance agar:
+- Warna/tone seragam (background hijau muda lembut yang selaras dengan tema kartu)
+- Subjek dokter di-crop rapi (head & shoulders / portrait bersih)
+- Background asli yang berbeda-beda dihilangkan agar konsisten
 
-- Hapus `bg-white/5` di pembungkus logo (sumber "background hitam" yang terlihat — sebenarnya transparan tapi berada di atas navbar gelap, jadi tampak hitam).
-- Hilangkan juga `p-0.5` agar logo mengisi penuh ring (tidak ada cincin gelap di dalam outline kuning).
-- Perbesar ukuran logo:
-  - Mobile: `h-16 w-16` (sebelumnya 14)
-  - Desktop: `h-20 w-20` (sebelumnya 72px)
-- Tinggi navbar dinaikkan: `h-20` → `h-24` agar logo besar tidak terpotong.
-- Ring kuning + glow tetap dipertahankan (`ring-[3px] ring-gold` + `shadow-[0_0_18px_rgba(234,179,8,0.55)]`).
+## Pemetaan Foto → Dokter
+| # | Dokter | File upload |
+|---|---|---|
+| 1 | dr. Sulistyo Suharto, M.Si.,Med.,Sp.A | image-4.png |
+| 2 | dr. Lestari Handayani, Sp.N | image-5.png |
+| 3 | dr. Padmi Bektilestari, Sp.PD | image-6.png |
+| 4 | dr. Yudha Irla Saputra, Sp.PD, M.M.R | image-7.png |
+| 5 | dr. Albert Novriadi, Sp.OG | image-8.png |
+| 6 | drg. Idha Widiastuti, SE, MM | image-9.png |
+| 7 | dr. Proginova Dian Yudatama, Sp.B | image-10.png |
+| 8 | dr. Muhammad Fandi G, Sp.Rad., M.Med.Sc | image-11.png |
+| 9 | dr. Arif Setyo Hutomo, Sp.JP | image-12.png |
+| 10 | dr. Dianing Pratiwi, M.Med.Sc.PK | image-13.png |
 
-## 2. Embed Instagram — ukuran tepat & alternatif tampilan
+## Langkah Implementasi
 
-**Masalah sebenarnya:** iframe resmi `instagram.com/{user}/embed` **dibatasi Instagram hanya menampilkan ±6 post terakhir + header profil**. Memperbesar `height` iframe **tidak** menambah post — hanya menghasilkan area putih kosong di bawahnya (itu yang Anda lihat). Tidak ada parameter resmi untuk menambah jumlah post.
+1. **Proses tiap foto dengan AI image edit** (`imagegen--edit_image`)
+   - Crop ke portrait head & shoulders
+   - Ganti background asli dengan background hijau muda lembut yang konsisten (selaras `#3d6b3a` tema section), atau transparan + frame hijau di komponen
+   - Penyesuaian warna agar tone seragam
+   - Simpan ke `src/assets/dokter/dokter-1.png` … `dokter-10.png`
 
-File: `src/routes/index.tsx` (section `#instagram`)
+2. **Update `src/components/JadwalDokter.tsx`**
+   - Tambahkan import 10 foto dokter
+   - Tambah field `foto` pada tipe `Dokter` dan isi pada tiap entri
+   - Ganti blok ikon `User` (kotak 20x20 dengan ikon) menjadi `<img>` foto dokter — tetap ukuran `h-20 w-20`, `rounded-xl`, `object-cover`, border halus hijau, fallback bila gambar gagal
 
-**Perbaikan langsung (default, gratis, tanpa dependency):**
-- Turunkan tinggi iframe ke ukuran yang pas dengan konten aslinya: `h-[760px] sm:h-[820px] md:h-[880px]` — supaya 6 post tampil utuh **tanpa ruang putih kosong** dan enak di-scroll di semua ukuran layar.
-- Lebar dibatasi `max-w-2xl mx-auto` agar embed tidak terlalu lebar di desktop (embed Instagram dirancang untuk lebar ±540px, melar membuat layout pecah).
-- Tambah tombol "Buka di Instagram" yang sudah ada (sudah oke).
+3. **QA visual**
+   - Cek preview: foto tampil rapi, tone seragam, tidak terdistorsi, layout kartu tetap balance
 
-**Alternatif tampilan embed (saya rekomendasikan pilih salah satu — jawab di chat berikutnya kalau mau saya implementasi):**
-
-| Opsi | Jumlah post | Biaya | Catatan |
-|---|---|---|---|
-| **A. Iframe resmi (sekarang)** | 6 post | Gratis | Paling simple. Saya rapikan tingginya. |
-| **B. Grid manual 6–12 post** | Manual | Gratis | Saya buat grid 3×3/3×4 berisi link ke post Instagram pilihan Anda. Anda kirim URL post-nya, saya pasang sebagai card dengan gambar + caption pendek. Tampilan paling rapi & cepat dimuat. |
-| **C. SnapWidget / LightWidget / Elfsight** | 9–24 post otomatis | Gratis (tier dasar) / berbayar | Auto sync dari Instagram. Perlu daftar akun di pihak ketiga, lalu paste 1 script. Saya bisa pasang setelah Anda kasih embed code-nya. |
-| **D. Instagram Graph API + Lovable Cloud** | Tanpa batas, auto sync | Gratis (perlu app Meta) | Paling powerful tapi butuh setup Meta Developer App + token. Effort paling besar. |
-
-**Rencana sekarang:** kerjakan **Opsi A** (rapikan tinggi iframe) supaya tampilan langsung enak. Untuk opsi B/C/D, saya tunggu konfirmasi Anda.
-
-## 3. Tidak ada perubahan lain
-Section lain (hero, jadwal dokter, modal, WhatsApp button) tidak disentuh.
+## Catatan Teknis
+- Tidak mengubah data jadwal, urutan kartu, atau styling kartu lain.
+- Tidak menyentuh logika WA / modal detail.
+- Ikon `User` dari `lucide-react` akan dihapus dari import jika sudah tidak dipakai.
