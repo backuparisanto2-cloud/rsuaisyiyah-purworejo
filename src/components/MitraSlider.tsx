@@ -38,16 +38,19 @@ function Marquee({ items, reverse = false }: { items: Mitra[]; reverse?: boolean
         {all.map((m, i) => (
           <div
             key={i}
-            className="flex items-center justify-center mx-6 md:mx-10 shrink-0"
+            className="flex flex-col items-center justify-center mx-3 md:mx-5 shrink-1 min-w-0"
           >
             <img
               src={m.src}
               alt={m.name}
               loading="lazy"
-              width={200}
-              height={120}
-              className="h-16 md:h-24 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+              width={240}
+              height={160}
+              className="h-20 md:h-32 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
             />
+            <p className="mt-2 text-[10px] md:text-xs font-medium text-center text-muted-foreground whitespace-nowrap">
+              {m.name}
+            </p>
           </div>
         ))}
       </div>
