@@ -22,7 +22,7 @@ function Marquee({ items, reverse = false }: { items: Mitra[]; reverse?: boolean
 }
 
 export default function MitraSlider() {
-  const [items, setItems] = useState<Mitra[]>(FALLBACK);
+  const [items, setItems] = useState<Mitra[]>([]);
 
   useEffect(() => {
     let alive = true;
