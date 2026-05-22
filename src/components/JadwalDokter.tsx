@@ -199,47 +199,65 @@ export default function JadwalDokter() {
       {/* MODAL DETAIL */}
       {detail && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in-0 duration-200"
           onClick={() => setDetail(null)}
         >
           <div
-            className="relative w-full max-w-lg rounded-2xl bg-card text-foreground shadow-2xl overflow-hidden"
+            className="relative w-full max-w-md rounded-2xl bg-card text-foreground shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in-0 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] p-5 pr-12 text-[#3d3000]">
-              <div className="text-xs font-bold tracking-widest uppercase">{detail.spesialis}</div>
-              <h3 className="mt-1 text-xl font-extrabold italic">{detail.nama}</h3>
-              <button
-                onClick={() => setDetail(null)}
-                aria-label="Tutup"
-                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-black/10"
-              >
-                <X className="h-5 w-5" />
-              </button>
+            <button
+              onClick={() => setDetail(null)}
+              aria-label="Tutup"
+              className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/80 hover:bg-white text-foreground shadow"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Header: foto besar */}
+            <div className="relative bg-gradient-to-br from-[#3d6b3a] via-[#4a7a44] to-[#3d6b3a] pt-7 pb-6 px-5 text-center">
+              {detail.isNew && (
+                <span className="absolute left-3 top-3 px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-extrabold tracking-widest shadow">
+                  NEW
+                </span>
+              )}
+              <img
+                src={detail.foto}
+                alt={detail.nama}
+                className="mx-auto h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover object-top border-4 border-gold shadow-xl bg-white"
+              />
+              <div className="mt-3 inline-block px-3 py-1 rounded-full bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-[11px] sm:text-xs font-extrabold tracking-widest uppercase text-[#5b4400] shadow">
+                {detail.spesialis}
+              </div>
+              <h3 className="mt-2 text-lg sm:text-xl font-extrabold italic text-white drop-shadow">
+                {detail.nama}
+              </h3>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4">
               <div>
-                <div className="text-sm font-semibold text-primary">Jadwal Praktik Lengkap</div>
-                <ul className="mt-2 space-y-2">
+                <div className="text-xs sm:text-sm font-semibold text-primary mb-2">
+                  Jadwal Praktik
+                </div>
+                <ul className="divide-y divide-border rounded-lg border bg-muted/30">
                   {detail.jadwal.map((j, i) => (
-                    <li key={i} className="rounded-lg border bg-muted/40 p-3 text-sm flex justify-between gap-3">
+                    <li key={i} className="px-3 py-2 text-[13px] sm:text-sm flex justify-between gap-3">
                       <span className="font-medium">{j.hari}</span>
-                      <span className="text-muted-foreground">{j.jam}</span>
+                      <span className="text-muted-foreground text-right">{j.jam}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="rounded-lg bg-accent/40 p-3 text-xs text-muted-foreground">
-                Datang minimal 15 menit sebelum jadwal. Jadwal dapat berubah sewaktu-waktu — mohon konfirmasi terlebih dahulu via WhatsApp CS.
-              </div>
+              <p className="text-[11px] sm:text-xs text-muted-foreground italic text-center">
+                Datang min. 15 menit sebelum jadwal. Konfirmasi via WhatsApp CS.
+              </p>
 
               <a
                 href={waLink(detail)}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-bold text-white shadow-lg hover:brightness-110 transition"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 font-bold text-white shadow-lg hover:brightness-110 transition text-sm sm:text-base"
               >
                 <MessageCircle className="h-5 w-5" />
                 Tanya jadwal via WhatsApp
