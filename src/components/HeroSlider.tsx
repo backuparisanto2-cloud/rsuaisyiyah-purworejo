@@ -21,7 +21,7 @@ export default function HeroSlider() {
           src={src}
           alt=""
           aria-hidden="true"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+          className={`absolute inset-0 w-full h-full object-contain md:object-cover object-center transition-opacity duration-1000 ${
             idx === i ? "opacity-100" : "opacity-0"
           }`}
         />
