@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import MitraSlider from "@/components/MitraSlider";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, CalendarCheck, Instagram } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronRight, CalendarCheck, Instagram, Stethoscope, Bed, Microscope, HeartPulse, Baby, Home, ClipboardCheck, ShieldCheck, Globe, Search } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import JadwalDokter from "@/components/JadwalDokter";
@@ -25,6 +25,64 @@ const FAQS = [
   { q: "Layanan unggulan apa saja yang tersedia?", a: "Paviliun Multazam, Bedah Anak, Uronefrologi, Stem Cell, Rawat Inap, IGD 24 Jam, dan berbagai poli spesialis." },
   { q: "Status akreditasi rumah sakit?", a: "Terakreditasi PARIPURNA dan tersertifikasi LARSI." },
   { q: "Bagaimana memberikan kritik & saran?", a: "Melalui WhatsApp CS 0896-4671-0859 atau email info@rspkukaranganyar.id." },
+];
+
+const LAYANAN = [
+  {
+    title: "Layanan Poli",
+    icon: Stethoscope,
+    content: "Pelayanan poliklinik spesialis dan subspesialis meliputi Poli Bedah, Poli Anak, Poli Kandungan, Poli Penyakit Dalam, Poli Mata, Poli THT, Poli Gigi, Poli Syaraf, Poli Kulit, Poli Jantung, Poli Paru, Poli Orthopedi, dan Poli Umum. Didukung dokter spesialis berpengalaman dengan jadwal teratur.",
+  },
+  {
+    title: "Layanan Rawat Inap",
+    icon: Bed,
+    content: "Fasilitas rawat inap dengan berbagai kelas: VVIP, VIP, Kelas I, II, dan III. Tersedia fasilitas modern, perawatan 24 jam, nutrisi terencana, serta kenyamanan seperti di rumah sendiri dengan nuansa islami.",
+  },
+  {
+    title: "Layanan Laboratorium",
+    icon: Microscope,
+    content: "Laboratorium klinik lengkap dengan pemeriksaan hematologi, kimia klinik, urinalisis, mikrobiologi, imunologi, serologi, pemeriksaan patologi anatomi, dan layanan pemeriksaan PCR. Hasil akurat dengan waktu proses yang efisien.",
+  },
+  {
+    title: "Layanan Gawat Darurat",
+    icon: HeartPulse,
+    content: "Unit Gawat Darurat (UGD/IGD) buka 24 jam dengan tenaga medis siaga, ruang resusitasi, ambulans dengan peralatan lengkap, dan sistem triage untuk penanganan kasus emergensi secara cepat dan profesional.",
+  },
+  {
+    title: "Paket Sunat Smartclamp",
+    icon: Baby,
+    content: "Layanan sunat modern dengan metode Smartclamp yang minim rasa sakit, pendarahan sedikit, proses cepat, dan pemulihan singkat. Ditangani dokter berpengalaman dengan peralatan steril terstandar.",
+  },
+  {
+    title: "Layanan Home Care Mom & Baby",
+    icon: Home,
+    content: "Layanan perawatan di rumah khusus ibu dan bayi pasca persalinan, meliputi perawatan luka, konsultasi laktasi, pemeriksaan neonatus, imunisasi, dan pendampingan perawatan bayi baru lahir.",
+  },
+  {
+    title: "Layanan Medical Checkup",
+    icon: ClipboardCheck,
+    content: "Paket pemeriksaan kesehatan lengkap untuk individu dan korporasi, meliputi pemeriksaan fisik, laboratorium, radiologi, EKG, audiometri, spirometri, dan konsultasi dokter. Tersedia berbagai paket sesuai kebutuhan.",
+  },
+  {
+    title: "Layanan Imune Booster",
+    icon: ShieldCheck,
+    content: "Program peningkatan daya tahan tubuh dengan terapi vitamin intravena (drip), suplementasi, konsultasi gizi, dan program imunisasi. Cocok untuk pencegahan penyakit dan pemulihan kondisi tubuh.",
+  },
+  {
+    title: "Layanan Vaksin Internasional",
+    icon: Globe,
+    content: "Pelayanan vaksinasi untuk keperluan perjalanan ke luar negeri sesuai ketentuan WHO dan negara tujuan. Tersedia Yellow Fever, Meningitis, Influenza, Hepatitis, Typhoid, dan vaksin lainnya dengan sertifikat ICV.",
+  },
+  {
+    title: "Layanan Paket Operasi One Day Care",
+    icon: Clock,
+    content: "Konsep operasi minor yang memungkinkan pasien pulang di hari yang sama setelah prosedur. Efisien waktu, biaya terjangkau, dengan standar keselamatan dan kenyamanan pasien yang tetap terjaga.",
+  },
+  {
+    title: "Layanan Pemeriksaan Kanker Dini",
+    icon: Search,
+    content: "Program skrining dan deteksi dini kanker meliputi Pap Smear, IVA, mammografi, USG, pemeriksaan darah tumor marker (CEA, CA 125, CA 19-9, AFP, PSA), dan konsultasi onkologi untuk deteksi sejak dini.",
+  },
 ];
 
 export const Route = createFileRoute("/")({
@@ -122,8 +180,41 @@ function HomePage() {
         </div>
       </section>
 
+      {/* LAYANAN */}
+      <section id="layanan" className="py-20 px-6 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-center text-sm font-semibold tracking-widest text-secondary uppercase">Layanan Kami</p>
+          <h2 className="mt-2 text-2xl md:text-3xl font-bold text-center text-primary">
+            Pelayanan Unggulan RSU Aisyiyah Purworejo
+          </h2>
+          <p className="text-center text-muted-foreground mt-2 text-sm">
+            Berbagai layanan kesehatan dengan standar mutu prima berbasis syariah
+          </p>
+          <Accordion type="single" collapsible className="mt-10 space-y-3">
+            {LAYANAN.map((l, i) => {
+              const Icon = l.icon;
+              return (
+                <AccordionItem key={i} value={`layanan-${i}`} className="bg-muted/30 rounded-xl border px-5 shadow-sm">
+                  <AccordionTrigger className="text-left font-semibold text-primary hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-1">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-base">{l.title}</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground leading-relaxed pl-[52px]">
+                    {l.content}
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        </div>
+      </section>
+
       {/* BERITA, INFO TERKINI & PROMO */}
-      <section id="layanan" className="py-20 px-6 bg-muted/30">
+      <section id="berita" className="py-20 px-6 bg-muted/30">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">BERITA, INFO TERKINI & PROMO</h2>
           <p className="text-center text-sm text-muted-foreground mt-2">15 unggahan terbaru dari Instagram @rsu_aisyiyah</p>
