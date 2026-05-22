@@ -24,15 +24,6 @@ export const Route = createFileRoute("/")({
 
 
 
-const PROMO = [
-  { title: "Audiometri", color: "from-sky-500 to-blue-700" },
-  { title: "Women Health", color: "from-pink-500 to-rose-700" },
-  { title: "CAPD", color: "from-emerald-500 to-teal-700" },
-  { title: "Secretome Therapy", color: "from-amber-500 to-orange-700" },
-  { title: "ESWL", color: "from-indigo-500 to-violet-700" },
-  { title: "Akupuntur Medik", color: "from-red-500 to-rose-700" },
-  { title: "Vaksinasi", color: "from-green-500 to-emerald-700" },
-];
 
 
 function HomePage() {
