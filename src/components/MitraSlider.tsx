@@ -1,30 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import bpjsKes from "@/assets/mitra-bpjs-kesehatan.png";
-import bpjsTK from "@/assets/mitra-bpjs-tk.png";
-import admedika from "@/assets/mitra-admedika.png";
-import briLife from "@/assets/mitra-bri-life.png";
-import jasaRaharja from "@/assets/mitra-jasa-raharja.png";
-import kaiHealth from "@/assets/mitra-kai-healthcare.png";
-import pkuGombong from "@/assets/mitra-rs-pku-gombong.png";
-import aghisnaSidareja from "@/assets/mitra-rsu-aghisna-sidareja.png";
-import pkuKroya from "@/assets/mitra-rs-pku-kroya.png";
-import pkuSumpiuh from "@/assets/mitra-rsu-pku-sumpiuh.png";
 
 type Mitra = { id: string; name: string; logo_url: string };
 
-const FALLBACK: Mitra[] = [
-  { name: "BPJS Kesehatan", logo_url: bpjsKes },
-  { name: "BPJS Ketenagakerjaan", logo_url: bpjsTK },
-  { name: "Admedika", logo_url: admedika },
-  { name: "BRI Life", logo_url: briLife },
-  { name: "Jasa Raharja", logo_url: jasaRaharja },
-  { name: "KAI HealthCare", logo_url: kaiHealth },
-  { name: "RS PKU Muhammadiyah Gombong", logo_url: pkuGombong },
-  { name: "RSU Aghisna Medika Sidareja", logo_url: aghisnaSidareja },
-  { name: "RS PKU Muhammadiyah Aghisna Kroya", logo_url: pkuKroya },
-  { name: "RSU PKU Muhammadiyah Sumpiuh", logo_url: pkuSumpiuh },
-].map((m, i) => ({ ...m, id: `f-${i}` }));
 
 function Marquee({ items, reverse = false }: { items: Mitra[]; reverse?: boolean }) {
   const all = [...items, ...items];
@@ -44,7 +22,7 @@ function Marquee({ items, reverse = false }: { items: Mitra[]; reverse?: boolean
 }
 
 export default function MitraSlider() {
-  const [items, setItems] = useState<Mitra[]>(FALLBACK);
+  const [items, setItems] = useState<Mitra[]>([]);
 
   useEffect(() => {
     let alive = true;

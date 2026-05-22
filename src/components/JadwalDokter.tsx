@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
 import { CalendarDays, MessageCircle, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import dokter1 from "@/assets/dokter/dokter-1.jpg";
-import dokter2 from "@/assets/dokter/dokter-2.jpg";
-import dokter3 from "@/assets/dokter/dokter-3.jpg";
-import dokter4 from "@/assets/dokter/dokter-4.jpg";
-import dokter5 from "@/assets/dokter/dokter-5.jpg";
-import dokter6 from "@/assets/dokter/dokter-6.jpg";
-import dokter7 from "@/assets/dokter/dokter-7.jpg";
-import dokter8 from "@/assets/dokter/dokter-8.jpg";
-import dokter9 from "@/assets/dokter/dokter-9.jpg";
-import dokter10 from "@/assets/dokter/dokter-10.jpg";
 
 type Jadwal = { hari: string; jam: string };
 type Dokter = { id: string; spesialis: string; nama: string; foto: string; jadwal: Jadwal[] };
@@ -18,18 +8,6 @@ type Dokter = { id: string; spesialis: string; nama: string; foto: string; jadwa
 const WA_NUMBER = "6281333334192";
 const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
-const FALLBACK: Dokter[] = [
-  { id: "f1", spesialis: "SPESIALIS ANAK", nama: "dr. Sulistyo Suharto, M.Si.,Med.,Sp.A", foto: dokter1, jadwal: [{ hari: "Senin s.d Sabtu", jam: "10.00 – 13.00 WIB" }] },
-  { id: "f2", spesialis: "SPESIALIS SARAF", nama: "dr. Lestari Handayani, Sp.N", foto: dokter2, jadwal: [{ hari: "Selasa, Rabu", jam: "14.00 – 16.00" }, { hari: "Kamis", jam: "12.30 – 14.00" }, { hari: "Jumat", jam: "13.00 – 15.00" }] },
-  { id: "f3", spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Padmi Bektilestari, Sp.PD", foto: dokter3, jadwal: [{ hari: "Senin, Rabu, Jumat", jam: "07.30 – 09.30" }, { hari: "Selasa, Kamis, Sabtu", jam: "10.00 – 12.00" }] },
-  { id: "f4", spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Yudha Irla Saputra, Sp.PD, M.M.R", foto: dokter4, jadwal: [{ hari: "Senin", jam: "13.00 – 15.00" }, { hari: "Rabu", jam: "13.00 – 15.00" }, { hari: "Jumat", jam: "13.00 – 15.00" }] },
-  { id: "f5", spesialis: "SPESIALIS KANDUNGAN", nama: "dr. Albert Novriadi, Sp.OG", foto: dokter5, jadwal: [{ hari: "Senin", jam: "12.00 – 14.00" }, { hari: "Selasa, Rabu", jam: "16.00 – 18.00" }] },
-  { id: "f6", spesialis: "POLI GIGI", nama: "drg. Idha Widiastuti, SE, MM", foto: dokter6, jadwal: [{ hari: "Senin s.d Sabtu", jam: "10.00 – 12.00" }] },
-  { id: "f7", spesialis: "SPESIALIS BEDAH", nama: "dr. Proginova Dian Yudatama, Sp.B", foto: dokter7, jadwal: [{ hari: "Senin, Rabu, Jumat", jam: "13.00 – 15.00" }] },
-  { id: "f8", spesialis: "SPESIALIS RADIOLOGI", nama: "dr. Muhammad Fandi G, Sp.Rad., M.Med.Sc", foto: dokter8, jadwal: [{ hari: "Selasa, Rabu, Jumat", jam: "14.00 – 17.00 WIB" }] },
-  { id: "f9", spesialis: "SPESIALIS JANTUNG & PEMBULUH DARAH", nama: "dr. Arif Setyo Hutomo, Sp.JP", foto: dokter9, jadwal: [{ hari: "Senin, Kamis, Sabtu", jam: "09.00 – 13.00 WIB" }] },
-  { id: "f10", spesialis: "PATOLOGI KLINIK", nama: "dr. Dianing Pratiwi, M.Med.Sc.PK", foto: dokter10, jadwal: [{ hari: "Senin, Rabu, Jumat", jam: "17.00 – 19.00 WIB" }] },
-];
 
 function waLink(d: Dokter) {
   const jadwalStr = d.jadwal.map((j) => `${j.hari} (${j.jam})`).join(", ");
@@ -55,7 +33,7 @@ function groupSchedules(rows: { day_of_week: number; time_start: string; time_en
 }
 
 export default function JadwalDokter() {
-  const [dokters, setDokters] = useState<Dokter[]>(FALLBACK);
+  const [dokters, setDokters] = useState<Dokter[]>([]);
   const [detail, setDetail] = useState<Dokter | null>(null);
 
   useEffect(() => {
