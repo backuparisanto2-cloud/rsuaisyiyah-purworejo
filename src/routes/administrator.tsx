@@ -31,6 +31,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree, disabled: true },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
   { to: "/administrator/theme", label: "Tema Warna", icon: Palette },
+  { to: "/administrator/chatbot", label: "Chatbot", icon: Bot },
 ];
 
 function AdminLayout() {
