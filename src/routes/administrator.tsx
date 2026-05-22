@@ -3,21 +3,9 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
-  Images,
-  Settings as SettingsIcon,
-  Info,
-  Clock,
-  Stethoscope,
-  Users,
-  Handshake,
-  HelpCircle,
-  Phone,
-  ListTree,
-  LayoutTemplate,
-  Palette,
-  LogOut,
-  Loader2,
+  LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
+  Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
+  LogOut, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -33,13 +21,13 @@ const NAV: NavItem[] = [
   { to: "/administrator", label: "Dashboard", icon: LayoutDashboard },
   { to: "/administrator/hero-slider", label: "Hero Slider", icon: Images },
   { to: "/administrator/hero-settings", label: "Pengaturan Slider", icon: SettingsIcon },
-  { to: "/administrator/tentang", label: "Tentang", icon: Info, disabled: true },
-  { to: "/administrator/jam-besuk", label: "Jam Besuk", icon: Clock, disabled: true },
-  { to: "/administrator/layanan", label: "Layanan", icon: Stethoscope, disabled: true },
-  { to: "/administrator/dokter", label: "Jadwal Dokter", icon: Users, disabled: true },
-  { to: "/administrator/mitra", label: "Mitra", icon: Handshake, disabled: true },
-  { to: "/administrator/faq", label: "FAQ", icon: HelpCircle, disabled: true },
-  { to: "/administrator/kontak", label: "Kontak / Footer", icon: Phone, disabled: true },
+  { to: "/administrator/tentang", label: "Tentang", icon: Info },
+  { to: "/administrator/jam-besuk", label: "Jam Besuk", icon: Clock },
+  { to: "/administrator/layanan", label: "Layanan", icon: Stethoscope },
+  { to: "/administrator/dokter", label: "Jadwal Dokter", icon: Users },
+  { to: "/administrator/mitra", label: "Mitra", icon: Handshake },
+  { to: "/administrator/faq", label: "FAQ", icon: HelpCircle },
+  { to: "/administrator/kontak", label: "Kontak / Footer", icon: Phone },
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree, disabled: true },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate, disabled: true },
   { to: "/administrator/theme", label: "Tema Warna", icon: Palette, disabled: true },
@@ -60,20 +48,13 @@ function AdminLayout() {
   }, [session, isAdmin, loading, navigate]);
 
   if (loading || !session || !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
 
   return (
     <div className="min-h-screen flex bg-muted/30">
       <aside className="w-64 shrink-0 bg-card border-r flex flex-col">
-        <div className="p-4 border-b">
-          <div className="font-bold">RSU Aisyiyah</div>
-          <div className="text-xs text-muted-foreground">Admin CMS</div>
-        </div>
+        <div className="p-4 border-b"><div className="font-bold">RSU Aisyiyah</div><div className="text-xs text-muted-foreground">Admin CMS</div></div>
         <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
           {NAV.map((n) => {
             const Icon = n.icon;
@@ -83,17 +64,8 @@ function AdminLayout() {
               active ? "bg-primary text-primary-foreground" : "hover:bg-muted",
               n.disabled && "opacity-50 cursor-not-allowed",
             );
-            if (n.disabled)
-              return (
-                <div key={n.to} className={cls} title="Tersedia di fase berikutnya">
-                  <Icon className="h-4 w-4" /> {n.label}
-                </div>
-              );
-            return (
-              <Link key={n.to} to={n.to} className={cls}>
-                <Icon className="h-4 w-4" /> {n.label}
-              </Link>
-            );
+            if (n.disabled) return <div key={n.to} className={cls} title="Fase berikutnya"><Icon className="h-4 w-4" /> {n.label}</div>;
+            return <Link key={n.to} to={n.to} className={cls}><Icon className="h-4 w-4" /> {n.label}</Link>;
           })}
         </nav>
         <div className="p-3 border-t text-xs text-muted-foreground truncate">{user?.email}</div>
@@ -108,9 +80,7 @@ function AdminLayout() {
             </Button>
           </div>
         </header>
-        <main className="flex-1 p-6 overflow-x-hidden">
-          <Outlet />
-        </main>
+        <main className="flex-1 p-6 overflow-x-hidden"><Outlet /></main>
       </div>
     </div>
   );
