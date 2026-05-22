@@ -30,7 +30,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/kontak", label: "Kontak / Footer", icon: Phone },
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree, disabled: true },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
-  { to: "/administrator/theme", label: "Tema Warna", icon: Palette, disabled: true },
+  { to: "/administrator/theme", label: "Tema Warna", icon: Palette },
 ];
 
 function AdminLayout() {

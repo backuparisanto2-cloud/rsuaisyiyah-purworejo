@@ -394,6 +394,72 @@ export type Database = {
         }
         Relationships: []
       }
+      theme_settings: {
+        Row: {
+          accent_color: string
+          accent_foreground: string
+          background_color: string
+          border_color: string
+          created_at: string
+          destructive_color: string
+          foreground_color: string
+          gold_color: string
+          id: string
+          muted_color: string
+          muted_foreground: string
+          primary_color: string
+          primary_dark: string
+          primary_foreground: string
+          ring_color: string
+          secondary_color: string
+          secondary_foreground: string
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          accent_foreground?: string
+          background_color?: string
+          border_color?: string
+          created_at?: string
+          destructive_color?: string
+          foreground_color?: string
+          gold_color?: string
+          id?: string
+          muted_color?: string
+          muted_foreground?: string
+          primary_color?: string
+          primary_dark?: string
+          primary_foreground?: string
+          ring_color?: string
+          secondary_color?: string
+          secondary_foreground?: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          accent_foreground?: string
+          background_color?: string
+          border_color?: string
+          created_at?: string
+          destructive_color?: string
+          foreground_color?: string
+          gold_color?: string
+          id?: string
+          muted_color?: string
+          muted_foreground?: string
+          primary_color?: string
+          primary_dark?: string
+          primary_foreground?: string
+          ring_color?: string
+          secondary_color?: string
+          secondary_foreground?: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

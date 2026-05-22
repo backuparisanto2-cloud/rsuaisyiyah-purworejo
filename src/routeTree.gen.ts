@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
+import { Route as AdministratorThemeRouteImport } from './routes/administrator.theme'
 import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
 import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
 import { Route as AdministratorMitraRouteImport } from './routes/administrator.mitra'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorThemeRoute = AdministratorThemeRouteImport.update({
+  id: '/theme',
+  path: '/theme',
   getParentRoute: () => AdministratorRoute,
 } as any)
 const AdministratorTentangRoute = AdministratorTentangRouteImport.update({
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
+  '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRoutesByTo {
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
+  '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator': typeof AdministratorIndexRoute
 }
 export interface FileRoutesById {
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
+  '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRouteTypes {
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/administrator/mitra'
     | '/administrator/sections'
     | '/administrator/tentang'
+    | '/administrator/theme'
     | '/administrator/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/administrator/mitra'
     | '/administrator/sections'
     | '/administrator/tentang'
+    | '/administrator/theme'
     | '/administrator'
   id:
     | '__root__'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/administrator/mitra'
     | '/administrator/sections'
     | '/administrator/tentang'
+    | '/administrator/theme'
     | '/administrator/'
   fileRoutesById: FileRoutesById
 }
@@ -228,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/administrator/'
       preLoaderRoute: typeof AdministratorIndexRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/theme': {
+      id: '/administrator/theme'
+      path: '/theme'
+      fullPath: '/administrator/theme'
+      preLoaderRoute: typeof AdministratorThemeRouteImport
       parentRoute: typeof AdministratorRoute
     }
     '/administrator/tentang': {
@@ -314,6 +333,7 @@ interface AdministratorRouteChildren {
   AdministratorMitraRoute: typeof AdministratorMitraRoute
   AdministratorSectionsRoute: typeof AdministratorSectionsRoute
   AdministratorTentangRoute: typeof AdministratorTentangRoute
+  AdministratorThemeRoute: typeof AdministratorThemeRoute
   AdministratorIndexRoute: typeof AdministratorIndexRoute
 }
 
@@ -328,6 +348,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorMitraRoute: AdministratorMitraRoute,
   AdministratorSectionsRoute: AdministratorSectionsRoute,
   AdministratorTentangRoute: AdministratorTentangRoute,
+  AdministratorThemeRoute: AdministratorThemeRoute,
   AdministratorIndexRoute: AdministratorIndexRoute,
 }
 
