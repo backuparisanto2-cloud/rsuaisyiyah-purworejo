@@ -58,7 +58,7 @@ export default function SideSocial() {
         </svg>
       ),
     },
-  ].filter(Boolean) as { href: string; label: string; bg: string; icon: JSX.Element }[];
+  ].filter(Boolean) as { href: string; label: string; bg: string; icon: React.ReactNode }[];
 
   if (items.length === 0) return null;
 
