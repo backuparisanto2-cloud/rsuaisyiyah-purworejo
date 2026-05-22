@@ -49,7 +49,7 @@ function HomePage() {
       {/* HERO */}
       <section id="beranda" className="relative pt-24 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <HeroSlider />
-        <div className="absolute inset-0 bg-primary-dark/75 pointer-events-none" />
+        <div className="absolute inset-1 bg-blue-400/40 pointer-events-none" />
 
         <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
           <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
