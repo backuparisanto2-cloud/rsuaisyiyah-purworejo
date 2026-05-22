@@ -5,7 +5,7 @@ import logo from "@/assets/logo-pku.png";
 const NAV = [
   { label: "Beranda", href: "#beranda" },
   { label: "Tentang Kami", href: "#tentang" },
-  { label: "Berita & Info", href: "#layanan" },
+  { label: "Berita & Info", href: "#berita" },
   { label: "Jadwal Dokter", href: "#jadwal" },
   { label: "Instagram", href: "#instagram" },
   { label: "FAQ", href: "#faq" },
