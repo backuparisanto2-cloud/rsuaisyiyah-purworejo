@@ -22,10 +22,12 @@ export default function Header() {
             <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-20 sm:w-20 object-contain rounded-full" />
           </span>
 
-          <div className="leading-[1.15] sm:leading-tight text-white shine-text min-w-0 max-w-[190px] sm:max-w-none whitespace-nowrap">
-            <div className="text-[10px] sm:text-xs font-semibold tracking-[0.14em] sm:tracking-widest opacity-80">RSU</div>
-            <div className="font-bold text-[14px] sm:text-lg tracking-tight sm:tracking-normal">AISYIYAH</div>
-            <div className="text-[11px] sm:text-sm opacity-90 tracking-tight sm:tracking-normal">PURWOREJO</div>
+          <div className="leading-[1.1] text-white shine-text min-w-0 whitespace-nowrap">
+            <div className="text-[11px] sm:text-sm font-semibold tracking-[0.18em] opacity-80">RSU</div>
+            <div className="flex items-baseline gap-2">
+              <div className="font-bold text-lg sm:text-2xl md:text-3xl tracking-tight">AISYIYAH</div>
+              <div className="font-bold text-lg sm:text-2xl md:text-3xl tracking-tight text-gold">PURWOREJO</div>
+            </div>
           </div>
         </a>
 

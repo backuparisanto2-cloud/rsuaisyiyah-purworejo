@@ -10,7 +10,7 @@ import BeritaInstagram from "@/components/BeritaInstagram";
 
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import PendaftaranModal from "@/components/PendaftaranModal";
-import logo from "@/assets/logo-pku.png";
+import logo from "@/assets/logo-hero.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -44,7 +44,7 @@ function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-blue-800/30 to-blue-950/30 pointer-events-none" />
 
         <div className="relative z-10 text-center px-4 sm:px-6 text-primary-foreground max-w-3xl">
-          <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-cover aspect-square bg-white p-1 drop-shadow-2xl animate-float" />
+          <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-contain aspect-square drop-shadow-2xl animate-float" />
           <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             RSU AISYIYAH<br/><span className="text-gold">PURWOREJO</span>
           </h1>
