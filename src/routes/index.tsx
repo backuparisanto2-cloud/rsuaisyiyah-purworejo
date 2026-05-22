@@ -165,6 +165,8 @@ function HomePage() {
         </div>
       </section>
 
+      <MitraSlider />
+
       {/* FAQ */}
       <section id="faq" className="py-20 px-6 bg-muted/30">
         <div className="max-w-4xl mx-auto">
