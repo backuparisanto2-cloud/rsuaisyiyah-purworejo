@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import MitraSlider from "@/components/MitraSlider";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, ChevronRight, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
