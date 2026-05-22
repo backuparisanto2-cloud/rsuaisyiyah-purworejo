@@ -24,6 +24,7 @@ import { Route as AdministratorHeroSliderRouteImport } from './routes/administra
 import { Route as AdministratorHeroSettingsRouteImport } from './routes/administrator.hero-settings'
 import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq'
 import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
+import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -101,11 +102,17 @@ const AdministratorDokterRoute = AdministratorDokterRouteImport.update({
   path: '/dokter',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorChatbotRoute = AdministratorChatbotRouteImport.update({
+  id: '/chatbot',
+  path: '/chatbot',
+  getParentRoute: () => AdministratorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
     | '/administrator/hero-settings'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
     | '/administrator/hero-settings'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
     | '/administrator/hero-settings'
@@ -319,10 +331,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorDokterRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/chatbot': {
+      id: '/administrator/chatbot'
+      path: '/chatbot'
+      fullPath: '/administrator/chatbot'
+      preLoaderRoute: typeof AdministratorChatbotRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
   }
 }
 
 interface AdministratorRouteChildren {
+  AdministratorChatbotRoute: typeof AdministratorChatbotRoute
   AdministratorDokterRoute: typeof AdministratorDokterRoute
   AdministratorFaqRoute: typeof AdministratorFaqRoute
   AdministratorHeroSettingsRoute: typeof AdministratorHeroSettingsRoute
@@ -338,6 +358,7 @@ interface AdministratorRouteChildren {
 }
 
 const AdministratorRouteChildren: AdministratorRouteChildren = {
+  AdministratorChatbotRoute: AdministratorChatbotRoute,
   AdministratorDokterRoute: AdministratorDokterRoute,
   AdministratorFaqRoute: AdministratorFaqRoute,
   AdministratorHeroSettingsRoute: AdministratorHeroSettingsRoute,
@@ -364,3 +385,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
