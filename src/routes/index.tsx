@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import MitraSlider from "@/components/MitraSlider";
 import { useState } from "react";
 import { MapPin, Phone, Mail, Clock, ChevronRight, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
@@ -163,6 +164,8 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <MitraSlider />
 
       {/* FAQ */}
       <section id="faq" className="py-20 px-6 bg-muted/30">
