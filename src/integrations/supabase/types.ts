@@ -47,6 +47,69 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbot_knowledge: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          source: string
+          source_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source?: string
+          source_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source?: string
+          source_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chatbot_settings: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          greeting: string
+          id: string
+          name: string
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          greeting?: string
+          id?: string
+          name?: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          greeting?: string
+          id?: string
+          name?: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_settings: {
         Row: {
           address: string
