@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -28,34 +29,41 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdministratorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/administrator': typeof AdministratorRoute
+  '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/administrator': typeof AdministratorRoute
   '/auth': typeof AuthRoute
+  '/administrator': typeof AdministratorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/administrator': typeof AdministratorRoute
+  '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/administrator' | '/auth'
+  fullPaths: '/' | '/administrator' | '/auth' | '/administrator/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/administrator' | '/auth'
-  id: '__root__' | '/' | '/administrator' | '/auth'
+  to: '/' | '/auth' | '/administrator'
+  id: '__root__' | '/' | '/administrator' | '/auth' | '/administrator/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdministratorRoute: typeof AdministratorRoute
+  AdministratorRoute: typeof AdministratorRouteWithChildren
   AuthRoute: typeof AuthRoute
 }
 
@@ -82,12 +90,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/administrator/': {
+      id: '/administrator/'
+      path: '/'
+      fullPath: '/administrator/'
+      preLoaderRoute: typeof AdministratorIndexRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
   }
 }
 
+interface AdministratorRouteChildren {
+  AdministratorIndexRoute: typeof AdministratorIndexRoute
+}
+
+const AdministratorRouteChildren: AdministratorRouteChildren = {
+  AdministratorIndexRoute: AdministratorIndexRoute,
+}
+
+const AdministratorRouteWithChildren = AdministratorRoute._addFileChildren(
+  AdministratorRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdministratorRoute: AdministratorRoute,
+  AdministratorRoute: AdministratorRouteWithChildren,
   AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
