@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck, Instagram } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronRight, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import JadwalDokter from "@/components/JadwalDokter";
@@ -33,35 +33,9 @@ const PROMO = [
   { title: "Vaksinasi", color: "from-green-500 to-emerald-700" },
 ];
 
-const CLINICS = [
-  { name: "Klinik Anak", icon: Baby },
-  { name: "Klinik Penyakit Dalam", icon: Stethoscope },
-  { name: "Klinik Jantung", icon: HeartPulse },
-  { name: "Klinik Bedah Umum", icon: Activity },
-  { name: "Klinik Bedah Anak", icon: Baby },
-  { name: "Klinik Bedah Saraf", icon: Brain },
-  { name: "Klinik Kandungan/Obgyn", icon: HeartPulse },
-  { name: "Klinik Mata", icon: Eye },
-  { name: "Klinik THT", icon: Ear },
-  { name: "Klinik Saraf", icon: Brain },
-  { name: "Klinik Orthopedi", icon: Bone },
-  { name: "Klinik Paru", icon: Activity },
-  { name: "Klinik Urologi", icon: Activity },
-  { name: "Klinik Gigi & Mulut", icon: Stethoscope },
-  { name: "Klinik Jiwa", icon: Brain },
-  { name: "Klinik Akupuntur", icon: Pill },
-  { name: "Klinik Rehab Medik", icon: Activity },
-  { name: "Fisioterapi", icon: Activity },
-  { name: "Psikolog", icon: Brain },
-  { name: "Terapi Wicara", icon: Ear },
-  { name: "Terapi Okupasi", icon: Activity },
-  { name: "Laboratorium", icon: Microscope },
-];
 
 function HomePage() {
-  const [search, setSearch] = useState("");
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
-  const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-background">
@@ -162,50 +136,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* KLINIK */}
-      <section id="klinik" className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">POLIKLINIK & RAWAT JALAN</h2>
-          <p className="mt-2 text-center text-muted-foreground">Klik klinik untuk melihat jadwal dokter</p>
-
-          <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {CLINICS.map((c) => (
-              <button key={c.name} className="group flex items-center gap-3 p-4 rounded-xl border bg-card hover:border-primary hover:shadow-md transition-all text-left">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <c.icon className="h-5 w-5" />
-                </div>
-                <span className="font-medium text-sm">{c.name}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Search */}
-          <div className="mt-12 max-w-2xl mx-auto p-6 rounded-2xl bg-card border shadow-sm">
-            <h3 className="font-bold text-primary">PENCARIAN DOKTER</h3>
-            <div className="mt-4 flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Pilih Klinik atau Spesialisasi..."
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-              <button className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary-dark">Cari</button>
-            </div>
-            {search && (
-              <div className="mt-3 text-sm text-muted-foreground">
-                {filteredClinics.length} klinik ditemukan. Silakan klik nama klinik untuk jadwal.
-              </div>
-            )}
-            <a href="#" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:underline">
-              Cek Antrian Saat Ini <ChevronRight className="h-4 w-4" />
-            </a>
-            <p className="mt-2 text-xs text-muted-foreground italic">Catatan: Jadwal dapat berubah sewaktu-waktu.</p>
-          </div>
-        </div>
-      </section>
 
       <JadwalDokter />
 
