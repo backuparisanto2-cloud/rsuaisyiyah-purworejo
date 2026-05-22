@@ -13,8 +13,15 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
+import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
+import { Route as AdministratorMitraRouteImport } from './routes/administrator.mitra'
+import { Route as AdministratorLayananRouteImport } from './routes/administrator.layanan'
+import { Route as AdministratorKontakRouteImport } from './routes/administrator.kontak'
+import { Route as AdministratorJamBesukRouteImport } from './routes/administrator.jam-besuk'
 import { Route as AdministratorHeroSliderRouteImport } from './routes/administrator.hero-slider'
 import { Route as AdministratorHeroSettingsRouteImport } from './routes/administrator.hero-settings'
+import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq'
+import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -36,6 +43,31 @@ const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorTentangRoute = AdministratorTentangRouteImport.update({
+  id: '/tentang',
+  path: '/tentang',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorMitraRoute = AdministratorMitraRouteImport.update({
+  id: '/mitra',
+  path: '/mitra',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorLayananRoute = AdministratorLayananRouteImport.update({
+  id: '/layanan',
+  path: '/layanan',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorKontakRoute = AdministratorKontakRouteImport.update({
+  id: '/kontak',
+  path: '/kontak',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorJamBesukRoute = AdministratorJamBesukRouteImport.update({
+  id: '/jam-besuk',
+  path: '/jam-besuk',
+  getParentRoute: () => AdministratorRoute,
+} as any)
 const AdministratorHeroSliderRoute = AdministratorHeroSliderRouteImport.update({
   id: '/hero-slider',
   path: '/hero-slider',
@@ -47,20 +79,44 @@ const AdministratorHeroSettingsRoute =
     path: '/hero-settings',
     getParentRoute: () => AdministratorRoute,
   } as any)
+const AdministratorFaqRoute = AdministratorFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorDokterRoute = AdministratorDokterRouteImport.update({
+  id: '/dokter',
+  path: '/dokter',
+  getParentRoute: () => AdministratorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/dokter': typeof AdministratorDokterRoute
+  '/administrator/faq': typeof AdministratorFaqRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
+  '/administrator/kontak': typeof AdministratorKontakRoute
+  '/administrator/layanan': typeof AdministratorLayananRoute
+  '/administrator/mitra': typeof AdministratorMitraRoute
+  '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/administrator/dokter': typeof AdministratorDokterRoute
+  '/administrator/faq': typeof AdministratorFaqRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
+  '/administrator/kontak': typeof AdministratorKontakRoute
+  '/administrator/layanan': typeof AdministratorLayananRoute
+  '/administrator/mitra': typeof AdministratorMitraRoute
+  '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator': typeof AdministratorIndexRoute
 }
 export interface FileRoutesById {
@@ -68,8 +124,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/dokter': typeof AdministratorDokterRoute
+  '/administrator/faq': typeof AdministratorFaqRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
+  '/administrator/kontak': typeof AdministratorKontakRoute
+  '/administrator/layanan': typeof AdministratorLayananRoute
+  '/administrator/mitra': typeof AdministratorMitraRoute
+  '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRouteTypes {
@@ -78,23 +141,44 @@ export interface FileRouteTypes {
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/dokter'
+    | '/administrator/faq'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
+    | '/administrator/jam-besuk'
+    | '/administrator/kontak'
+    | '/administrator/layanan'
+    | '/administrator/mitra'
+    | '/administrator/tentang'
     | '/administrator/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/administrator/dokter'
+    | '/administrator/faq'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
+    | '/administrator/jam-besuk'
+    | '/administrator/kontak'
+    | '/administrator/layanan'
+    | '/administrator/mitra'
+    | '/administrator/tentang'
     | '/administrator'
   id:
     | '__root__'
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/dokter'
+    | '/administrator/faq'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
+    | '/administrator/jam-besuk'
+    | '/administrator/kontak'
+    | '/administrator/layanan'
+    | '/administrator/mitra'
+    | '/administrator/tentang'
     | '/administrator/'
   fileRoutesById: FileRoutesById
 }
@@ -134,6 +218,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorIndexRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/tentang': {
+      id: '/administrator/tentang'
+      path: '/tentang'
+      fullPath: '/administrator/tentang'
+      preLoaderRoute: typeof AdministratorTentangRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/mitra': {
+      id: '/administrator/mitra'
+      path: '/mitra'
+      fullPath: '/administrator/mitra'
+      preLoaderRoute: typeof AdministratorMitraRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/layanan': {
+      id: '/administrator/layanan'
+      path: '/layanan'
+      fullPath: '/administrator/layanan'
+      preLoaderRoute: typeof AdministratorLayananRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/kontak': {
+      id: '/administrator/kontak'
+      path: '/kontak'
+      fullPath: '/administrator/kontak'
+      preLoaderRoute: typeof AdministratorKontakRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/jam-besuk': {
+      id: '/administrator/jam-besuk'
+      path: '/jam-besuk'
+      fullPath: '/administrator/jam-besuk'
+      preLoaderRoute: typeof AdministratorJamBesukRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
     '/administrator/hero-slider': {
       id: '/administrator/hero-slider'
       path: '/hero-slider'
@@ -148,18 +267,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorHeroSettingsRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/faq': {
+      id: '/administrator/faq'
+      path: '/faq'
+      fullPath: '/administrator/faq'
+      preLoaderRoute: typeof AdministratorFaqRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/dokter': {
+      id: '/administrator/dokter'
+      path: '/dokter'
+      fullPath: '/administrator/dokter'
+      preLoaderRoute: typeof AdministratorDokterRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
   }
 }
 
 interface AdministratorRouteChildren {
+  AdministratorDokterRoute: typeof AdministratorDokterRoute
+  AdministratorFaqRoute: typeof AdministratorFaqRoute
   AdministratorHeroSettingsRoute: typeof AdministratorHeroSettingsRoute
   AdministratorHeroSliderRoute: typeof AdministratorHeroSliderRoute
+  AdministratorJamBesukRoute: typeof AdministratorJamBesukRoute
+  AdministratorKontakRoute: typeof AdministratorKontakRoute
+  AdministratorLayananRoute: typeof AdministratorLayananRoute
+  AdministratorMitraRoute: typeof AdministratorMitraRoute
+  AdministratorTentangRoute: typeof AdministratorTentangRoute
   AdministratorIndexRoute: typeof AdministratorIndexRoute
 }
 
 const AdministratorRouteChildren: AdministratorRouteChildren = {
+  AdministratorDokterRoute: AdministratorDokterRoute,
+  AdministratorFaqRoute: AdministratorFaqRoute,
   AdministratorHeroSettingsRoute: AdministratorHeroSettingsRoute,
   AdministratorHeroSliderRoute: AdministratorHeroSliderRoute,
+  AdministratorJamBesukRoute: AdministratorJamBesukRoute,
+  AdministratorKontakRoute: AdministratorKontakRoute,
+  AdministratorLayananRoute: AdministratorLayananRoute,
+  AdministratorMitraRoute: AdministratorMitraRoute,
+  AdministratorTentangRoute: AdministratorTentangRoute,
   AdministratorIndexRoute: AdministratorIndexRoute,
 }
 
