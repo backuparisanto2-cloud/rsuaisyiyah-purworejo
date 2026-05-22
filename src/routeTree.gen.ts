@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
+import { Route as AdministratorHeroSliderRouteImport } from './routes/administrator.hero-slider'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -34,16 +35,23 @@ const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorHeroSliderRoute = AdministratorHeroSliderRouteImport.update({
+  id: '/hero-slider',
+  path: '/hero-slider',
+  getParentRoute: () => AdministratorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
   '/administrator': typeof AdministratorIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +59,26 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/administrator' | '/auth' | '/administrator/'
+  fullPaths:
+    | '/'
+    | '/administrator'
+    | '/auth'
+    | '/administrator/hero-slider'
+    | '/administrator/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/administrator'
-  id: '__root__' | '/' | '/administrator' | '/auth' | '/administrator/'
+  to: '/' | '/auth' | '/administrator/hero-slider' | '/administrator'
+  id:
+    | '__root__'
+    | '/'
+    | '/administrator'
+    | '/auth'
+    | '/administrator/hero-slider'
+    | '/administrator/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,14 +117,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorIndexRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/hero-slider': {
+      id: '/administrator/hero-slider'
+      path: '/hero-slider'
+      fullPath: '/administrator/hero-slider'
+      preLoaderRoute: typeof AdministratorHeroSliderRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
   }
 }
 
 interface AdministratorRouteChildren {
+  AdministratorHeroSliderRoute: typeof AdministratorHeroSliderRoute
   AdministratorIndexRoute: typeof AdministratorIndexRoute
 }
 
 const AdministratorRouteChildren: AdministratorRouteChildren = {
+  AdministratorHeroSliderRoute: AdministratorHeroSliderRoute,
   AdministratorIndexRoute: AdministratorIndexRoute,
 }
 
