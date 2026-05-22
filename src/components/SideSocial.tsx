@@ -1,10 +1,43 @@
-const WA = "https://wa.me/6289646710859?text=Halo%20RSU%20Aisyiyah%20Purworejo%2C%20saya%20ingin%20bertanya...";
-const IG = "https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+const FALLBACK = {
+  whatsapp: "6289646710859",
+  instagram: "https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl",
+};
+
+const WA_TEXT = "Halo%20RSU%20Aisyiyah%20Purworejo%2C%20saya%20ingin%20bertanya...";
 
 export default function SideSocial() {
+  const [c, setC] = useState(FALLBACK);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("contact_settings")
+        .select("whatsapp,instagram")
+        .maybeSingle();
+      if (data) {
+        setC({
+          whatsapp: data.whatsapp || FALLBACK.whatsapp,
+          instagram: data.instagram || FALLBACK.instagram,
+        });
+      }
+    };
+    load();
+    const channel = supabase
+      .channel("contact_side_social")
+      .on("postgres_changes", { event: "*", schema: "public", table: "contact_settings" }, load)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const waDigits = c.whatsapp.replace(/\D/g, "");
+  const waHref = waDigits ? `https://wa.me/${waDigits}?text=${WA_TEXT}` : "";
+
   const items = [
-    {
-      href: WA,
+    waHref && {
+      href: waHref,
       label: "WhatsApp",
       bg: "bg-[#25D366]",
       icon: (
@@ -13,8 +46,8 @@ export default function SideSocial() {
         </svg>
       ),
     },
-    {
-      href: IG,
+    c.instagram && {
+      href: c.instagram,
       label: "Instagram",
       bg: "bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]",
       icon: (
@@ -25,7 +58,9 @@ export default function SideSocial() {
         </svg>
       ),
     },
-  ];
+  ].filter(Boolean) as { href: string; label: string; bg: string; icon: React.ReactNode }[];
+
+  if (items.length === 0) return null;
 
   return (
     <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
