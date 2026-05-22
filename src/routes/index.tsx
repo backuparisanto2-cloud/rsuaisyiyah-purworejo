@@ -6,6 +6,7 @@ import SideSocial from "@/components/SideSocial";
 import JadwalDokter from "@/components/JadwalDokter";
 import ChatbotArini from "@/components/ChatbotArini";
 import HeroSlider from "@/components/HeroSlider";
+import BeritaInstagram from "@/components/BeritaInstagram";
 
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import PendaftaranModal from "@/components/PendaftaranModal";
@@ -115,24 +116,12 @@ function HomePage() {
         </div>
       </section>
 
-      {/* PROMO */}
+      {/* BERITA, INFO TERKINI & PROMO */}
       <section id="layanan" className="py-20 px-6 bg-muted/30">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">BERITA, INFO TERKINI & PROMO</h2>
-          <div className="mt-4 overflow-hidden">
-            <div className="flex gap-5 animate-marquee w-max">
-              {[...PROMO, ...PROMO].map((p, i) => (
-                <a key={i} href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl" target="_blank" rel="noreferrer"
-                  className={`shrink-0 w-64 h-80 rounded-2xl bg-gradient-to-br ${p.color} p-6 flex flex-col justify-between text-white shadow-xl hover:scale-105 transition-transform`}>
-                  <div>
-                    <div className="text-xs font-semibold opacity-80 tracking-widest">PROMO</div>
-                    <div className="mt-2 text-2xl font-bold leading-tight">{p.title}</div>
-                  </div>
-                  <div className="text-xs opacity-90">Klik untuk info lebih lanjut →</div>
-                </a>
-              ))}
-            </div>
-          </div>
+          <p className="text-center text-sm text-muted-foreground mt-2">15 unggahan terbaru dari Instagram @rsu_aisyiyah</p>
+          <BeritaInstagram />
         </div>
       </section>
 
