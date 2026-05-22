@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import JadwalDokter from "@/components/JadwalDokter";
 import ChatbotArini from "@/components/ChatbotArini";
-import HeroVideo from "@/components/HeroVideo";
+import HeroSlider from "@/components/HeroSlider";
 
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import PendaftaranModal from "@/components/PendaftaranModal";
@@ -74,8 +74,8 @@ function HomePage() {
 
       {/* HERO */}
       <section id="beranda" className="relative pt-24 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
-        <HeroVideo />
-        <div className="absolute inset-0 bg-primary-dark/75" />
+        <HeroSlider />
+        <div className="absolute inset-0 bg-primary-dark/[0.87] pointer-events-none" />
 
         <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
           <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
