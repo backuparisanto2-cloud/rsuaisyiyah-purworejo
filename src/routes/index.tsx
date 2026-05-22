@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, Stethoscope, Baby, Activity, HeartPulse, Microscope, Pill, Brain, Eye, Ear, Bone, Search, CalendarCheck, Instagram } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronRight, CalendarCheck, Instagram } from "lucide-react";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import JadwalDokter from "@/components/JadwalDokter";
@@ -33,35 +33,9 @@ const PROMO = [
   { title: "Vaksinasi", color: "from-green-500 to-emerald-700" },
 ];
 
-const CLINICS = [
-  { name: "Klinik Anak", icon: Baby },
-  { name: "Klinik Penyakit Dalam", icon: Stethoscope },
-  { name: "Klinik Jantung", icon: HeartPulse },
-  { name: "Klinik Bedah Umum", icon: Activity },
-  { name: "Klinik Bedah Anak", icon: Baby },
-  { name: "Klinik Bedah Saraf", icon: Brain },
-  { name: "Klinik Kandungan/Obgyn", icon: HeartPulse },
-  { name: "Klinik Mata", icon: Eye },
-  { name: "Klinik THT", icon: Ear },
-  { name: "Klinik Saraf", icon: Brain },
-  { name: "Klinik Orthopedi", icon: Bone },
-  { name: "Klinik Paru", icon: Activity },
-  { name: "Klinik Urologi", icon: Activity },
-  { name: "Klinik Gigi & Mulut", icon: Stethoscope },
-  { name: "Klinik Jiwa", icon: Brain },
-  { name: "Klinik Akupuntur", icon: Pill },
-  { name: "Klinik Rehab Medik", icon: Activity },
-  { name: "Fisioterapi", icon: Activity },
-  { name: "Psikolog", icon: Brain },
-  { name: "Terapi Wicara", icon: Ear },
-  { name: "Terapi Okupasi", icon: Activity },
-  { name: "Laboratorium", icon: Microscope },
-];
 
 function HomePage() {
-  const [search, setSearch] = useState("");
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
-  const filteredClinics = CLINICS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-background">
