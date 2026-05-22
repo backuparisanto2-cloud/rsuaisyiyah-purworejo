@@ -1,208 +1,197 @@
-import { useMemo, useState } from "react";
-import { Search, CalendarDays, MessageCircle, X } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, MessageCircle, X, User } from "lucide-react";
 
-type Jadwal = {
-  poli: string;
-  dokter: string;
-  hari: string;
-  jam: string;
+type Schedule = { hari: string; jam: string };
+type Dokter = {
+  spesialis: string;
+  nama: string;
+  jadwal: Schedule[];
+  isNew?: boolean;
   catatan?: string;
 };
 
-const WA_NUMBER = "6289646710859";
+const WA_NUMBER = "6281333334192";
 
-const JADWAL: Jadwal[] = [
-  { poli: "Klinik Anak", dokter: "dr. Andi Wibowo, Sp.A", hari: "Senin–Jumat", jam: "09.00 – 12.00", catatan: "Perjanjian" },
-  { poli: "Klinik Anak", dokter: "dr. Siti Nurhaliza, Sp.A", hari: "Selasa, Kamis", jam: "13.00 – 16.00" },
-  { poli: "Klinik Penyakit Dalam", dokter: "dr. Bambang Prasetyo, Sp.PD", hari: "Senin–Sabtu", jam: "08.00 – 12.00" },
-  { poli: "Klinik Penyakit Dalam", dokter: "dr. Hartono, Sp.PD-KGEH", hari: "Rabu, Jumat", jam: "14.00 – 17.00", catatan: "Subspesialis GI" },
-  { poli: "Klinik Jantung", dokter: "dr. Rina Hapsari, Sp.JP", hari: "Senin, Rabu, Jumat", jam: "09.00 – 13.00" },
-  { poli: "Klinik Bedah Umum", dokter: "dr. Yudi Setiawan, Sp.B", hari: "Senin–Jumat", jam: "10.00 – 14.00" },
-  { poli: "Klinik Bedah Anak", dokter: "dr. Fajar Nugroho, Sp.BA", hari: "Selasa, Kamis", jam: "09.00 – 12.00", catatan: "Perjanjian" },
-  { poli: "Klinik Kandungan/Obgyn", dokter: "dr. Diah Permata, Sp.OG", hari: "Senin–Sabtu", jam: "08.00 – 12.00" },
-  { poli: "Klinik Mata", dokter: "dr. Indra Wijaya, Sp.M", hari: "Senin, Rabu, Jumat", jam: "13.00 – 16.00" },
-  { poli: "Klinik THT", dokter: "dr. Lestari Anggraini, Sp.THT-KL", hari: "Selasa, Kamis", jam: "09.00 – 12.00" },
-  { poli: "Klinik Saraf", dokter: "dr. Joko Susilo, Sp.S", hari: "Senin–Jumat", jam: "10.00 – 13.00" },
-  { poli: "Klinik Orthopedi", dokter: "dr. Adi Pramana, Sp.OT", hari: "Selasa, Jumat", jam: "14.00 – 17.00" },
-  { poli: "Klinik Paru", dokter: "dr. Maya Sari, Sp.P", hari: "Rabu, Sabtu", jam: "09.00 – 12.00" },
-  { poli: "Klinik Urologi", dokter: "dr. Reza Pratama, Sp.U", hari: "Senin, Kamis", jam: "13.00 – 16.00", catatan: "Perjanjian" },
-  { poli: "Klinik Gigi & Mulut", dokter: "drg. Anita Rahmawati", hari: "Senin–Sabtu", jam: "08.00 – 14.00" },
-  { poli: "Klinik Jiwa", dokter: "dr. Hendra Kurnia, Sp.KJ", hari: "Rabu, Jumat", jam: "10.00 – 13.00" },
-  { poli: "Klinik Rehab Medik", dokter: "dr. Putri Aulia, Sp.KFR", hari: "Senin–Jumat", jam: "09.00 – 12.00" },
+const DOKTERS: Dokter[] = [
+  { spesialis: "SPESIALIS ANAK", nama: "dr. Sulistyo Suharto, M.Si.,Med.,Sp.A", jadwal: [{ hari: "Senin s.d Sabtu", jam: "10.00 – 13.00 WIB" }] },
+  { spesialis: "SPESIALIS SARAF", nama: "dr. Lestari Handayani, Sp.N", jadwal: [
+    { hari: "Selasa, Rabu", jam: "14.00 – 16.00" },
+    { hari: "Kamis", jam: "12.30 – 14.00" },
+    { hari: "Jumat", jam: "13.00 – 15.00" },
+  ]},
+  { spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Padmi Bektilestari, Sp.PD", jadwal: [
+    { hari: "Senin, Rabu, Jumat", jam: "07.30 – 09.30" },
+    { hari: "Selasa, Kamis, Sabtu", jam: "10.00 – 12.00" },
+    { hari: "Selasa, Rabu, Jumat", jam: "15.00 – 17.00" },
+  ]},
+  { spesialis: "SPESIALIS PENYAKIT DALAM", nama: "dr. Yudha Irla Saputra, Sp.PD, M.M.R", isNew: true, jadwal: [
+    { hari: "Senin", jam: "13.00 – 15.00" },
+    { hari: "Rabu", jam: "13.00 – 15.00" },
+    { hari: "Jumat", jam: "13.00 – 15.00" },
+  ]},
+  { spesialis: "SPESIALIS KANDUNGAN", nama: "dr. Albert Novriadi, Sp.OG", jadwal: [
+    { hari: "Senin", jam: "12.00 – 14.00" },
+    { hari: "Selasa, Rabu", jam: "16.00 – 18.00" },
+    { hari: "Sabtu", jam: "12.00 – 14.00" },
+  ]},
+  { spesialis: "POLI GIGI", nama: "drg. Idha Widiastuti, SE, MM", jadwal: [
+    { hari: "Senin s.d Sabtu", jam: "10.00 – 12.00" },
+    { hari: "Senin s.d Sabtu", jam: "16.00 – 18.00" },
+  ]},
+  { spesialis: "SPESIALIS BEDAH", nama: "dr. Proginova Dian Yudatama, Sp.B", jadwal: [
+    { hari: "Senin", jam: "13.00 – 15.00" },
+    { hari: "Rabu", jam: "13.00 – 15.00" },
+    { hari: "Jumat", jam: "13.30 – 15.00" },
+  ]},
+  { spesialis: "SPESIALIS RADIOLOGI", nama: "dr. Muhammad Fandi G, Sp.Rad., M.Med.Sc", jadwal: [
+    { hari: "Selasa, Rabu, Jumat", jam: "14.00 – 17.00 WIB" },
+  ]},
+  { spesialis: "SPESIALIS JANTUNG & PEMBULUH DARAH", nama: "dr. Arif Setyo Hutomo, Sp.JP", jadwal: [
+    { hari: "Senin, Kamis, Sabtu", jam: "09.00 – 13.00 WIB" },
+  ]},
+  { spesialis: "PATOLOGI KLINIK", nama: "dr. Dianing Pratiwi, M.Med.Sc.PK", jadwal: [
+    { hari: "Senin, Rabu, Jumat", jam: "17.00 – 19.00 WIB" },
+  ]},
 ];
 
-function waLink(j: Jadwal) {
-  const msg = `Halo CS RSU Aisyiyah Purworejo, saya ingin bertanya jadwal:%0A%0A• Poli: ${j.poli}%0A• Dokter: ${j.dokter}%0A• Hari: ${j.hari}%0A• Jam: ${j.jam}%0A%0AMohon konfirmasi ketersediaannya. Terima kasih.`;
+function waLink(d: Dokter) {
+  const jadwalStr = d.jadwal.map((j) => `${j.hari} (${j.jam})`).join(", ");
+  const msg = `Halo CS RSU 'Aisyiyah Purworejo, saya ingin bertanya jadwal:%0A%0A• Poli: ${d.spesialis}%0A• Dokter: ${d.nama}%0A• Jadwal: ${jadwalStr}%0A%0AMohon konfirmasi ketersediaannya. Terima kasih.`;
   return `https://wa.me/${WA_NUMBER}?text=${msg}`;
 }
 
 export default function JadwalDokter() {
-  const [poli, setPoli] = useState("Semua Poli");
-  const [q, setQ] = useState("");
-  const [detail, setDetail] = useState<Jadwal | null>(null);
-
-  const poliList = useMemo(
-    () => ["Semua Poli", ...Array.from(new Set(JADWAL.map((j) => j.poli)))],
-    []
-  );
-
-  const rows = JADWAL.filter(
-    (j) =>
-      (poli === "Semua Poli" || j.poli === poli) &&
-      (q === "" || j.dokter.toLowerCase().includes(q.toLowerCase()))
-  );
-
-  // Untuk detail: semua jadwal dokter terpilih (mungkin >1 baris)
-  const detailRows = detail
-    ? JADWAL.filter((j) => j.dokter === detail.dokter)
-    : [];
+  const [detail, setDetail] = useState<Dokter | null>(null);
 
   return (
-    <section id="jadwal" className="py-20 px-6 bg-muted/30">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-center gap-3">
-          <CalendarDays className="h-7 w-7 text-primary" />
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">
-            JADWAL DOKTER & POLIKLINIK
-          </h2>
-        </div>
-        <p className="mt-2 text-center text-muted-foreground">
-          Klik nama dokter untuk detail, atau tombol WhatsApp untuk konfirmasi langsung ke CS.
-        </p>
+    <section
+      id="jadwal"
+      className="relative py-20 px-6 bg-gradient-to-br from-[#3d6b3a] via-[#4a7a44] to-[#3d6b3a] text-white overflow-hidden"
+    >
+      {/* Pattern dekoratif */}
+      <div
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+          backgroundSize: "32px 32px",
+        }}
+      />
 
-        <div className="mt-8 grid sm:grid-cols-[220px_1fr] gap-3">
-          <select
-            value={poli}
-            onChange={(e) => setPoli(e.target.value)}
-            className="w-full rounded-lg border bg-card px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            {poliList.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari nama dokter…"
-              className="w-full rounded-lg border bg-card pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+      <div className="relative max-w-6xl mx-auto">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center gap-2 text-gold">
+            <CalendarDays className="h-6 w-6" />
+            <span className="text-xs font-semibold tracking-[0.25em] uppercase">RSU 'Aisyiyah Purworejo</span>
+          </div>
+          <h2 className="mt-2 text-3xl md:text-5xl font-bold tracking-tight drop-shadow">
+            JADWAL POLIKLINIK <span className="text-gold">RAWAT JALAN</span>
+          </h2>
+          <p className="mt-3 text-sm md:text-base opacity-90 max-w-2xl mx-auto">
+            Klik nama dokter untuk detail jadwal & catatan, atau tombol WhatsApp untuk konfirmasi langsung ke CS.
+          </p>
+        </div>
+
+        <div className="mt-12 grid md:grid-cols-2 gap-5">
+          {DOKTERS.map((d, i) => (
+            <article
+              key={i}
+              className="group rounded-2xl bg-white text-foreground shadow-xl overflow-hidden border border-white/40 hover:shadow-2xl hover:-translate-y-0.5 transition-all"
+            >
+              {/* Header kuning */}
+              <header className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] px-4 py-3 text-center relative">
+                <h3 className="text-sm md:text-base font-extrabold tracking-wide text-[#5b4400] uppercase">
+                  {d.spesialis}
+                </h3>
+                <button
+                  onClick={() => setDetail(d)}
+                  className="block w-full mt-1 italic text-sm md:text-[15px] font-semibold text-[#3d3000] hover:underline"
+                >
+                  {d.nama}
+                </button>
+                {d.isNew && (
+                  <span className="absolute -left-2 top-2 px-2 py-0.5 rounded-r-full bg-red-600 text-white text-[10px] font-extrabold tracking-widest shadow">
+                    NEW
+                  </span>
+                )}
+              </header>
+
+              {/* Body */}
+              <div className="p-4 flex gap-4 items-start">
+                <div className="shrink-0 h-20 w-20 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 flex items-center justify-center text-primary">
+                  <User className="h-9 w-9" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-primary mb-1.5">
+                    Jadwal Poliklinik Spesialis:
+                  </div>
+                  <ul className="space-y-1 text-sm">
+                    {d.jadwal.map((j, k) => (
+                      <li key={k} className="flex items-baseline gap-2 leading-snug">
+                        <span className="font-medium text-foreground min-w-[120px]">{j.hari}</span>
+                        <span className="text-muted-foreground">:</span>
+                        <span className="text-foreground/80">{j.jam}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Action */}
+              <div className="px-4 pb-4">
+                <a
+                  href={waLink(d)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white shadow hover:brightness-110 transition"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Tanya jadwal via WhatsApp
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Footer kontak */}
+        <div className="mt-12 grid md:grid-cols-2 gap-6 items-center rounded-2xl bg-white/10 backdrop-blur border border-white/20 p-6">
+          <div>
+            <div className="text-gold font-script text-2xl">RSU 'Aisyiyah Purworejo</div>
+            <p className="text-sm opacity-90 mt-1">Informasi layanan, hubungi:</p>
+            <a href="https://wa.me/6281333334192" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-lg font-bold hover:text-gold transition">
+              <MessageCircle className="h-5 w-5" /> 0813-3333-4192 (Humas)
+            </a>
+          </div>
+          <div className="md:text-right">
+            <div className="text-xs uppercase tracking-widest opacity-80">Informasi Pendaftaran</div>
+            <a href="https://wa.me/6282133728989" target="_blank" rel="noreferrer" className="mt-1 inline-block text-2xl md:text-3xl font-extrabold text-gold hover:brightness-110">
+              0821 3372 8989
+            </a>
           </div>
         </div>
 
-        {/* Tabel (desktop) */}
-        <div className="mt-6 hidden md:block overflow-x-auto rounded-2xl border bg-card shadow-sm">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="bg-primary text-primary-foreground text-left">
-                <th className="px-4 py-3 font-semibold">Poli</th>
-                <th className="px-4 py-3 font-semibold">Dokter</th>
-                <th className="px-4 py-3 font-semibold">Hari</th>
-                <th className="px-4 py-3 font-semibold">Jam</th>
-                <th className="px-4 py-3 font-semibold">Catatan</th>
-                <th className="px-4 py-3 font-semibold text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr key={i} className="border-t hover:bg-accent/30 transition-colors">
-                  <td className="px-4 py-3 font-medium">{r.poli}</td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => setDetail(r)}
-                      className="text-left font-semibold text-primary hover:underline"
-                    >
-                      {r.dokter}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.hari}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.jam}</td>
-                  <td className="px-4 py-3 text-muted-foreground italic">{r.catatan ?? "—"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <a
-                      href={waLink(r)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:brightness-110 transition"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      Tanya via WA
-                    </a>
-                  </td>
-                </tr>
-              ))}
-              {rows.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Tidak ada jadwal yang cocok.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Kartu (mobile) */}
-        <div className="mt-6 md:hidden space-y-3">
-          {rows.map((r, i) => (
-            <div key={i} className="rounded-xl border bg-card p-4 shadow-sm">
-              <div className="text-xs font-semibold tracking-widest text-secondary uppercase">{r.poli}</div>
-              <button
-                onClick={() => setDetail(r)}
-                className="mt-1 font-bold text-primary hover:underline text-left"
-              >
-                {r.dokter}
-              </button>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <div className="text-xs text-muted-foreground">Hari</div>
-                  <div>{r.hari}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground">Jam</div>
-                  <div>{r.jam}</div>
-                </div>
-              </div>
-              {r.catatan && (
-                <div className="mt-2 text-xs italic text-muted-foreground">Catatan: {r.catatan}</div>
-              )}
-              <a
-                href={waLink(r)}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:brightness-110 transition"
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                Tanya jadwal via WhatsApp
-              </a>
-            </div>
-          ))}
-          {rows.length === 0 && (
-            <div className="rounded-xl border bg-card p-6 text-center text-muted-foreground">Tidak ada jadwal yang cocok.</div>
-          )}
-        </div>
-
-        <p className="mt-6 text-xs text-center text-muted-foreground italic">
+        <p className="mt-6 text-xs text-center opacity-80 italic">
           *Jadwal dapat berubah sewaktu-waktu. Konfirmasi via WhatsApp CS sebelum kunjungan.
         </p>
       </div>
 
-      {/* MODAL DETAIL DOKTER */}
+      {/* MODAL DETAIL */}
       {detail && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           onClick={() => setDetail(null)}
         >
           <div
-            className="relative w-full max-w-lg rounded-2xl bg-card shadow-2xl overflow-hidden"
+            className="relative w-full max-w-lg rounded-2xl bg-card text-foreground shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-primary text-primary-foreground p-5 pr-12">
-              <div className="text-xs font-semibold tracking-widest opacity-80 uppercase">
-                {detail.poli}
-              </div>
-              <h3 className="mt-1 text-xl font-bold">{detail.dokter}</h3>
+            <div className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] p-5 pr-12 text-[#3d3000]">
+              <div className="text-xs font-bold tracking-widest uppercase">{detail.spesialis}</div>
+              <h3 className="mt-1 text-xl font-extrabold italic">{detail.nama}</h3>
               <button
                 onClick={() => setDetail(null)}
                 aria-label="Tutup"
-                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/15"
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-black/10"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -210,20 +199,12 @@ export default function JadwalDokter() {
 
             <div className="p-5 space-y-4">
               <div>
-                <div className="text-sm font-semibold text-foreground">Jadwal Praktik</div>
+                <div className="text-sm font-semibold text-primary">Jadwal Praktik Lengkap</div>
                 <ul className="mt-2 space-y-2">
-                  {detailRows.map((r, i) => (
-                    <li
-                      key={i}
-                      className="rounded-lg border bg-muted/40 p-3 text-sm flex flex-wrap gap-x-4 gap-y-1"
-                    >
-                      <span className="font-medium">{r.hari}</span>
-                      <span className="text-muted-foreground">{r.jam}</span>
-                      {r.catatan && (
-                        <span className="w-full text-xs italic text-muted-foreground">
-                          Catatan: {r.catatan}
-                        </span>
-                      )}
+                  {detail.jadwal.map((j, i) => (
+                    <li key={i} className="rounded-lg border bg-muted/40 p-3 text-sm flex justify-between gap-3">
+                      <span className="font-medium">{j.hari}</span>
+                      <span className="text-muted-foreground">{j.jam}</span>
                     </li>
                   ))}
                 </ul>
