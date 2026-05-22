@@ -103,23 +103,29 @@ export default function JadwalDokter() {
           </p>
         </div>
 
-        <div className="mt-12 grid md:grid-cols-2 gap-5">
+        <div className="mt-10 sm:mt-12 grid md:grid-cols-2 gap-4 sm:gap-5">
           {DOKTERS.map((d, i) => (
             <article
               key={i}
-              className="group rounded-2xl bg-white text-foreground shadow-xl overflow-hidden border border-white/40 hover:shadow-2xl hover:-translate-y-0.5 transition-all"
+              role="button"
+              tabIndex={0}
+              onClick={() => setDetail(d)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setDetail(d);
+                }
+              }}
+              className="group cursor-pointer rounded-2xl bg-white text-foreground shadow-xl overflow-hidden border border-white/40 hover:shadow-2xl hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-gold"
             >
               {/* Header kuning */}
-              <header className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] px-4 py-3 text-center relative">
-                <h3 className="text-sm md:text-base font-extrabold tracking-wide text-[#5b4400] uppercase">
+              <header className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] px-3 py-2.5 text-center relative">
+                <h3 className="text-[12px] sm:text-sm md:text-base font-extrabold tracking-wide text-[#5b4400] uppercase">
                   {d.spesialis}
                 </h3>
-                <button
-                  onClick={() => setDetail(d)}
-                  className="block w-full mt-1 italic text-sm md:text-[15px] font-semibold text-[#3d3000] hover:underline"
-                >
+                <div className="mt-0.5 italic text-[13px] sm:text-[15px] font-semibold text-[#3d3000]">
                   {d.nama}
-                </button>
+                </div>
                 {d.isNew && (
                   <span className="absolute -left-2 top-2 px-2 py-0.5 rounded-r-full bg-red-600 text-white text-[10px] font-extrabold tracking-widest shadow">
                     NEW
@@ -128,21 +134,21 @@ export default function JadwalDokter() {
               </header>
 
               {/* Body */}
-              <div className="p-4 flex gap-4 items-start">
+              <div className="p-3 sm:p-4 flex gap-3 items-start">
                 <img
                   src={d.foto}
                   alt={d.nama}
                   loading="lazy"
-                  className="shrink-0 h-20 w-20 rounded-xl object-cover object-top border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm"
+                  className="shrink-0 h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover object-top border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-primary mb-1.5">
+                  <div className="text-[11px] sm:text-xs font-semibold text-primary mb-1.5">
                     Jadwal Poliklinik Spesialis:
                   </div>
-                  <ul className="space-y-1 text-sm">
+                  <ul className="space-y-1 text-[12.5px] sm:text-sm">
                     {d.jadwal.map((j, k) => (
-                      <li key={k} className="flex items-baseline gap-2 leading-snug">
-                        <span className="font-medium text-foreground min-w-[120px]">{j.hari}</span>
+                      <li key={k} className="flex flex-wrap items-baseline gap-x-2 leading-snug">
+                        <span className="font-medium text-foreground min-w-[96px] sm:min-w-[120px]">{j.hari}</span>
                         <span className="text-muted-foreground">:</span>
                         <span className="text-foreground/80">{j.jam}</span>
                       </li>
@@ -152,12 +158,13 @@ export default function JadwalDokter() {
               </div>
 
               {/* Action */}
-              <div className="px-4 pb-4">
+              <div className="px-3 sm:px-4 pb-3 sm:pb-4">
                 <a
                   href={waLink(d)}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white shadow hover:brightness-110 transition"
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow hover:brightness-110 transition"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Tanya jadwal via WhatsApp
