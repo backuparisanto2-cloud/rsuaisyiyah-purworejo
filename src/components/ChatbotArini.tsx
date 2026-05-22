@@ -1,41 +1,57 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 import arini from "@/assets/arini.png";
+import { supabase } from "@/integrations/supabase/client";
 
 type Msg = { role: "bot" | "user"; text: string };
+type Knowledge = { title: string; content: string };
 
-const QUICK = [
-  "Jadwal dokter",
-  "Pendaftaran online",
-  "Layanan unggulan",
-  "Jam besuk",
-  "Hubungi CS",
-];
+const QUICK = ["Jadwal dokter", "Pendaftaran online", "Layanan unggulan", "Jam besuk", "Hubungi CS"];
 
-function reply(input: string): string {
-  const t = input.toLowerCase();
-  if (t.includes("dokter") || t.includes("jadwal"))
-    return "Jadwal dokter dapat dilihat pada bagian 'Poliklinik & Rawat Jalan'. Klik nama klinik untuk detail jadwal, atau hubungi CS kami di WhatsApp 0896-4671-0859.";
-  if (t.includes("daftar") || t.includes("pendaftaran"))
-    return "Pendaftaran online tersedia melalui menu 'Pendaftaran Online'. Saya juga bisa bantu hubungkan Anda ke CS via WhatsApp.";
-  if (t.includes("besuk") || t.includes("jam"))
-    return "Jam besuk resmi: Siang 11.00–13.30 WIB dan Sore 17.00–19.00 WIB.";
-  if (t.includes("layanan") || t.includes("unggulan"))
-    return "Layanan unggulan kami: Paviliun Multazam, Bedah Anak, Uronefrologi, Stem Cell, dan Husnul Khotimah.";
-  if (t.includes("cs") || t.includes("whatsapp") || t.includes("kontak") || t.includes("hubungi"))
-    return "Silakan hubungi CS kami di WhatsApp 0896-4671-0859 atau Instagram @rsu_aisyiyah.";
-  if (t.includes("halo") || t.includes("hai") || t.includes("assalam"))
-    return "Wa'alaikumussalam 😊 Ada yang bisa Arini bantu seputar layanan rumah sakit?";
-  return "Terima kasih atas pertanyaannya. Untuk informasi lebih lanjut, silakan hubungi CS kami di WhatsApp 0896-4671-0859.";
+const FALLBACK = "Terima kasih atas pertanyaannya. Untuk informasi lebih lanjut, silakan hubungi CS kami di WhatsApp 0896-4671-0859.";
+
+function findAnswer(input: string, kb: Knowledge[]): string {
+  const q = input.toLowerCase();
+  const tokens = q.split(/\s+/).filter((t) => t.length > 2);
+  if (!tokens.length || !kb.length) return FALLBACK;
+  let best: { score: number; item: Knowledge } | null = null;
+  for (const item of kb) {
+    const hay = `${item.title}\n${item.content}`.toLowerCase();
+    let score = 0;
+    for (const t of tokens) if (hay.includes(t)) score += 1;
+    if (!best || score > best.score) best = { score, item };
+  }
+  if (!best || best.score === 0) return FALLBACK;
+  return `${best.item.title}\n\n${best.item.content}`;
 }
 
 export default function ChatbotArini() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "bot", text: "Assalamu'alaikum 👋 Saya Arini, asisten virtual RSU Aisyiyah Purworejo. Ada yang bisa saya bantu?" },
-  ]);
+  const [name, setName] = useState("Arini");
+  const [avatar, setAvatar] = useState<string>(arini);
+  const [greeting, setGreeting] = useState("Assalamu'alaikum 👋 Saya Arini, asisten virtual RSU Aisyiyah Purworejo. Ada yang bisa saya bantu?");
+  const [kb, setKb] = useState<Knowledge[]>([]);
+  const [msgs, setMsgs] = useState<Msg[]>([{ role: "bot", text: greeting }]);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    (async () => {
+      const [{ data: s }, { data: k }] = await Promise.all([
+        supabase.from("chatbot_settings").select("name,avatar_url,greeting").maybeSingle(),
+        supabase.from("chatbot_knowledge").select("title,content").eq("is_active", true),
+      ]);
+      if (s) {
+        if (s.name) setName(s.name);
+        if (s.avatar_url) setAvatar(s.avatar_url);
+        if (s.greeting) {
+          setGreeting(s.greeting);
+          setMsgs([{ role: "bot", text: s.greeting }]);
+        }
+      }
+      setKb((k as Knowledge[]) ?? []);
+    })();
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -46,9 +62,7 @@ export default function ChatbotArini() {
     if (!v) return;
     setMsgs((m) => [...m, { role: "user", text: v }]);
     setInput("");
-    setTimeout(() => {
-      setMsgs((m) => [...m, { role: "bot", text: reply(v) }]);
-    }, 500);
+    setTimeout(() => setMsgs((m) => [...m, { role: "bot", text: findAnswer(v, kb) }]), 400);
   };
 
   return (
@@ -57,15 +71,15 @@ export default function ChatbotArini() {
         <button
           onClick={() => setOpen(true)}
           className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-2xl hover:bg-primary-dark transition-all animate-float"
-          aria-label="Buka chat Arini"
+          aria-label={`Buka chat ${name}`}
         >
           <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white shrink-0">
-            <img src={arini} alt="Arini" className="absolute inset-0 h-full w-full object-cover object-top scale-110" />
+            <img src={avatar} alt={name} className="absolute inset-0 h-full w-full object-cover object-top scale-110" />
             <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-secondary ring-2 ring-white" />
           </div>
           <div className="text-left pr-2">
             <div className="text-xs opacity-80 leading-none">Tanya</div>
-            <div className="font-bold leading-tight">Arini</div>
+            <div className="font-bold leading-tight">{name}</div>
           </div>
         </button>
       )}
@@ -74,10 +88,10 @@ export default function ChatbotArini() {
         <div className="fixed bottom-6 right-6 z-50 w-[92vw] max-w-sm rounded-2xl bg-card shadow-2xl border overflow-hidden flex flex-col" style={{ height: "min(560px, 80vh)" }}>
           <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
             <div className="h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white/50 shrink-0">
-              <img src={arini} alt="Arini" className="h-full w-full object-cover object-top scale-110" />
+              <img src={avatar} alt={name} className="h-full w-full object-cover object-top scale-110" />
             </div>
             <div className="flex-1">
-              <div className="font-bold">Arini</div>
+              <div className="font-bold">{name}</div>
               <div className="text-xs opacity-90 flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-secondary" /> Asisten Virtual • Online
               </div>
@@ -90,7 +104,7 @@ export default function ChatbotArini() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/30">
             {msgs.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-card border rounded-bl-sm"}`}>
+                <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-card border rounded-bl-sm"}`}>
                   {m.text}
                 </div>
               </div>
@@ -104,10 +118,7 @@ export default function ChatbotArini() {
             </div>
           </div>
 
-          <form
-            onSubmit={(e) => { e.preventDefault(); send(input); }}
-            className="p-3 border-t flex gap-2 bg-card"
-          >
+          <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="p-3 border-t flex gap-2 bg-card">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -120,6 +131,9 @@ export default function ChatbotArini() {
           </form>
         </div>
       )}
+
+      {/* keep icon import to avoid unused error if tree-shaken */}
+      <MessageCircle className="hidden" />
     </>
   );
 }

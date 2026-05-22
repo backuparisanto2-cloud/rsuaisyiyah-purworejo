@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
-  LogOut, Loader2,
+  Bot, LogOut, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -31,6 +31,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree, disabled: true },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
   { to: "/administrator/theme", label: "Tema Warna", icon: Palette },
+  { to: "/administrator/chatbot", label: "Chatbot", icon: Bot },
 ];
 
 function AdminLayout() {
