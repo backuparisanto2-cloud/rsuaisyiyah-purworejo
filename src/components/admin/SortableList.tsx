@@ -65,7 +65,8 @@ function Row({ id, render }: { id: string; render: (handle: ReactNode) => ReactN
 export async function persistOrder<T extends WithId>(
   table: string,
   items: T[],
-  supabase: { from: (t: string) => { update: (v: { display_order: number }) => { eq: (k: string, v: string) => Promise<unknown> } } },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
 ) {
   await Promise.all(
     items.map((it, idx) =>
