@@ -4,7 +4,7 @@ import hero2 from "@/assets/hero-2.png";
 import hero3 from "@/assets/hero-3.png";
 import heroDental from "@/assets/hero-dental.jpg";
 
-const SLIDES = [hero2, heroDental, hero3, hero1];
+const SLIDES = [hero3, hero2, heroDental, hero1];
 
 export default function HeroSlider() {
   const [i, setI] = useState(0);
