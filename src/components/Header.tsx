@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { ChevronDown, Search, Menu, X } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import logo from "@/assets/logo-pku.png";
 
 const NAV = [
   { label: "Beranda", href: "#beranda" },
-  { label: "Tentang Kami", href: "#tentang", sub: ["Sejarah & Profil", "Visi & Misi", "Direksi", "Prestasi", "Budaya Organisasi"] },
-  { label: "Layanan", href: "#layanan", sub: ["Paviliun Multazam", "Bedah Anak", "Uronefrologi", "Stem Cell", "Rawat Inap", "IGD 24 Jam", "Pendaftaran Online"] },
-  { label: "Dokter Kami", href: "#dokter" },
-  { label: "Artikel", href: "#artikel", sub: ["Berita & Artikel", "Jurnal Kesehatan", "Karir"] },
-  { label: "Hubungi Kami", href: "#kontak" },
+  { label: "Tentang Kami", href: "#tentang" },
+  { label: "Berita & Info", href: "#layanan" },
+  { label: "Jadwal Dokter", href: "#jadwal" },
+  { label: "Instagram", href: "#instagram" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Kontak", href: "#kontak" },
 ];
 
 export default function Header() {
@@ -33,19 +34,9 @@ export default function Header() {
 
         <nav className="hidden lg:flex items-center gap-1 ml-auto text-sm font-semibold">
           {NAV.map((n) => (
-            <div key={n.label} className="relative group">
-              <a href={n.href} className="px-3 py-2 flex items-center gap-1 hover:text-gold transition-colors">
-                {n.label.toUpperCase()}
-                {n.sub && <ChevronDown className="h-3 w-3" />}
-              </a>
-              {n.sub && (
-                <div className="absolute top-full left-0 min-w-56 bg-white text-foreground rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2">
-                  {n.sub.map((s) => (
-                    <a key={s} href="#" className="block px-4 py-2 text-sm hover:bg-accent">{s}</a>
-                  ))}
-                </div>
-              )}
-            </div>
+            <a key={n.label} href={n.href} className="px-3 py-2 hover:text-gold transition-colors">
+              {n.label.toUpperCase()}
+            </a>
           ))}
         </nav>
 

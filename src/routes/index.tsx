@@ -10,7 +10,21 @@ import BeritaInstagram from "@/components/BeritaInstagram";
 
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import PendaftaranModal from "@/components/PendaftaranModal";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import logo from "@/assets/logo-hero.png";
+
+const FAQS = [
+  { q: "Di mana lokasi RSU Aisyiyah Purworejo?", a: "Jl. Jend. Sudirman No. 12, Purworejo, Jawa Tengah. Lihat peta di section Kontak." },
+  { q: "Bagaimana cara mendaftar berobat?", a: "Klik tombol \"Pendaftaran Online\" di hero, atau hubungi WhatsApp CS 0896-4671-0859. Bisa juga datang langsung ke loket pendaftaran." },
+  { q: "Apakah menerima pasien BPJS Kesehatan?", a: "Ya, kami melayani pasien BPJS Kesehatan, asuransi swasta, dan pasien umum." },
+  { q: "Jam operasional IGD?", a: "IGD buka 24 jam setiap hari, termasuk hari libur." },
+  { q: "Kapan jam besuk pasien?", a: "Siang 11.00–13.30 WIB dan sore 17.00–19.00 WIB." },
+  { q: "Bagaimana cara melihat jadwal dokter?", a: "Lihat di section \"Jadwal Dokter\" pada halaman ini, atau hubungi CS untuk konfirmasi." },
+  { q: "Apakah tersedia layanan ramah difabel?", a: "Ya, fasilitas kami dirancang ramah difabel mulai dari akses, toilet, hingga pendampingan layanan." },
+  { q: "Layanan unggulan apa saja yang tersedia?", a: "Paviliun Multazam, Bedah Anak, Uronefrologi, Stem Cell, Rawat Inap, IGD 24 Jam, dan berbagai poli spesialis." },
+  { q: "Status akreditasi rumah sakit?", a: "Terakreditasi PARIPURNA dan tersertifikasi LARSI." },
+  { q: "Bagaimana memberikan kritik & saran?", a: "Melalui WhatsApp CS 0896-4671-0859 atau email info@rspkukaranganyar.id." },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -147,6 +161,31 @@ function HomePage() {
               <Instagram className="h-5 w-5" /> Kunjungi Instagram Kami
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-20 px-6 bg-muted/30">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-center text-sm font-semibold tracking-widest text-secondary uppercase">FAQ</p>
+          <h2 className="mt-2 text-2xl md:text-3xl font-bold text-center text-primary">
+            Pertanyaan yang Sering Diajukan
+          </h2>
+          <p className="text-center text-muted-foreground mt-2 text-sm">
+            Informasi seputar layanan RSU Aisyiyah Purworejo
+          </p>
+          <Accordion type="single" collapsible className="mt-10 space-y-3">
+            {FAQS.map((f, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="bg-white rounded-xl border px-5 shadow-sm">
+                <AccordionTrigger className="text-left font-semibold text-primary hover:no-underline">
+                  {f.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed">
+                  {f.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
