@@ -42,7 +42,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     let alive = true;
     const load = async () => {
       const { data } = await supabase.from("theme_settings").select("*").maybeSingle();
-      if (alive && data) apply(data as Record<string, string>);
+      if (alive && data) apply(data as unknown as Record<string, string>);
     };
     void load();
     const ch = supabase
