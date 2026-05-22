@@ -197,7 +197,7 @@ function HomePage() {
                 <AccordionItem key={i} value={`layanan-${i}`} className="bg-muted/30 rounded-xl border px-5 shadow-sm">
                   <AccordionTrigger className="text-left font-semibold text-primary hover:no-underline">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-1">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                         <Icon className="h-5 w-5" />
                       </div>
                       <span className="text-base">{l.title}</span>
