@@ -118,7 +118,7 @@ function HomePage() {
       {/* PROMO */}
       <section id="layanan" className="py-20 px-6 bg-muted/30">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">INFO TERKINI & PROMO</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">BERITA, INFO TERKINI & PROMO</h2>
           <div className="mt-4 overflow-hidden">
             <div className="flex gap-5 animate-marquee w-max">
               {[...PROMO, ...PROMO].map((p, i) => (
