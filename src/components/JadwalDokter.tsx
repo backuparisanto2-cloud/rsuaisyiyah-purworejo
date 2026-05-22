@@ -33,7 +33,7 @@ function groupSchedules(rows: { day_of_week: number; time_start: string; time_en
 }
 
 export default function JadwalDokter() {
-  const [dokters, setDokters] = useState<Dokter[]>(FALLBACK);
+  const [dokters, setDokters] = useState<Dokter[]>([]);
   const [detail, setDetail] = useState<Dokter | null>(null);
 
   useEffect(() => {
