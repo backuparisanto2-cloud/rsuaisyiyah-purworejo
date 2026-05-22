@@ -47,22 +47,22 @@ function HomePage() {
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO */}
-      <section id="beranda" className="relative pt-24 min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
+      <section id="beranda" className="relative pt-20 sm:pt-24 min-h-[88vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <HeroSlider />
-        <div className="absolute inset-1 bg-blue-950/50 pointer-events-none" />
+        <div className="absolute inset-0 bg-blue-950/50 pointer-events-none" />
 
-        <div className="relative z-10 text-center px-6 text-primary-foreground max-w-3xl">
-          <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-32 w-32 mx-auto drop-shadow-2xl animate-float" />
-          <h1 className="mt-6 text-3xl md:text-5xl font-bold tracking-tight">
+        <div className="relative z-10 text-center px-4 sm:px-6 text-primary-foreground max-w-3xl">
+          <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-24 w-24 sm:h-32 sm:w-32 mx-auto drop-shadow-2xl animate-float" />
+          <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             RSU AISYIYAH<br/><span className="text-gold">PURWOREJO</span>
           </h1>
-          <p className="mt-4 text-2xl md:text-4xl font-script text-gold">Keramahan Sebenarnya</p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button onClick={() => setPendaftaranOpen(true)} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-primary-dark font-bold hover:scale-105 transition-transform shadow-lg">
+          <p className="mt-3 sm:mt-4 text-xl sm:text-3xl md:text-4xl font-script text-gold">Keramahan Sebenarnya</p>
+          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <button onClick={() => setPendaftaranOpen(true)} className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-gold text-primary-dark font-bold hover:scale-105 transition-transform shadow-lg text-sm sm:text-base">
               <CalendarCheck className="h-5 w-5" /> Pendaftaran Online
             </button>
-            <span className="px-4 py-2 rounded-full bg-gold/20 border border-gold/40 text-sm font-semibold">★ PARIPURNA</span>
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-semibold">Akreditasi LARSI</span>
+            <span className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gold/20 border border-gold/40 text-xs sm:text-sm font-semibold">★ PARIPURNA</span>
+            <span className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm font-semibold">Akreditasi LARSI</span>
           </div>
         </div>
       </section>
