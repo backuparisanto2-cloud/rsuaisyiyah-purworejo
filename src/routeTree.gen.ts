@@ -9,38 +9,117 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
+import { Route as AdministratorHeroSliderRouteImport } from './routes/administrator.hero-slider'
+import { Route as AdministratorHeroSettingsRouteImport } from './routes/administrator.hero-settings'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdministratorRoute = AdministratorRouteImport.update({
+  id: '/administrator',
+  path: '/administrator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorHeroSliderRoute = AdministratorHeroSliderRouteImport.update({
+  id: '/hero-slider',
+  path: '/hero-slider',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorHeroSettingsRoute =
+  AdministratorHeroSettingsRouteImport.update({
+    id: '/hero-settings',
+    path: '/hero-settings',
+    getParentRoute: () => AdministratorRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/administrator': typeof AdministratorRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
+  '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
+  '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator': typeof AdministratorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/administrator': typeof AdministratorRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
+  '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/administrator'
+    | '/auth'
+    | '/administrator/hero-settings'
+    | '/administrator/hero-slider'
+    | '/administrator/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/administrator/hero-settings'
+    | '/administrator/hero-slider'
+    | '/administrator'
+  id:
+    | '__root__'
+    | '/'
+    | '/administrator'
+    | '/auth'
+    | '/administrator/hero-settings'
+    | '/administrator/hero-slider'
+    | '/administrator/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdministratorRoute: typeof AdministratorRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/administrator': {
+      id: '/administrator'
+      path: '/administrator'
+      fullPath: '/administrator'
+      preLoaderRoute: typeof AdministratorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +127,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/administrator/': {
+      id: '/administrator/'
+      path: '/'
+      fullPath: '/administrator/'
+      preLoaderRoute: typeof AdministratorIndexRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/hero-slider': {
+      id: '/administrator/hero-slider'
+      path: '/hero-slider'
+      fullPath: '/administrator/hero-slider'
+      preLoaderRoute: typeof AdministratorHeroSliderRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/hero-settings': {
+      id: '/administrator/hero-settings'
+      path: '/hero-settings'
+      fullPath: '/administrator/hero-settings'
+      preLoaderRoute: typeof AdministratorHeroSettingsRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
   }
 }
 
+interface AdministratorRouteChildren {
+  AdministratorHeroSettingsRoute: typeof AdministratorHeroSettingsRoute
+  AdministratorHeroSliderRoute: typeof AdministratorHeroSliderRoute
+  AdministratorIndexRoute: typeof AdministratorIndexRoute
+}
+
+const AdministratorRouteChildren: AdministratorRouteChildren = {
+  AdministratorHeroSettingsRoute: AdministratorHeroSettingsRoute,
+  AdministratorHeroSliderRoute: AdministratorHeroSliderRoute,
+  AdministratorIndexRoute: AdministratorIndexRoute,
+}
+
+const AdministratorRouteWithChildren = AdministratorRoute._addFileChildren(
+  AdministratorRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdministratorRoute: AdministratorRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -1,90 +1,77 @@
-# Tambah FAQ & Rapikan Menu Navigasi
 
-## Masalah
-1. Menu header berisi item & submenu (Dokter Kami, Artikel, Sejarah, Visi-Misi, Paviliun, dll.) yang **tidak ada anchornya** di halaman → klik tidak ke mana-mana.
-2. Section "BERITA, INFO TERKINI & PROMO" pakai `id="layanan"` (membingungkan).
-3. Belum ada section FAQ.
+# Plan Bertahap — CMS Admin RSU Aisyiyah Purworejo
 
-## Perubahan
+Scope sangat besar. Saya akan kerjakan **bertahap (6 fase)**. Setiap fase diakhiri dengan preview yang bisa Anda test. Setelah fase selesai dan Anda setujui, lanjut fase berikutnya.
 
-### 1. `src/components/Header.tsx` — rapikan menu
-Ganti array `NAV` agar hanya berisi section yang nyata, baik untuk desktop maupun mobile (keduanya pakai array yang sama):
+Tema default: **ikut palet existing** (primary biru tua + gold), bisa diubah dari halaman /administrator/theme nanti.
+Admin pertama: **rsaisyiyahpurworejo@gmail.com** (di-assign role admin via SQL seed setelah signup).
 
-- Beranda → `#beranda`
-- Tentang Kami → `#tentang`
-- Berita & Info → `#layanan`
-- Jadwal Dokter → `#jadwal`
-- Instagram → `#instagram`
-- FAQ → `#faq` (baru)
-- Kontak → `#kontak`
+---
 
-Hapus seluruh dropdown `sub` (tidak ada halaman tujuannya). Tutup mobile menu otomatis saat klik (sudah ada).
+## Fase 1 — Fondasi (yang akan saya kerjakan SEKARANG setelah Anda setujui plan ini)
 
-### 2. `src/routes/index.tsx` — tambah section FAQ
-Sisipkan sebelum section `#kontak`:
+1. **Aktifkan Lovable Cloud** (database + auth + storage).
+2. **Schema dasar + RLS**:
+   - `enum app_role` ('admin','editor','user')
+   - `user_roles (user_id, role)` + fungsi `has_role()` SECURITY DEFINER
+   - `profiles` + trigger `handle_new_user`
+   - Storage bucket `media` (public read, write admin-only)
+3. **Auth**:
+   - Route `/auth` (login + signup email/password, autoconfirm aktif)
+   - Hook session listener di root
+4. **Layout admin** (`/administrator`):
+   - Guard role admin (redirect ke `/auth` jika belum login, ke `/` jika bukan admin)
+   - Sidebar kiri (shadcn sidebar, collapsible) berisi link semua modul (placeholder route untuk modul yang belum dibangun)
+   - Topbar dengan tombol logout
+   - Dashboard kosong dengan ringkasan
+5. **Modul Hero Slider** (CRUD pertama, jadi template untuk modul lain):
+   - Tabel `hero_slides` (max 5 via trigger) + `hero_settings` (single row)
+   - List dengan drag-and-drop reorder (@dnd-kit/sortable), preview thumbnail, toggle aktif
+   - Form Dialog (react-hook-form + zod): upload image ke bucket `media`, judul, subjudul, CTA text, CTA link
+   - Halaman pengaturan slider: interval (2–15s), autoplay, loop, arrows, dots, efek (fade/slide)
+   - Komponen `ImageUpload` reusable (preview, hapus, ganti, validasi ≤5MB)
+6. **SQL seed** assign role admin ke `rsaisyiyahpurworejo@gmail.com` (jalan setelah Anda signup pertama kali).
+7. **Halaman publik** `/` Hero Slider dipasang ulang menggunakan `embla-carousel-react` + autoplay plugin, baca dari Cloud.
 
-```tsx
-<section id="faq" className="py-20 px-6 bg-muted/30">
-  <div className="max-w-4xl mx-auto">
-    <p className="text-center text-sm font-semibold tracking-widest text-secondary uppercase">FAQ</p>
-    <h2 className="mt-2 text-2xl md:text-3xl font-bold text-center text-primary">
-      Pertanyaan yang Sering Diajukan
-    </h2>
-    <p className="text-center text-muted-foreground mt-2 text-sm">
-      Informasi seputar layanan RSU Aisyiyah Purworejo
-    </p>
-    <Accordion type="single" collapsible className="mt-10 space-y-3">
-      {FAQS.map((f, i) => (
-        <AccordionItem key={i} value={`item-${i}`} className="bg-white rounded-xl border px-5 shadow-sm">
-          <AccordionTrigger className="text-left font-semibold text-primary hover:no-underline">
-            {f.q}
-          </AccordionTrigger>
-          <AccordionContent className="text-muted-foreground leading-relaxed">
-            {f.a}
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
-  </div>
-</section>
-```
+Setelah Fase 1 selesai → Anda signup di `/auth`, saya konfirmasi role admin sudah aktif, lalu kita lanjut Fase 2.
 
-Tambah import `Accordion, AccordionItem, AccordionTrigger, AccordionContent` dari `@/components/ui/accordion`.
+---
 
-### 3. Daftar FAQ (10 pertanyaan relevan tentang RSU Aisyiyah Purworejo)
+## Fase 2 — Modul Konten Statis
+Tentang, Jam Besuk, Layanan, FAQ, Kontak/Footer, Mitra Slider. Pola sama dengan Hero Slider (table + dialog + dnd reorder).
 
-1. **Di mana lokasi RSU Aisyiyah Purworejo?**
-   Jl. Jend. Sudirman No. 12, Purworejo, Jawa Tengah. Lihat peta di section Kontak.
+## Fase 3 — Modul Kompleks
+Jadwal Dokter (nama + spesialisasi + foto + jadwal per hari multi-baris via child table `doctor_schedules`).
+Header settings (logo, nama RS, tagline).
 
-2. **Bagaimana cara mendaftar berobat?**
-   Klik tombol "Pendaftaran Online" di hero, atau hubungi WhatsApp CS 0896-4671-0859. Bisa juga datang langsung ke loket pendaftaran.
+## Fase 4 — Menu Builder
+`/administrator/menu`, tabel `menu_items` (parent_id, location, dll), tree drag-and-drop @dnd-kit, dialog tambah/edit, preview live, render dropdown di Header publik.
 
-3. **Apakah menerima pasien BPJS Kesehatan?**
-   Ya, kami melayani pasien BPJS Kesehatan, asuransi swasta, dan pasien umum.
+## Fase 5 — Page Builder (Section Order) + Theme
+- `/administrator/sections`: drag-reorder + toggle aktif section homepage, tabel `page_sections`. Homepage publik render berdasarkan tabel ini.
+- `/administrator/theme`: color picker (primary/secondary/accent/background/foreground HSL), simpan ke `site_theme`, apply ke CSS variables `document.documentElement` di mount → live preview.
 
-4. **Jam operasional IGD?**
-   IGD buka 24 jam setiap hari, termasuk hari libur.
+## Fase 6 — Seed Data Placeholder
+Scrape konten dari https://rsuaisyiyah-purworejo.lovable.app/ (Hero, Tentang, Jam Besuk, Layanan, Jadwal Dokter, Mitra, FAQ, Kontak, Menu) via Firecrawl, masukkan sebagai initial rows agar form admin sudah terisi. (Bisa juga dijalankan parsial di tiap fase saat tabelnya dibuat — saya akan optimalkan.)
 
-5. **Kapan jam besuk pasien?**
-   Siang 11.00–13.30 WIB dan sore 17.00–19.00 WIB.
+---
 
-6. **Bagaimana cara melihat jadwal dokter?**
-   Lihat di section "Jadwal Dokter" pada halaman ini, atau hubungi CS untuk konfirmasi.
+## Catatan teknis (untuk transparansi)
+- Semua tabel: `id uuid pk default gen_random_uuid()`, `created_at`, `updated_at` (trigger), `display_order int`, `is_active bool` bila relevan.
+- RLS pattern semua tabel konten:
+  - `SELECT` → `true` (publik baca)
+  - `INSERT/UPDATE/DELETE` → `has_role(auth.uid(),'admin')`
+- Storage `media`: bucket public, policy admin-only untuk insert/update/delete pada `storage.objects where bucket_id='media'`.
+- Auth Lovable Cloud: email/password, email confirmation **dimatikan** (autoconfirm) supaya signup admin pertama langsung bisa login.
+- Stack server fn pakai `createServerFn` hanya kalau perlu service-role; untuk CRUD admin cukup pakai supabase client browser + RLS (lebih ringan).
+- Library baru: `@dnd-kit/core`, `@dnd-kit/sortable`, `embla-carousel-react`, `embla-carousel-autoplay`.
 
-7. **Apakah tersedia layanan ramah difabel?**
-   Ya, fasilitas kami dirancang ramah difabel mulai dari akses, toilet, hingga pendampingan layanan.
+---
 
-8. **Layanan unggulan apa saja yang tersedia?**
-   Paviliun Multazam, Bedah Anak, Uronefrologi, Stem Cell, Rawat Inap, IGD 24 Jam, dan berbagai poli spesialis.
+## Tindakan Anda setelah Fase 1 selesai
+1. Buka `/auth`, **signup** dengan email `rsaisyiyahpurworejo@gmail.com` + password pilihan Anda.
+2. Beri tahu saya — saya verifikasi role admin sudah terpasang.
+3. Anda login → masuk `/administrator` → coba CRUD Hero Slider.
+4. Approve → kita lanjut Fase 2.
 
-9. **Status akreditasi rumah sakit?**
-   Terakreditasi PARIPURNA dan tersertifikasi LARSI.
-
-10. **Bagaimana memberikan kritik & saran?**
-    Melalui WhatsApp CS 0896-4671-0859 atau email info@rspkukaranganyar.id.
-
-## Catatan
-- Tidak menambah dependency baru — `Accordion` shadcn sudah ada.
-- Section `#layanan` tetap dipakai (tidak diubah idnya) supaya tidak merusak link lain.
-
-Setuju? Ketik **Approve plan** untuk saya jalankan.
+Setujui plan ini untuk mulai Fase 1?
