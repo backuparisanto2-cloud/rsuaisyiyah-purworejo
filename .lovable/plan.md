@@ -1,40 +1,90 @@
-# Section BERITA, INFO TERKINI & PROMO → 15 Post Instagram Terbaru
+# Tambah FAQ & Rapikan Menu Navigasi
 
-## Tujuan
-Mengganti card statis `PROMO` di section "BERITA, INFO TERKINI & PROMO" agar menampilkan **15 post terbaru** dari Instagram `@rsu_aisyiyah`.
+## Masalah
+1. Menu header berisi item & submenu (Dokter Kami, Artikel, Sejarah, Visi-Misi, Paviliun, dll.) yang **tidak ada anchornya** di halaman → klik tidak ke mana-mana.
+2. Section "BERITA, INFO TERKINI & PROMO" pakai `id="layanan"` (membingungkan).
+3. Belum ada section FAQ.
 
-## Konteks
-- Saat ini section memakai array statis `PROMO` (src/routes/index.tsx baris 26 & 124).
-- Halaman sudah punya widget Elfsight Instagram Feed terpisah di section `#instagram` yang sukses mengambil data (terlihat di network log: endpoint `widget-data.service.elfsight.com/api/posts` mengembalikan post lengkap dengan caption, thumbnail, link, tanggal, likes).
-- Instagram tidak menyediakan API publik tanpa OAuth — perlu perantara.
+## Perubahan
 
-## Pendekatan yang Direkomendasikan: Pakai endpoint Elfsight yang sudah jalan
-Widget Elfsight di project ini sudah terhubung ke akun IG `rsu_aisyiyah` dan mengembalikan JSON post. Kita fetch endpoint yang sama dari server function, lalu render sebagai 15 card di section BERITA.
+### 1. `src/components/Header.tsx` — rapikan menu
+Ganti array `NAV` agar hanya berisi section yang nyata, baik untuk desktop maupun mobile (keduanya pakai array yang sama):
 
-### Langkah
-1. **Server function** `src/lib/instagram.functions.ts` (`createServerFn`, GET):
-   - Fetch `https://widget-data.service.elfsight.com/api/posts?sources[]=...&sort=date&limit=15&offset=0` dengan header `x-widget-token` yang sama dengan widget Elfsight project ini.
-   - Map respons → `{ id, image, caption, link, publishedAt, likes }[]`.
-   - Cache response selama ~10 menit via `Cache-Control` header.
+- Beranda → `#beranda`
+- Tentang Kami → `#tentang`
+- Berita & Info → `#layanan`
+- Jadwal Dokter → `#jadwal`
+- Instagram → `#instagram`
+- FAQ → `#faq` (baru)
+- Kontak → `#kontak`
 
-2. **Komponen** `src/components/BeritaInstagram.tsx`:
-   - Pakai `useQuery` (TanStack Query) memanggil server function via `useServerFn`.
-   - Render grid horizontal scroll (mempertahankan style card existing: gradient, hover, dst).
-   - Tiap card: thumbnail IG (object-cover), caption ringkas (truncate 2 baris), tanggal, link ke post IG.
-   - Skeleton loader saat fetching; fallback ke array `PROMO` lama jika error.
+Hapus seluruh dropdown `sub` (tidak ada halaman tujuannya). Tutup mobile menu otomatis saat klik (sudah ada).
 
-3. **src/routes/index.tsx**:
-   - Hapus mapping `[...PROMO, ...PROMO]`, ganti dengan `<BeritaInstagram />`.
-   - Judul section tetap "BERITA, INFO TERKINI & PROMO".
+### 2. `src/routes/index.tsx` — tambah section FAQ
+Sisipkan sebelum section `#kontak`:
 
-### Risiko & Catatan
-- Token Elfsight publik di network bisa kedaluwarsa (`exp` ~48 jam). Untuk produksi lebih stabil sebaiknya pakai opsi alternatif di bawah.
-- Endpoint Elfsight tidak resmi untuk pemakaian di luar widget mereka — bisa diblokir sewaktu-waktu.
+```tsx
+<section id="faq" className="py-20 px-6 bg-muted/30">
+  <div className="max-w-4xl mx-auto">
+    <p className="text-center text-sm font-semibold tracking-widest text-secondary uppercase">FAQ</p>
+    <h2 className="mt-2 text-2xl md:text-3xl font-bold text-center text-primary">
+      Pertanyaan yang Sering Diajukan
+    </h2>
+    <p className="text-center text-muted-foreground mt-2 text-sm">
+      Informasi seputar layanan RSU Aisyiyah Purworejo
+    </p>
+    <Accordion type="single" collapsible className="mt-10 space-y-3">
+      {FAQS.map((f, i) => (
+        <AccordionItem key={i} value={`item-${i}`} className="bg-white rounded-xl border px-5 shadow-sm">
+          <AccordionTrigger className="text-left font-semibold text-primary hover:no-underline">
+            {f.q}
+          </AccordionTrigger>
+          <AccordionContent className="text-muted-foreground leading-relaxed">
+            {f.a}
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  </div>
+</section>
+```
 
-## Alternatif (lebih tahan lama)
-- **Firecrawl connector**: scrape `https://www.instagram.com/rsu_aisyiyah/` tiap request (atau cache). Lebih reliable, butuh enable connector Firecrawl.
-- **Instagram Basic Display API**: paling resmi, tapi butuh setup Meta Developer App + token user — overhead tinggi.
+Tambah import `Accordion, AccordionItem, AccordionTrigger, AccordionContent` dari `@/components/ui/accordion`.
 
-## Pertanyaan untuk Anda
-1. Pakai pendekatan **Elfsight reuse** (cepat, tanpa setup) atau **Firecrawl** (lebih stabil, perlu connect Firecrawl)?
-2. Layout card: tetap **horizontal scroll** seperti sekarang, atau **grid 3 kolom** (5 baris × 3) agar 15 post terlihat sekaligus di desktop?
+### 3. Daftar FAQ (10 pertanyaan relevan tentang RSU Aisyiyah Purworejo)
+
+1. **Di mana lokasi RSU Aisyiyah Purworejo?**
+   Jl. Jend. Sudirman No. 12, Purworejo, Jawa Tengah. Lihat peta di section Kontak.
+
+2. **Bagaimana cara mendaftar berobat?**
+   Klik tombol "Pendaftaran Online" di hero, atau hubungi WhatsApp CS 0896-4671-0859. Bisa juga datang langsung ke loket pendaftaran.
+
+3. **Apakah menerima pasien BPJS Kesehatan?**
+   Ya, kami melayani pasien BPJS Kesehatan, asuransi swasta, dan pasien umum.
+
+4. **Jam operasional IGD?**
+   IGD buka 24 jam setiap hari, termasuk hari libur.
+
+5. **Kapan jam besuk pasien?**
+   Siang 11.00–13.30 WIB dan sore 17.00–19.00 WIB.
+
+6. **Bagaimana cara melihat jadwal dokter?**
+   Lihat di section "Jadwal Dokter" pada halaman ini, atau hubungi CS untuk konfirmasi.
+
+7. **Apakah tersedia layanan ramah difabel?**
+   Ya, fasilitas kami dirancang ramah difabel mulai dari akses, toilet, hingga pendampingan layanan.
+
+8. **Layanan unggulan apa saja yang tersedia?**
+   Paviliun Multazam, Bedah Anak, Uronefrologi, Stem Cell, Rawat Inap, IGD 24 Jam, dan berbagai poli spesialis.
+
+9. **Status akreditasi rumah sakit?**
+   Terakreditasi PARIPURNA dan tersertifikasi LARSI.
+
+10. **Bagaimana memberikan kritik & saran?**
+    Melalui WhatsApp CS 0896-4671-0859 atau email info@rspkukaranganyar.id.
+
+## Catatan
+- Tidak menambah dependency baru — `Accordion` shadcn sudah ada.
+- Section `#layanan` tetap dipakai (tidak diubah idnya) supaya tidak merusak link lain.
+
+Setuju? Ketik **Approve plan** untuk saya jalankan.
