@@ -1,89 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import MitraSlider from "@/components/MitraSlider";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, ChevronRight, CalendarCheck, Instagram, Stethoscope, Bed, Microscope, HeartPulse, Baby, Home, ClipboardCheck, ShieldCheck, Globe, Search } from "lucide-react";
+import { CalendarCheck, Instagram } from "lucide-react";
+import MitraSlider from "@/components/MitraSlider";
 import Header from "@/components/Header";
 import SideSocial from "@/components/SideSocial";
 import JadwalDokter from "@/components/JadwalDokter";
 import ChatbotArini from "@/components/ChatbotArini";
 import HeroSlider from "@/components/HeroSlider";
 import BeritaInstagram from "@/components/BeritaInstagram";
-
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import PendaftaranModal from "@/components/PendaftaranModal";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import TentangSection from "@/components/TentangSection";
+import JamBesukSection from "@/components/JamBesukSection";
+import LayananSection from "@/components/LayananSection";
+import FaqSection from "@/components/FaqSection";
+import KontakSection from "@/components/KontakSection";
+import Footer from "@/components/Footer";
 import logo from "@/assets/logo-hero.png";
-
-const FAQS = [
-  { q: "Di mana lokasi RSU Aisyiyah Purworejo?", a: "Jl. Jend. Sudirman No. 12, Purworejo, Jawa Tengah. Lihat peta di section Kontak." },
-  { q: "Bagaimana cara mendaftar berobat?", a: "Klik tombol \"Pendaftaran Online\" di hero, atau hubungi WhatsApp CS 0896-4671-0859. Bisa juga datang langsung ke loket pendaftaran." },
-  { q: "Apakah menerima pasien BPJS Kesehatan?", a: "Ya, kami melayani pasien BPJS Kesehatan, asuransi swasta, dan pasien umum." },
-  { q: "Jam operasional IGD?", a: "IGD buka 24 jam setiap hari, termasuk hari libur." },
-  { q: "Kapan jam besuk pasien?", a: "Siang 11.00–13.30 WIB dan sore 17.00–19.00 WIB." },
-  { q: "Bagaimana cara melihat jadwal dokter?", a: "Lihat di section \"Jadwal Dokter\" pada halaman ini, atau hubungi CS untuk konfirmasi." },
-  { q: "Apakah tersedia layanan ramah difabel?", a: "Ya, fasilitas kami dirancang ramah difabel mulai dari akses, toilet, hingga pendampingan layanan." },
-  { q: "Layanan unggulan apa saja yang tersedia?", a: "Paviliun Multazam, Bedah Anak, Uronefrologi, Stem Cell, Rawat Inap, IGD 24 Jam, dan berbagai poli spesialis." },
-  { q: "Status akreditasi rumah sakit?", a: "Terakreditasi PARIPURNA dan tersertifikasi LARSI." },
-  { q: "Bagaimana memberikan kritik & saran?", a: "Melalui WhatsApp CS 0896-4671-0859 atau email info@rspkukaranganyar.id." },
-];
-
-const LAYANAN = [
-  {
-    title: "Layanan Poli",
-    icon: Stethoscope,
-    content: "Pelayanan poliklinik spesialis dan subspesialis meliputi Poli Bedah, Poli Anak, Poli Kandungan, Poli Penyakit Dalam, Poli Mata, Poli THT, Poli Gigi, Poli Syaraf, Poli Kulit, Poli Jantung, Poli Paru, Poli Orthopedi, dan Poli Umum. Didukung dokter spesialis berpengalaman dengan jadwal teratur.",
-  },
-  {
-    title: "Layanan Rawat Inap",
-    icon: Bed,
-    content: "Fasilitas rawat inap dengan berbagai kelas: VVIP, VIP, Kelas I, II, dan III. Tersedia fasilitas modern, perawatan 24 jam, nutrisi terencana, serta kenyamanan seperti di rumah sendiri dengan nuansa islami.",
-  },
-  {
-    title: "Layanan Laboratorium",
-    icon: Microscope,
-    content: "Laboratorium klinik lengkap dengan pemeriksaan hematologi, kimia klinik, urinalisis, mikrobiologi, imunologi, serologi, pemeriksaan patologi anatomi, dan layanan pemeriksaan PCR. Hasil akurat dengan waktu proses yang efisien.",
-  },
-  {
-    title: "Layanan Gawat Darurat",
-    icon: HeartPulse,
-    content: "Unit Gawat Darurat (UGD/IGD) buka 24 jam dengan tenaga medis siaga, ruang resusitasi, ambulans dengan peralatan lengkap, dan sistem triage untuk penanganan kasus emergensi secara cepat dan profesional.",
-  },
-  {
-    title: "Paket Sunat Smartclamp",
-    icon: Baby,
-    content: "Layanan sunat modern dengan metode Smartclamp yang minim rasa sakit, pendarahan sedikit, proses cepat, dan pemulihan singkat. Ditangani dokter berpengalaman dengan peralatan steril terstandar.",
-  },
-  {
-    title: "Layanan Home Care Mom & Baby",
-    icon: Home,
-    content: "Layanan perawatan di rumah khusus ibu dan bayi pasca persalinan, meliputi perawatan luka, konsultasi laktasi, pemeriksaan neonatus, imunisasi, dan pendampingan perawatan bayi baru lahir.",
-  },
-  {
-    title: "Layanan Medical Checkup",
-    icon: ClipboardCheck,
-    content: "Paket pemeriksaan kesehatan lengkap untuk individu dan korporasi, meliputi pemeriksaan fisik, laboratorium, radiologi, EKG, audiometri, spirometri, dan konsultasi dokter. Tersedia berbagai paket sesuai kebutuhan.",
-  },
-  {
-    title: "Layanan Imune Booster",
-    icon: ShieldCheck,
-    content: "Program peningkatan daya tahan tubuh dengan terapi vitamin intravena (drip), suplementasi, konsultasi gizi, dan program imunisasi. Cocok untuk pencegahan penyakit dan pemulihan kondisi tubuh.",
-  },
-  {
-    title: "Layanan Vaksin Internasional",
-    icon: Globe,
-    content: "Pelayanan vaksinasi untuk keperluan perjalanan ke luar negeri sesuai ketentuan WHO dan negara tujuan. Tersedia Yellow Fever, Meningitis, Influenza, Hepatitis, Typhoid, dan vaksin lainnya dengan sertifikat ICV.",
-  },
-  {
-    title: "Layanan Paket Operasi One Day Care",
-    icon: Clock,
-    content: "Konsep operasi minor yang memungkinkan pasien pulang di hari yang sama setelah prosedur. Efisien waktu, biaya terjangkau, dengan standar keselamatan dan kenyamanan pasien yang tetap terjaga.",
-  },
-  {
-    title: "Layanan Pemeriksaan Kanker Dini",
-    icon: Search,
-    content: "Program skrining dan deteksi dini kanker meliputi Pap Smear, IVA, mammografi, USG, pemeriksaan darah tumor marker (CEA, CA 125, CA 19-9, AFP, PSA), dan konsultasi onkologi untuk deteksi sejak dini.",
-  },
-];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -95,10 +28,6 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-
-
-
-
 function HomePage() {
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
 
@@ -107,7 +36,6 @@ function HomePage() {
       <Header />
       <SideSocial />
       <ChatbotArini />
-      
       <AccessibilityWidget />
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
@@ -132,86 +60,9 @@ function HomePage() {
         </div>
       </section>
 
-      {/* TENTANG */}
-      <section id="tentang" className="py-20 px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
-          <div className="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] bg-muted">
-            <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=900&q=70" alt="Tentang Kami" className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold tracking-widest text-secondary uppercase">Tentang Kami</p>
-            <h2 className="mt-2 text-3xl md:text-4xl font-bold text-primary">
-              Keramahan Sebenarnya & Mutu Pelayanan Syariah
-            </h2>
-            <h3 className="mt-3 text-lg font-semibold text-muted-foreground">RSU Aisyiyah Purworejo</h3>
-            <p className="mt-4 text-muted-foreground leading-relaxed">
-              RSU Aisyiyah Purworejo berdedikasi memberikan pelayanan kesehatan prima berbasis syariah dengan integritas tinggi, mengutamakan keselamatan pasien dan mewujudkan keramahan sebenarnya dalam setiap layanan, termasuk fasilitas ramah difabel.
-            </p>
-            <p className="mt-3 text-muted-foreground leading-relaxed">
-              Kami terus mengembangkan fasilitas berkualitas dan modern, menyediakan layanan spesialis dan subspesialis unggulan, ditunjang peralatan medis berteknologi terkini serta layanan penunjang diagnostik mutakhir.
-            </p>
-            <a href="#layanan" className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary-dark transition-colors">
-              Selengkapnya <ChevronRight className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* JAM BESUK */}
-      <section className="py-16 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold">JAM BESUK RESMI</h2>
-          <p className="mt-1 text-sm opacity-80">RSU Aisyiyah Purworejo</p>
-          <div className="mt-8 grid sm:grid-cols-2 gap-6">
-            <div className="rounded-2xl bg-white/10 backdrop-blur p-8 border border-white/15">
-              <Clock className="h-10 w-10 mx-auto text-gold" />
-              <div className="mt-3 text-xl font-bold">SIANG</div>
-              <div className="mt-1 text-2xl font-script text-gold">11.00 – 13.30 WIB</div>
-            </div>
-            <div className="rounded-2xl bg-white/10 backdrop-blur p-8 border border-white/15">
-              <Clock className="h-10 w-10 mx-auto text-gold" />
-              <div className="mt-3 text-xl font-bold">SORE</div>
-              <div className="mt-1 text-2xl font-script text-gold">17.00 – 19.00 WIB</div>
-            </div>
-          </div>
-          <p className="mt-6 text-sm opacity-80 max-w-xl mx-auto">
-            Demi kenyamanan dan kesembuhan pasien, mohon pengunjung mematuhi peraturan jam besuk resmi yang berlaku.
-          </p>
-        </div>
-      </section>
-
-      {/* LAYANAN */}
-      <section id="layanan" className="py-20 px-6 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center text-sm font-semibold tracking-widest text-secondary uppercase">Layanan Kami</p>
-          <h2 className="mt-2 text-2xl md:text-3xl font-bold text-center text-primary">
-            Pelayanan Unggulan RSU Aisyiyah Purworejo
-          </h2>
-          <p className="text-center text-muted-foreground mt-2 text-sm">
-            Berbagai layanan kesehatan dengan standar mutu prima berbasis syariah
-          </p>
-          <Accordion type="single" collapsible className="mt-10 space-y-3">
-            {LAYANAN.map((l, i) => {
-              const Icon = l.icon;
-              return (
-                <AccordionItem key={i} value={`layanan-${i}`} className="bg-muted/30 rounded-xl border px-5 shadow-sm">
-                  <AccordionTrigger className="text-left font-semibold text-primary hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <span className="text-base">{l.title}</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground leading-relaxed pl-[52px]">
-                    {l.content}
-                  </AccordionContent>
-                </AccordionItem>
-              );
-            })}
-          </Accordion>
-        </div>
-      </section>
+      <TentangSection />
+      <JamBesukSection />
+      <LayananSection />
 
       {/* BERITA, INFO TERKINI & PROMO */}
       <section id="berita" className="py-20 px-6 bg-muted/30">
@@ -221,7 +72,6 @@ function HomePage() {
           <BeritaInstagram />
         </div>
       </section>
-
 
       <JadwalDokter />
 
@@ -242,7 +92,6 @@ function HomePage() {
             <div className="elfsight-app-feb3351d-45de-424a-a93b-4e602e938274" data-elfsight-app-lazy />
           </div>
 
-
           <div className="mt-10 text-center">
             <a
               href="https://www.instagram.com/rsu_aisyiyah?igsh=MWVqZDVtODdreXVqbg=="
@@ -257,107 +106,9 @@ function HomePage() {
       </section>
 
       <MitraSlider />
-
-      {/* FAQ */}
-      <section id="faq" className="py-20 px-6 bg-muted/30">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center text-sm font-semibold tracking-widest text-secondary uppercase">FAQ</p>
-          <h2 className="mt-2 text-2xl md:text-3xl font-bold text-center text-primary">
-            Pertanyaan yang Sering Diajukan
-          </h2>
-          <p className="text-center text-muted-foreground mt-2 text-sm">
-            Informasi seputar layanan RSU Aisyiyah Purworejo
-          </p>
-          <Accordion type="single" collapsible className="mt-10 space-y-3">
-            {FAQS.map((f, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="bg-white rounded-xl border px-5 shadow-sm">
-                <AccordionTrigger className="text-left font-semibold text-primary hover:no-underline">
-                  {f.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed">
-                  {f.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* KONTAK */}
-      <section id="kontak" className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">LOKASI & KONTAK KAMI</h2>
-          <div className="mt-10 grid md:grid-cols-2 gap-8">
-            <div className="rounded-2xl overflow-hidden border shadow-lg aspect-video bg-muted">
-              <iframe
-                title="Lokasi RS"
-                src="https://www.google.com/maps?q=RSU+Aisyiyah+Purworejo&output=embed"
-                className="w-full h-full border-0"
-                loading="lazy"
-              />
-            </div>
-            <div className="space-y-5">
-              <div className="flex gap-4">
-                <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><MapPin className="h-5 w-5" /></div>
-                <div>
-                  <div className="font-bold">Alamat</div>
-                  <p className="text-muted-foreground text-sm">Jl. Jend. Sudirman No. 12, Purworejo, Jawa Tengah</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><Phone className="h-5 w-5" /></div>
-                <div>
-                  <div className="font-bold">WhatsApp CS</div>
-                  <a href="https://wa.me/6289646710859" className="text-secondary font-semibold hover:underline">0896-4671-0859</a>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><Mail className="h-5 w-5" /></div>
-                <div>
-                  <div className="font-bold">Email & Sosial Media</div>
-                  <p className="text-muted-foreground text-sm">info@rspkukaranganyar.id</p>
-                  <a href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl" target="_blank" rel="noreferrer" className="text-secondary text-sm font-semibold hover:underline">@rsu_aisyiyah</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-primary-dark text-primary-foreground py-12 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          <div>
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="Logo" className="h-14 w-14" />
-              <div>
-                <div className="font-bold">RSU Aisyiyah</div>
-                <div className="text-sm opacity-80">Purworejo</div>
-              </div>
-            </div>
-            <p className="mt-4 text-sm opacity-80 font-script text-gold text-xl">Keramahan Sebenarnya</p>
-          </div>
-          <div>
-            <h4 className="font-bold mb-3">Tautan Cepat</h4>
-            <ul className="space-y-2 text-sm opacity-90">
-              <li><a href="#tentang" className="hover:text-gold">Tentang Kami</a></li>
-              <li><a href="#layanan" className="hover:text-gold">Layanan</a></li>
-              <li><a href="#klinik" className="hover:text-gold">Poliklinik</a></li>
-              <li><a href="#kontak" className="hover:text-gold">Kontak</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-3">Hubungi Kami</h4>
-            <ul className="space-y-2 text-sm opacity-90">
-              <li>WhatsApp: <a className="text-gold" href="https://wa.me/6289646710859">0896-4671-0859</a></li>
-              <li>Instagram: <a className="text-gold" target="_blank" rel="noreferrer" href="https://www.instagram.com/rsu_aisyiyah?igsh=MTg0NnhndWs4Ynpl">@rsu_aisyiyah</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/10 text-xs opacity-70 text-center">
-          © {new Date().getFullYear()} RSU Aisyiyah Purworejo. All rights reserved.
-        </div>
-      </footer>
+      <FaqSection />
+      <KontakSection />
+      <Footer />
     </div>
   );
 }
