@@ -1,0 +1,122 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import ImageUpload from "@/components/admin/ImageUpload";
+import { toast } from "sonner";
+import { Save, Loader2 } from "lucide-react";
+
+export const Route = createFileRoute("/administrator/hero-content")({ component: HeroContentAdmin });
+
+type HeroContent = {
+  id: string;
+  logo_url: string | null;
+  title_line1: string;
+  title_line2: string;
+  tagline: string;
+  cta_text: string;
+  badge1: string;
+  badge2: string;
+};
+
+function HeroContentAdmin() {
+  const [data, setData] = useState<HeroContent | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase.from("hero_content").select("*").eq("singleton", true).maybeSingle()
+      .then(({ data, error }) => {
+        if (error) toast.error(error.message);
+        setData(data as HeroContent);
+      });
+  }, []);
+
+  async function save() {
+    if (!data) return;
+    setSaving(true);
+    const { error } = await supabase.from("hero_content").update({
+      logo_url: data.logo_url,
+      title_line1: data.title_line1,
+      title_line2: data.title_line2,
+      tagline: data.tagline,
+      cta_text: data.cta_text,
+      badge1: data.badge1,
+      badge2: data.badge2,
+    }).eq("id", data.id);
+    setSaving(false);
+    if (error) toast.error(error.message); else toast.success("Hero section tersimpan");
+  }
+
+  if (!data) return <p className="text-muted-foreground">Memuat...</p>;
+
+  return (
+    <div className="max-w-3xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Hero Section</h1>
+        <p className="text-sm text-muted-foreground">Edit logo, judul, tagline, tombol, dan badge yang tampil di hero.</p>
+      </div>
+
+      <Card className="p-4 space-y-4">
+        <h2 className="font-semibold">Logo</h2>
+        <ImageUpload
+          value={data.logo_url}
+          onChange={(url) => setData({ ...data, logo_url: url })}
+          folder="hero"
+        />
+        <p className="text-xs text-muted-foreground">Disarankan PNG transparan, rasio 1:1. Kosongkan untuk pakai logo bawaan.</p>
+      </Card>
+
+      <Card className="p-4 space-y-4">
+        <h2 className="font-semibold">Teks</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <Label>Judul baris 1</Label>
+            <Input value={data.title_line1} onChange={(e) => setData({ ...data, title_line1: e.target.value })} />
+          </div>
+          <div>
+            <Label>Judul baris 2 (warna emas)</Label>
+            <Input value={data.title_line2} onChange={(e) => setData({ ...data, title_line2: e.target.value })} />
+          </div>
+        </div>
+        <div>
+          <Label>Tagline (skrip emas)</Label>
+          <Input value={data.tagline} onChange={(e) => setData({ ...data, tagline: e.target.value })} />
+        </div>
+        <div>
+          <Label>Teks tombol CTA</Label>
+          <Input value={data.cta_text} onChange={(e) => setData({ ...data, cta_text: e.target.value })} />
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <Label>Badge 1</Label>
+            <Input value={data.badge1} onChange={(e) => setData({ ...data, badge1: e.target.value })} />
+          </div>
+          <div>
+            <Label>Badge 2</Label>
+            <Input value={data.badge2} onChange={(e) => setData({ ...data, badge2: e.target.value })} />
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-6 bg-primary-dark text-primary-foreground text-center space-y-3">
+        <div className="text-xs uppercase tracking-wider opacity-70">Pratinjau</div>
+        {data.logo_url && <img src={data.logo_url} alt="Logo" className="h-20 w-20 mx-auto rounded-full object-contain" />}
+        <h3 className="text-2xl font-bold">{data.title_line1}<br /><span className="text-gold">{data.title_line2}</span></h3>
+        <p className="text-xl font-script text-gold">{data.tagline}</p>
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+          <span className="px-4 py-2 rounded-full bg-gold text-primary-dark font-bold text-sm">{data.cta_text}</span>
+          <span className="px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-xs font-semibold">{data.badge1}</span>
+          <span className="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold">{data.badge2}</span>
+        </div>
+      </Card>
+
+      <Button onClick={save} disabled={saving}>
+        {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+        Simpan
+      </Button>
+    </div>
+  );
+}

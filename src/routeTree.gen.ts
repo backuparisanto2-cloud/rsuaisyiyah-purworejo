@@ -22,6 +22,7 @@ import { Route as AdministratorKontakRouteImport } from './routes/administrator.
 import { Route as AdministratorJamBesukRouteImport } from './routes/administrator.jam-besuk'
 import { Route as AdministratorHeroSliderRouteImport } from './routes/administrator.hero-slider'
 import { Route as AdministratorHeroSettingsRouteImport } from './routes/administrator.hero-settings'
+import { Route as AdministratorHeroContentRouteImport } from './routes/administrator.hero-content'
 import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq'
 import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
 import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
@@ -92,6 +93,12 @@ const AdministratorHeroSettingsRoute =
     path: '/hero-settings',
     getParentRoute: () => AdministratorRoute,
   } as any)
+const AdministratorHeroContentRoute =
+  AdministratorHeroContentRouteImport.update({
+    id: '/hero-content',
+    path: '/hero-content',
+    getParentRoute: () => AdministratorRoute,
+  } as any)
 const AdministratorFaqRoute = AdministratorFaqRouteImport.update({
   id: '/faq',
   path: '/faq',
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
+  '/administrator/hero-content': typeof AdministratorHeroContentRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
@@ -132,6 +140,7 @@ export interface FileRoutesByTo {
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
+  '/administrator/hero-content': typeof AdministratorHeroContentRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
@@ -151,6 +160,7 @@ export interface FileRoutesById {
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
+  '/administrator/hero-content': typeof AdministratorHeroContentRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
+    | '/administrator/hero-content'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
     | '/administrator/jam-besuk'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
+    | '/administrator/hero-content'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
     | '/administrator/jam-besuk'
@@ -206,6 +218,7 @@ export interface FileRouteTypes {
     | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
+    | '/administrator/hero-content'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
     | '/administrator/jam-besuk'
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorHeroSettingsRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/hero-content': {
+      id: '/administrator/hero-content'
+      path: '/hero-content'
+      fullPath: '/administrator/hero-content'
+      preLoaderRoute: typeof AdministratorHeroContentRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
     '/administrator/faq': {
       id: '/administrator/faq'
       path: '/faq'
@@ -345,6 +365,7 @@ interface AdministratorRouteChildren {
   AdministratorChatbotRoute: typeof AdministratorChatbotRoute
   AdministratorDokterRoute: typeof AdministratorDokterRoute
   AdministratorFaqRoute: typeof AdministratorFaqRoute
+  AdministratorHeroContentRoute: typeof AdministratorHeroContentRoute
   AdministratorHeroSettingsRoute: typeof AdministratorHeroSettingsRoute
   AdministratorHeroSliderRoute: typeof AdministratorHeroSliderRoute
   AdministratorJamBesukRoute: typeof AdministratorJamBesukRoute
@@ -361,6 +382,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorChatbotRoute: AdministratorChatbotRoute,
   AdministratorDokterRoute: AdministratorDokterRoute,
   AdministratorFaqRoute: AdministratorFaqRoute,
+  AdministratorHeroContentRoute: AdministratorHeroContentRoute,
   AdministratorHeroSettingsRoute: AdministratorHeroSettingsRoute,
   AdministratorHeroSliderRoute: AdministratorHeroSliderRoute,
   AdministratorJamBesukRoute: AdministratorJamBesukRoute,
@@ -385,3 +407,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
