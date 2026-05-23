@@ -19,6 +19,7 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; disabl
 
 const NAV: NavItem[] = [
   { to: "/administrator", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/administrator/hero-content", label: "Hero Teks & Logo", icon: Type },
   { to: "/administrator/hero-slider", label: "Hero Slider", icon: Images },
   { to: "/administrator/hero-settings", label: "Pengaturan Slider", icon: SettingsIcon },
   { to: "/administrator/tentang", label: "Tentang", icon: Info },
