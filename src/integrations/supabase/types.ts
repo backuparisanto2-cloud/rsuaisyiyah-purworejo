@@ -259,6 +259,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_content: {
+        Row: {
+          badge1: string
+          badge2: string
+          created_at: string
+          cta_text: string
+          id: string
+          logo_url: string | null
+          singleton: boolean
+          tagline: string
+          title_line1: string
+          title_line2: string
+          updated_at: string
+        }
+        Insert: {
+          badge1?: string
+          badge2?: string
+          created_at?: string
+          cta_text?: string
+          id?: string
+          logo_url?: string | null
+          singleton?: boolean
+          tagline?: string
+          title_line1?: string
+          title_line2?: string
+          updated_at?: string
+        }
+        Update: {
+          badge1?: string
+          badge2?: string
+          created_at?: string
+          cta_text?: string
+          id?: string
+          logo_url?: string | null
+          singleton?: boolean
+          tagline?: string
+          title_line1?: string
+          title_line2?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hero_settings: {
         Row: {
           autoplay: boolean
