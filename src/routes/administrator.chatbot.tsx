@@ -115,7 +115,11 @@ function ChatbotAdmin() {
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold">Knowledge Chatbot ({rows.length})</h2>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
+            <label className="flex items-center gap-2 text-sm px-2">
+              <Switch checked={activateOnImport} onCheckedChange={setActivateOnImport} />
+              Aktifkan entri baru
+            </label>
             <Button variant="outline" onClick={doSync} disabled={syncing}>
               {syncing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1" />}
               Update dari Website
