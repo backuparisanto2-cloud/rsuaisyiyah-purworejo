@@ -28,6 +28,7 @@ function ChatbotAdmin() {
   const [topic, setTopic] = useState("layanan unggulan rumah sakit");
   const [syncing, setSyncing] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [activateOnImport, setActivateOnImport] = useState(true);
 
   const syncFn = useServerFn(syncKnowledgeFromWebsite);
   const genFn = useServerFn(generateKnowledgeFromAI);
@@ -70,7 +71,7 @@ function ChatbotAdmin() {
   async function doSync() {
     setSyncing(true);
     try {
-      const r = await syncFn();
+      const r = await syncFn({ data: { isActive: activateOnImport } });
       toast.success(`Sinkronisasi selesai: ${r.count} entri dari website`);
       void load();
     } catch (e) { toast.error((e as Error).message); }
@@ -80,7 +81,7 @@ function ChatbotAdmin() {
     if (!topic.trim()) return toast.error("Isi topik dulu");
     setGenerating(true);
     try {
-      const r = await genFn({ data: { topic: topic.trim() } });
+      const r = await genFn({ data: { topic: topic.trim(), isActive: activateOnImport } });
       toast.success(`Berhasil menambah ${r.count} entri dari AI`);
       void load();
     } catch (e) { toast.error((e as Error).message); }
@@ -114,7 +115,11 @@ function ChatbotAdmin() {
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold">Knowledge Chatbot ({rows.length})</h2>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
+            <label className="flex items-center gap-2 text-sm px-2">
+              <Switch checked={activateOnImport} onCheckedChange={setActivateOnImport} />
+              Aktifkan entri baru
+            </label>
             <Button variant="outline" onClick={doSync} disabled={syncing}>
               {syncing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1" />}
               Update dari Website
