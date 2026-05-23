@@ -95,9 +95,30 @@ function renderSection(key: string) {
   }
 }
 
+type HeroContent = {
+  logo_url: string | null;
+  title_line1: string;
+  title_line2: string;
+  tagline: string;
+  cta_text: string;
+  badge1: string;
+  badge2: string;
+};
+
+const DEFAULT_HERO: HeroContent = {
+  logo_url: null,
+  title_line1: "RSU AISYIYAH",
+  title_line2: "PURWOREJO",
+  tagline: "Keramahan Sebenarnya",
+  cta_text: "Pendaftaran Online",
+  badge1: "★ PARIPURNA",
+  badge2: "Akreditasi LARSI",
+};
+
 function HomePage() {
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
   const [sections, setSections] = useState<SectionRow[]>(DEFAULT_ORDER);
+  const [hero, setHero] = useState<HeroContent>(DEFAULT_HERO);
 
   useEffect(() => {
     const load = async () => {
@@ -107,13 +128,20 @@ function HomePage() {
         .order("display_order");
       if (data && data.length) setSections(data as SectionRow[]);
     };
+    const loadHero = async () => {
+      const { data } = await supabase.from("hero_content").select("*").eq("singleton", true).maybeSingle();
+      if (data) setHero(data as HeroContent);
+    };
     void load();
+    void loadHero();
     const channel = supabase
-      .channel("home_sections_public")
+      .channel("home_public")
       .on("postgres_changes", { event: "*", schema: "public", table: "home_sections" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "hero_content" }, loadHero)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
+
 
   return (
     <div className="min-h-screen bg-background">
