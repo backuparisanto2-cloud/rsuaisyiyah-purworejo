@@ -28,6 +28,7 @@ function ChatbotAdmin() {
   const [topic, setTopic] = useState("layanan unggulan rumah sakit");
   const [syncing, setSyncing] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [activateOnImport, setActivateOnImport] = useState(true);
 
   const syncFn = useServerFn(syncKnowledgeFromWebsite);
   const genFn = useServerFn(generateKnowledgeFromAI);
