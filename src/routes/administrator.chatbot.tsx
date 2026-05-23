@@ -71,7 +71,7 @@ function ChatbotAdmin() {
   async function doSync() {
     setSyncing(true);
     try {
-      const r = await syncFn();
+      const r = await syncFn({ data: { isActive: activateOnImport } });
       toast.success(`Sinkronisasi selesai: ${r.count} entri dari website`);
       void load();
     } catch (e) { toast.error((e as Error).message); }
@@ -81,7 +81,7 @@ function ChatbotAdmin() {
     if (!topic.trim()) return toast.error("Isi topik dulu");
     setGenerating(true);
     try {
-      const r = await genFn({ data: { topic: topic.trim() } });
+      const r = await genFn({ data: { topic: topic.trim(), isActive: activateOnImport } });
       toast.success(`Berhasil menambah ${r.count} entri dari AI`);
       void load();
     } catch (e) { toast.error((e as Error).message); }
