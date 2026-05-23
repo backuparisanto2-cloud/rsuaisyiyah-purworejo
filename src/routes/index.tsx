@@ -95,9 +95,30 @@ function renderSection(key: string) {
   }
 }
 
+type HeroContent = {
+  logo_url: string | null;
+  title_line1: string;
+  title_line2: string;
+  tagline: string;
+  cta_text: string;
+  badge1: string;
+  badge2: string;
+};
+
+const DEFAULT_HERO: HeroContent = {
+  logo_url: null,
+  title_line1: "RSU AISYIYAH",
+  title_line2: "PURWOREJO",
+  tagline: "Keramahan Sebenarnya",
+  cta_text: "Pendaftaran Online",
+  badge1: "★ PARIPURNA",
+  badge2: "Akreditasi LARSI",
+};
+
 function HomePage() {
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
   const [sections, setSections] = useState<SectionRow[]>(DEFAULT_ORDER);
+  const [hero, setHero] = useState<HeroContent>(DEFAULT_HERO);
 
   useEffect(() => {
     const load = async () => {
@@ -107,13 +128,20 @@ function HomePage() {
         .order("display_order");
       if (data && data.length) setSections(data as SectionRow[]);
     };
+    const loadHero = async () => {
+      const { data } = await supabase.from("hero_content").select("*").eq("singleton", true).maybeSingle();
+      if (data) setHero(data as HeroContent);
+    };
     void load();
+    void loadHero();
     const channel = supabase
-      .channel("home_sections_public")
+      .channel("home_public")
       .on("postgres_changes", { event: "*", schema: "public", table: "home_sections" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "hero_content" }, loadHero)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,17 +156,17 @@ function HomePage() {
         <HeroSlider />
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-blue-800/30 to-blue-950/30 pointer-events-none" />
         <div className="relative z-10 text-center px-4 sm:px-6 text-primary-foreground max-w-3xl">
-          <img src={logo} alt="Logo RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-contain aspect-square drop-shadow-2xl animate-float" />
+          <img src={hero.logo_url || logo} alt="Logo RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-contain aspect-square drop-shadow-2xl animate-float" />
           <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-            RSU AISYIYAH<br/><span className="text-gold">PURWOREJO</span>
+            {hero.title_line1}<br/><span className="text-gold">{hero.title_line2}</span>
           </h1>
-          <p className="mt-3 sm:mt-4 text-xl sm:text-3xl md:text-4xl font-script text-gold">Keramahan Sebenarnya</p>
+          <p className="mt-3 sm:mt-4 text-xl sm:text-3xl md:text-4xl font-script text-gold">{hero.tagline}</p>
           <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <button onClick={() => setPendaftaranOpen(true)} className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-gold text-primary-dark font-bold hover:scale-105 transition-transform shadow-lg text-sm sm:text-base">
-              <CalendarCheck className="h-5 w-5" /> Pendaftaran Online
+              <CalendarCheck className="h-5 w-5" /> {hero.cta_text}
             </button>
-            <span className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gold/20 border border-gold/40 text-xs sm:text-sm font-semibold">★ PARIPURNA</span>
-            <span className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm font-semibold">Akreditasi LARSI</span>
+            <span className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gold/20 border border-gold/40 text-xs sm:text-sm font-semibold">{hero.badge1}</span>
+            <span className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 border border-white/20 text-xs sm:text-sm font-semibold">{hero.badge2}</span>
           </div>
         </div>
       </section>

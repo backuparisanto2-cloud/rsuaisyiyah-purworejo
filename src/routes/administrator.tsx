@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
-  Bot, LogOut, Loader2,
+  Bot, LogOut, Loader2, Type,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; disabl
 
 const NAV: NavItem[] = [
   { to: "/administrator", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/administrator/hero-content", label: "Hero Teks & Logo", icon: Type },
   { to: "/administrator/hero-slider", label: "Hero Slider", icon: Images },
   { to: "/administrator/hero-settings", label: "Pengaturan Slider", icon: SettingsIcon },
   { to: "/administrator/tentang", label: "Tentang", icon: Info },
