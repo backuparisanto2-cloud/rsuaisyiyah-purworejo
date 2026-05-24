@@ -53,7 +53,10 @@ function DokterAdmin() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Jadwal Dokter</h1>
-        <Button onClick={() => setEditing({ ...emptyDoctor, display_order: doctors.length + 1 })}><Plus className="h-4 w-4 mr-1" />Tambah Dokter</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setMultiImport(true)}><Sparkles className="h-4 w-4 mr-1" />Import Multi-Dokter (AI)</Button>
+          <Button onClick={() => setEditing({ ...emptyDoctor, display_order: doctors.length + 1 })}><Plus className="h-4 w-4 mr-1" />Tambah Dokter</Button>
+        </div>
       </div>
       <SortableList items={doctors} onReorder={reorder} renderItem={(d, h) => (
         <Card className="p-3 flex items-center gap-3">
