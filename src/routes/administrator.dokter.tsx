@@ -101,6 +101,7 @@ function DokterAdmin() {
 function SchedulePanel({ doctor, onClose }: { doctor: Doctor; onClose: () => void }) {
   const [items, setItems] = useState<Schedule[]>([]);
   const [draft, setDraft] = useState<Omit<Schedule, "id" | "doctor_id">>({ day_of_week: 1, time_start: "08:00", time_end: "12:00", poli: "" });
+  const [importOpen, setImportOpen] = useState(false);
 
   async function load() {
     const { data } = await supabase.from("doctor_schedules").select("*").eq("doctor_id", doctor.id).order("day_of_week");
