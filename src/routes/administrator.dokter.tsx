@@ -26,6 +26,9 @@ function DokterAdmin() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [editing, setEditing] = useState<(Doctor | (Omit<Doctor, "id"> & { id?: string })) | null>(null);
   const [scheduleFor, setScheduleFor] = useState<Doctor | null>(null);
+  const [multiImport, setMultiImport] = useState(false);
+  const [editing, setEditing] = useState<(Doctor | (Omit<Doctor, "id"> & { id?: string })) | null>(null);
+  const [scheduleFor, setScheduleFor] = useState<Doctor | null>(null);
 
   async function load() {
     const { data } = await supabase.from("doctors").select("*").order("display_order");
