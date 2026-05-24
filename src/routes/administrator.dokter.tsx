@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageUpload from "@/components/admin/ImageUpload";
 import { SortableList, persistOrder } from "@/components/admin/SortableList";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Sparkles } from "lucide-react";
+import ScheduleImportDialog from "@/components/admin/ScheduleImportDialog";
 
 export const Route = createFileRoute("/administrator/dokter")({ component: DokterAdmin });
 
