@@ -120,7 +120,12 @@ function SchedulePanel({ doctor, onClose }: { doctor: Doctor; onClose: () => voi
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader><DialogTitle>Jadwal — {doctor.name}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle>Jadwal — {doctor.name}</DialogTitle>
+            <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}><Sparkles className="h-4 w-4 mr-1" />Import dari Gambar (AI)</Button>
+          </div>
+        </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-2">
             {items.length === 0 && <p className="text-sm text-muted-foreground">Belum ada jadwal.</p>}
