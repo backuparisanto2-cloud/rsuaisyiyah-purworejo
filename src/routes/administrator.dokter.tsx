@@ -86,6 +86,14 @@ function DokterAdmin() {
       </Dialog>
 
       {scheduleFor && <SchedulePanel doctor={scheduleFor} onClose={() => setScheduleFor(null)} />}
+
+      <ScheduleImportDialog
+        open={multiImport}
+        onClose={() => setMultiImport(false)}
+        mode="multi"
+        existingDoctors={doctors.map((d) => ({ id: d.id, name: d.name, specialty: d.specialty }))}
+        onSaved={() => void load()}
+      />
     </div>
   );
 }
