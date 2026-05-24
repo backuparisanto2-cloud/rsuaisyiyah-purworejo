@@ -154,6 +154,15 @@ function SchedulePanel({ doctor, onClose }: { doctor: Doctor; onClose: () => voi
         </div>
         <DialogFooter><Button variant="outline" onClick={onClose}>Tutup</Button></DialogFooter>
       </DialogContent>
+      <ScheduleImportDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        mode="single"
+        doctorId={doctor.id}
+        doctorName={doctor.name}
+        doctorSpecialty={doctor.specialty}
+        onSaved={() => void load()}
+      />
     </Dialog>
   );
 }
