@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageUpload from "@/components/admin/ImageUpload";
 import { SortableList, persistOrder } from "@/components/admin/SortableList";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, CalendarDays } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDays, Sparkles } from "lucide-react";
+import ScheduleImportDialog from "@/components/admin/ScheduleImportDialog";
 
 export const Route = createFileRoute("/administrator/dokter")({ component: DokterAdmin });
 
@@ -25,6 +26,7 @@ function DokterAdmin() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [editing, setEditing] = useState<(Doctor | (Omit<Doctor, "id"> & { id?: string })) | null>(null);
   const [scheduleFor, setScheduleFor] = useState<Doctor | null>(null);
+  const [multiImport, setMultiImport] = useState(false);
 
   async function load() {
     const { data } = await supabase.from("doctors").select("*").order("display_order");
@@ -51,7 +53,10 @@ function DokterAdmin() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Jadwal Dokter</h1>
-        <Button onClick={() => setEditing({ ...emptyDoctor, display_order: doctors.length + 1 })}><Plus className="h-4 w-4 mr-1" />Tambah Dokter</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setMultiImport(true)}><Sparkles className="h-4 w-4 mr-1" />Import Multi-Dokter (AI)</Button>
+          <Button onClick={() => setEditing({ ...emptyDoctor, display_order: doctors.length + 1 })}><Plus className="h-4 w-4 mr-1" />Tambah Dokter</Button>
+        </div>
       </div>
       <SortableList items={doctors} onReorder={reorder} renderItem={(d, h) => (
         <Card className="p-3 flex items-center gap-3">
@@ -81,6 +86,14 @@ function DokterAdmin() {
       </Dialog>
 
       {scheduleFor && <SchedulePanel doctor={scheduleFor} onClose={() => setScheduleFor(null)} />}
+
+      <ScheduleImportDialog
+        open={multiImport}
+        onClose={() => setMultiImport(false)}
+        mode="multi"
+        existingDoctors={doctors.map((d) => ({ id: d.id, name: d.name, specialty: d.specialty }))}
+        onSaved={() => void load()}
+      />
     </div>
   );
 }
@@ -88,6 +101,7 @@ function DokterAdmin() {
 function SchedulePanel({ doctor, onClose }: { doctor: Doctor; onClose: () => void }) {
   const [items, setItems] = useState<Schedule[]>([]);
   const [draft, setDraft] = useState<Omit<Schedule, "id" | "doctor_id">>({ day_of_week: 1, time_start: "08:00", time_end: "12:00", poli: "" });
+  const [importOpen, setImportOpen] = useState(false);
 
   async function load() {
     const { data } = await supabase.from("doctor_schedules").select("*").eq("doctor_id", doctor.id).order("day_of_week");
@@ -106,7 +120,12 @@ function SchedulePanel({ doctor, onClose }: { doctor: Doctor; onClose: () => voi
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader><DialogTitle>Jadwal — {doctor.name}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle>Jadwal — {doctor.name}</DialogTitle>
+            <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}><Sparkles className="h-4 w-4 mr-1" />Import dari Gambar (AI)</Button>
+          </div>
+        </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-2">
             {items.length === 0 && <p className="text-sm text-muted-foreground">Belum ada jadwal.</p>}
@@ -135,6 +154,15 @@ function SchedulePanel({ doctor, onClose }: { doctor: Doctor; onClose: () => voi
         </div>
         <DialogFooter><Button variant="outline" onClick={onClose}>Tutup</Button></DialogFooter>
       </DialogContent>
+      <ScheduleImportDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        mode="single"
+        doctorId={doctor.id}
+        doctorName={doctor.name}
+        doctorSpecialty={doctor.specialty}
+        onSaved={() => void load()}
+      />
     </Dialog>
   );
 }
