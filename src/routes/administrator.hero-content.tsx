@@ -7,7 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, RotateCcw } from "lucide-react";
+
+const DEFAULT_OVERLAY_COLOR = "#0b2545";
+const DEFAULT_OVERLAY_OPACITY = 30;
 
 export const Route = createFileRoute("/administrator/hero-content")({ component: HeroContentAdmin });
 
