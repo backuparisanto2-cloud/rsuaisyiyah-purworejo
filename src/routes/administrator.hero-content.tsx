@@ -47,6 +47,8 @@ function HeroContentAdmin() {
       cta_text: data.cta_text,
       badge1: data.badge1,
       badge2: data.badge2,
+      overlay_color: data.overlay_color,
+      overlay_opacity: data.overlay_opacity,
     }).eq("id", data.id);
     setSaving(false);
     if (error) toast.error(error.message); else toast.success("Hero section tersimpan");
