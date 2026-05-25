@@ -105,7 +105,47 @@ function HeroContentAdmin() {
         </div>
       </Card>
 
-      <Card className="p-6 bg-primary-dark text-primary-foreground text-center space-y-3">
+      <Card className="p-4 space-y-4">
+        <h2 className="font-semibold">Overlay Hero</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <Label>Warna overlay</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={data.overlay_color}
+                onChange={(e) => setData({ ...data, overlay_color: e.target.value })}
+                className="h-10 w-14 rounded border bg-transparent cursor-pointer"
+              />
+              <Input
+                value={data.overlay_color}
+                onChange={(e) => setData({ ...data, overlay_color: e.target.value })}
+                placeholder="#0b2545"
+              />
+            </div>
+          </div>
+          <div>
+            <Label>Opacity overlay ({data.overlay_opacity}%)</Label>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={data.overlay_opacity}
+              onChange={(e) => setData({ ...data, overlay_opacity: Number(e.target.value) })}
+              className="w-full mt-2"
+            />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">Overlay diaplikasikan di atas video/slider hero untuk meningkatkan kontras teks.</p>
+      </Card>
+
+      <Card className="relative overflow-hidden p-6 bg-primary-dark text-primary-foreground text-center space-y-3">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundColor: data.overlay_color, opacity: data.overlay_opacity / 100 }}
+        />
+        <div className="relative z-10 space-y-3">
         <div className="text-xs uppercase tracking-wider opacity-70">Pratinjau</div>
         {data.logo_url && <img src={data.logo_url} alt="Logo" className="h-20 w-20 mx-auto rounded-full object-contain" />}
         <h3 className="text-2xl font-bold">{data.title_line1}<br /><span className="text-gold">{data.title_line2}</span></h3>
