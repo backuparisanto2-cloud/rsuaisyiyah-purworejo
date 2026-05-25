@@ -7,7 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, RotateCcw } from "lucide-react";
+
+const DEFAULT_OVERLAY_COLOR = "#0b2545";
+const DEFAULT_OVERLAY_OPACITY = 30;
 
 export const Route = createFileRoute("/administrator/hero-content")({ component: HeroContentAdmin });
 
@@ -106,16 +109,31 @@ function HeroContentAdmin() {
       </Card>
 
       <Card className="p-4 space-y-4">
-        <h2 className="font-semibold">Overlay Hero</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">Overlay Hero</h2>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setData({
+              ...data,
+              overlay_color: DEFAULT_OVERLAY_COLOR,
+              overlay_opacity: DEFAULT_OVERLAY_OPACITY,
+            })}
+          >
+            <RotateCcw className="h-3.5 w-3.5 mr-1" />
+            Reset default
+          </Button>
+        </div>
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <Label>Warna overlay</Label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-1.5">
               <input
                 type="color"
                 value={data.overlay_color}
                 onChange={(e) => setData({ ...data, overlay_color: e.target.value })}
-                className="h-10 w-14 rounded border bg-transparent cursor-pointer"
+                className="h-10 w-14 rounded border bg-transparent cursor-pointer shrink-0"
               />
               <Input
                 value={data.overlay_color}
@@ -125,7 +143,10 @@ function HeroContentAdmin() {
             </div>
           </div>
           <div>
-            <Label>Opacity overlay ({data.overlay_opacity}%)</Label>
+            <div className="flex items-center justify-between">
+              <Label>Opacity overlay</Label>
+              <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted">{data.overlay_opacity}%</span>
+            </div>
             <input
               type="range"
               min={0}
@@ -133,7 +154,7 @@ function HeroContentAdmin() {
               step={1}
               value={data.overlay_opacity}
               onChange={(e) => setData({ ...data, overlay_opacity: Number(e.target.value) })}
-              className="w-full mt-2"
+              className="w-full mt-2 accent-primary"
             />
           </div>
         </div>
