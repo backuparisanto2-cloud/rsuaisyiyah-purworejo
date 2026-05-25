@@ -155,6 +155,7 @@ function HeroContentAdmin() {
           <span className="px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-xs font-semibold">{data.badge1}</span>
           <span className="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold">{data.badge2}</span>
         </div>
+        </div>
       </Card>
 
       <Button onClick={save} disabled={saving}>
