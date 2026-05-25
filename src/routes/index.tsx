@@ -103,6 +103,8 @@ type HeroContent = {
   cta_text: string;
   badge1: string;
   badge2: string;
+  overlay_color: string;
+  overlay_opacity: number;
 };
 
 const DEFAULT_HERO: HeroContent = {
@@ -113,6 +115,8 @@ const DEFAULT_HERO: HeroContent = {
   cta_text: "Pendaftaran Online",
   badge1: "★ PARIPURNA",
   badge2: "Akreditasi LARSI",
+  overlay_color: "#0b2545",
+  overlay_opacity: 30,
 };
 
 function HomePage() {
@@ -154,7 +158,10 @@ function HomePage() {
       {/* HERO (fixed) */}
       <section id="beranda" className="relative pt-20 sm:pt-24 min-h-[88vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <HeroSlider />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-blue-800/30 to-blue-950/30 pointer-events-none" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundColor: hero.overlay_color, opacity: hero.overlay_opacity / 100 }}
+        />
         <div className="relative z-10 text-center px-4 sm:px-6 text-primary-foreground max-w-3xl">
           <img src={hero.logo_url || logo} alt="Logo RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-contain aspect-square drop-shadow-2xl animate-float" />
           <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">
