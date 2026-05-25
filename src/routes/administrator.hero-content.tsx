@@ -20,6 +20,8 @@ type HeroContent = {
   cta_text: string;
   badge1: string;
   badge2: string;
+  overlay_color: string;
+  overlay_opacity: number;
 };
 
 function HeroContentAdmin() {
