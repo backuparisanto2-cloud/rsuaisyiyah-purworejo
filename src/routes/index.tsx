@@ -103,6 +103,8 @@ type HeroContent = {
   cta_text: string;
   badge1: string;
   badge2: string;
+  overlay_color: string;
+  overlay_opacity: number;
 };
 
 const DEFAULT_HERO: HeroContent = {
@@ -113,6 +115,8 @@ const DEFAULT_HERO: HeroContent = {
   cta_text: "Pendaftaran Online",
   badge1: "★ PARIPURNA",
   badge2: "Akreditasi LARSI",
+  overlay_color: "#0b2545",
+  overlay_opacity: 30,
 };
 
 function HomePage() {
