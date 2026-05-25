@@ -267,6 +267,8 @@ export type Database = {
           cta_text: string
           id: string
           logo_url: string | null
+          overlay_color: string
+          overlay_opacity: number
           singleton: boolean
           tagline: string
           title_line1: string
@@ -280,6 +282,8 @@ export type Database = {
           cta_text?: string
           id?: string
           logo_url?: string | null
+          overlay_color?: string
+          overlay_opacity?: number
           singleton?: boolean
           tagline?: string
           title_line1?: string
@@ -293,6 +297,8 @@ export type Database = {
           cta_text?: string
           id?: string
           logo_url?: string | null
+          overlay_color?: string
+          overlay_opacity?: number
           singleton?: boolean
           tagline?: string
           title_line1?: string
