@@ -71,16 +71,21 @@ export default function KontakSection() {
                 </div>
               </div>
             )}
-            {(c.whatsapp || c.phone) && (
+            {c.phone && (
+              <div className="flex gap-4">
+                <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><Phone className="h-5 w-5" /></div>
+                <div>
+                  <div className="font-bold">Telepon</div>
+                  <a href={`tel:${c.phone.replace(/\s+/g, "")}`} className="text-secondary font-semibold hover:underline">{c.phone}</a>
+                </div>
+              </div>
+            )}
+            {c.whatsapp && (
               <div className="flex gap-4">
                 <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><Phone className="h-5 w-5" /></div>
                 <div>
                   <div className="font-bold">WhatsApp CS</div>
-                  {c.whatsapp ? (
-                    <a href={waLink(c.whatsapp)} className="text-secondary font-semibold hover:underline">{waDisplay(c.whatsapp)}</a>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">{c.phone}</span>
-                  )}
+                  <a href={waLink(c.whatsapp)} className="text-secondary font-semibold hover:underline">{waDisplay(c.whatsapp)}</a>
                 </div>
               </div>
             )}
