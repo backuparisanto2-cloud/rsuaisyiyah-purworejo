@@ -1,19 +1,40 @@
-import { useState } from "react";
-import { Search, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo-pku.png";
+import { supabase } from "@/integrations/supabase/client";
 
-const NAV = [
-  { label: "Beranda", href: "#beranda" },
-  { label: "Tentang Kami", href: "#tentang" },
-  { label: "Berita & Info", href: "#berita" },
-  { label: "Jadwal Dokter", href: "#jadwal" },
-  { label: "Instagram", href: "#instagram" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Kontak", href: "#kontak" },
+type MenuItem = {
+  id: string;
+  label: string;
+  href: string;
+  parent_id: string | null;
+  display_order: number;
+  is_active: boolean;
+};
+
+const DEFAULT_NAV: MenuItem[] = [
+  { id: "d1", label: "Beranda", href: "#beranda", parent_id: null, display_order: 1, is_active: true },
+  { id: "d2", label: "Tentang Kami", href: "#tentang", parent_id: null, display_order: 2, is_active: true },
+  { id: "d3", label: "Berita & Info", href: "#berita", parent_id: null, display_order: 3, is_active: true },
+  { id: "d4", label: "Jadwal Dokter", href: "#jadwal", parent_id: null, display_order: 4, is_active: true },
+  { id: "d5", label: "Instagram", href: "#instagram", parent_id: null, display_order: 5, is_active: true },
+  { id: "d6", label: "FAQ", href: "#faq", parent_id: null, display_order: 6, is_active: true },
+  { id: "d7", label: "Kontak", href: "#kontak", parent_id: null, display_order: 7, is_active: true },
 ];
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<MenuItem[]>(DEFAULT_NAV);
+
+  useEffect(() => {
+    supabase.from("menu_items").select("*").order("display_order").then(({ data }) => {
+      if (data && data.length) setItems(data as MenuItem[]);
+    });
+  }, []);
+
+  const active = items.filter((i) => i.is_active);
+  const roots = active.filter((i) => !i.parent_id);
+  const childrenOf = (pid: string) => active.filter((i) => i.parent_id === pid);
 
   return (
     <header className="fixed top-0 inset-x-0 z-30 bg-primary text-primary-foreground shadow-md">
@@ -22,7 +43,6 @@ export default function Header() {
           <span className="shrink-0 inline-flex items-center justify-center rounded-full ring-[3px] ring-gold shadow-[0_0_18px_rgba(234,179,8,0.55)]">
             <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-20 sm:w-20 object-contain rounded-full" />
           </span>
-
           <div className="leading-[1.1] text-white shine-text min-w-0 whitespace-nowrap">
             <div className="text-[11px] sm:text-sm font-semibold tracking-[0.18em] opacity-80">RSU</div>
             <div className="flex items-baseline gap-2">
@@ -33,11 +53,31 @@ export default function Header() {
         </a>
 
         <nav className="hidden lg:flex items-center gap-1 ml-auto text-sm font-semibold">
-          {NAV.map((n) => (
-            <a key={n.label} href={n.href} className="px-3 py-2 hover:text-gold transition-colors">
-              {n.label.toUpperCase()}
-            </a>
-          ))}
+          {roots.map((n) => {
+            const subs = childrenOf(n.id);
+            if (subs.length === 0) {
+              return (
+                <a key={n.id} href={n.href} className="px-3 py-2 hover:text-gold transition-colors">
+                  {n.label.toUpperCase()}
+                </a>
+              );
+            }
+            return (
+              <div key={n.id} className="relative group">
+                <a href={n.href} className="px-3 py-2 hover:text-gold transition-colors inline-flex items-center gap-1">
+                  {n.label.toUpperCase()}
+                  <ChevronDown className="h-3 w-3" />
+                </a>
+                <div className="absolute left-0 top-full hidden group-hover:block bg-primary border border-white/10 shadow-xl min-w-[200px] z-40">
+                  {subs.map((s) => (
+                    <a key={s.id} href={s.href} className="block px-4 py-2 text-xs hover:bg-white/10 hover:text-gold">
+                      {s.label.toUpperCase()}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </nav>
 
         <div className="hidden lg:flex items-center gap-2 ml-2">
@@ -61,11 +101,18 @@ export default function Header() {
             <span className="font-bold">MENU</span>
             <button onClick={() => setOpen(false)} aria-label="Tutup"><X className="h-6 w-6" /></button>
           </div>
-          <nav className="p-4 space-y-2">
-            {NAV.map((n) => (
-              <a key={n.label} href={n.href} onClick={() => setOpen(false)} className="block py-3 border-b border-white/10 font-semibold">
-                {n.label.toUpperCase()}
-              </a>
+          <nav className="p-4 space-y-1">
+            {roots.map((n) => (
+              <div key={n.id}>
+                <a href={n.href} onClick={() => setOpen(false)} className="block py-3 border-b border-white/10 font-semibold">
+                  {n.label.toUpperCase()}
+                </a>
+                {childrenOf(n.id).map((s) => (
+                  <a key={s.id} href={s.href} onClick={() => setOpen(false)} className="block py-2 pl-4 border-b border-white/10 text-sm opacity-90">
+                    → {s.label.toUpperCase()}
+                  </a>
+                ))}
+              </div>
             ))}
           </nav>
         </div>

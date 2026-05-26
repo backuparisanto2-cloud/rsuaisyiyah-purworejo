@@ -30,7 +30,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/faq", label: "FAQ", icon: HelpCircle },
   { to: "/administrator/kontak", label: "Kontak / Footer", icon: Phone },
   { to: "/administrator/pages", label: "Page Builder", icon: FileText },
-  { to: "/administrator/menu", label: "Menu Builder", icon: ListTree, disabled: true },
+  { to: "/administrator/menu", label: "Menu Builder", icon: ListTree },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
   { to: "/administrator/theme", label: "Tema Warna", icon: Palette },
   { to: "/administrator/chatbot", label: "Chatbot", icon: Bot },
