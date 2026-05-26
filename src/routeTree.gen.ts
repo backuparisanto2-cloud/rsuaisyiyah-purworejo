@@ -13,9 +13,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as AdministratorThemeRouteImport } from './routes/administrator.theme'
 import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
 import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
+import { Route as AdministratorPagesRouteImport } from './routes/administrator.pages'
 import { Route as AdministratorMitraRouteImport } from './routes/administrator.mitra'
 import { Route as AdministratorLayananRouteImport } from './routes/administrator.layanan'
 import { Route as AdministratorKontakRouteImport } from './routes/administrator.kontak'
@@ -47,6 +49,11 @@ const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdministratorThemeRoute = AdministratorThemeRouteImport.update({
   id: '/theme',
   path: '/theme',
@@ -60,6 +67,11 @@ const AdministratorTentangRoute = AdministratorTentangRouteImport.update({
 const AdministratorSectionsRoute = AdministratorSectionsRouteImport.update({
   id: '/sections',
   path: '/sections',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorPagesRoute = AdministratorPagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
   getParentRoute: () => AdministratorRoute,
 } as any)
 const AdministratorMitraRoute = AdministratorMitraRouteImport.update({
@@ -129,9 +141,11 @@ export interface FileRoutesByFullPath {
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
   '/administrator/mitra': typeof AdministratorMitraRoute
+  '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
+  '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRoutesByTo {
@@ -147,9 +161,11 @@ export interface FileRoutesByTo {
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
   '/administrator/mitra': typeof AdministratorMitraRoute
+  '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
+  '/p/$slug': typeof PSlugRoute
   '/administrator': typeof AdministratorIndexRoute
 }
 export interface FileRoutesById {
@@ -167,9 +183,11 @@ export interface FileRoutesById {
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
   '/administrator/mitra': typeof AdministratorMitraRoute
+  '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
+  '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
 }
 export interface FileRouteTypes {
@@ -188,9 +206,11 @@ export interface FileRouteTypes {
     | '/administrator/kontak'
     | '/administrator/layanan'
     | '/administrator/mitra'
+    | '/administrator/pages'
     | '/administrator/sections'
     | '/administrator/tentang'
     | '/administrator/theme'
+    | '/p/$slug'
     | '/administrator/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -206,9 +226,11 @@ export interface FileRouteTypes {
     | '/administrator/kontak'
     | '/administrator/layanan'
     | '/administrator/mitra'
+    | '/administrator/pages'
     | '/administrator/sections'
     | '/administrator/tentang'
     | '/administrator/theme'
+    | '/p/$slug'
     | '/administrator'
   id:
     | '__root__'
@@ -225,9 +247,11 @@ export interface FileRouteTypes {
     | '/administrator/kontak'
     | '/administrator/layanan'
     | '/administrator/mitra'
+    | '/administrator/pages'
     | '/administrator/sections'
     | '/administrator/tentang'
     | '/administrator/theme'
+    | '/p/$slug'
     | '/administrator/'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +259,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdministratorRoute: typeof AdministratorRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PSlugRoute: typeof PSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -267,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorIndexRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/administrator/theme': {
       id: '/administrator/theme'
       path: '/theme'
@@ -286,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/sections'
       fullPath: '/administrator/sections'
       preLoaderRoute: typeof AdministratorSectionsRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/pages': {
+      id: '/administrator/pages'
+      path: '/pages'
+      fullPath: '/administrator/pages'
+      preLoaderRoute: typeof AdministratorPagesRouteImport
       parentRoute: typeof AdministratorRoute
     }
     '/administrator/mitra': {
@@ -372,6 +411,7 @@ interface AdministratorRouteChildren {
   AdministratorKontakRoute: typeof AdministratorKontakRoute
   AdministratorLayananRoute: typeof AdministratorLayananRoute
   AdministratorMitraRoute: typeof AdministratorMitraRoute
+  AdministratorPagesRoute: typeof AdministratorPagesRoute
   AdministratorSectionsRoute: typeof AdministratorSectionsRoute
   AdministratorTentangRoute: typeof AdministratorTentangRoute
   AdministratorThemeRoute: typeof AdministratorThemeRoute
@@ -389,6 +429,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorKontakRoute: AdministratorKontakRoute,
   AdministratorLayananRoute: AdministratorLayananRoute,
   AdministratorMitraRoute: AdministratorMitraRoute,
+  AdministratorPagesRoute: AdministratorPagesRoute,
   AdministratorSectionsRoute: AdministratorSectionsRoute,
   AdministratorTentangRoute: AdministratorTentangRoute,
   AdministratorThemeRoute: AdministratorThemeRoute,
@@ -403,6 +444,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdministratorRoute: AdministratorRouteWithChildren,
   AuthRoute: AuthRoute,
+  PSlugRoute: PSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
