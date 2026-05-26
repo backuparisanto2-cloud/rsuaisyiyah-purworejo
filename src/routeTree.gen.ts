@@ -19,6 +19,7 @@ import { Route as AdministratorTentangRouteImport } from './routes/administrator
 import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
 import { Route as AdministratorPagesRouteImport } from './routes/administrator.pages'
 import { Route as AdministratorMitraRouteImport } from './routes/administrator.mitra'
+import { Route as AdministratorMenuRouteImport } from './routes/administrator.menu'
 import { Route as AdministratorLayananRouteImport } from './routes/administrator.layanan'
 import { Route as AdministratorKontakRouteImport } from './routes/administrator.kontak'
 import { Route as AdministratorJamBesukRouteImport } from './routes/administrator.jam-besuk'
@@ -77,6 +78,11 @@ const AdministratorPagesRoute = AdministratorPagesRouteImport.update({
 const AdministratorMitraRoute = AdministratorMitraRouteImport.update({
   id: '/mitra',
   path: '/mitra',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorMenuRoute = AdministratorMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
   getParentRoute: () => AdministratorRoute,
 } as any)
 const AdministratorLayananRoute = AdministratorLayananRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
+  '/administrator/menu': typeof AdministratorMenuRoute
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
+  '/administrator/menu': typeof AdministratorMenuRoute
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
+  '/administrator/menu': typeof AdministratorMenuRoute
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/administrator/jam-besuk'
     | '/administrator/kontak'
     | '/administrator/layanan'
+    | '/administrator/menu'
     | '/administrator/mitra'
     | '/administrator/pages'
     | '/administrator/sections'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/administrator/jam-besuk'
     | '/administrator/kontak'
     | '/administrator/layanan'
+    | '/administrator/menu'
     | '/administrator/mitra'
     | '/administrator/pages'
     | '/administrator/sections'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/administrator/jam-besuk'
     | '/administrator/kontak'
     | '/administrator/layanan'
+    | '/administrator/menu'
     | '/administrator/mitra'
     | '/administrator/pages'
     | '/administrator/sections'
@@ -334,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorMitraRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/menu': {
+      id: '/administrator/menu'
+      path: '/menu'
+      fullPath: '/administrator/menu'
+      preLoaderRoute: typeof AdministratorMenuRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
     '/administrator/layanan': {
       id: '/administrator/layanan'
       path: '/layanan'
@@ -410,6 +429,7 @@ interface AdministratorRouteChildren {
   AdministratorJamBesukRoute: typeof AdministratorJamBesukRoute
   AdministratorKontakRoute: typeof AdministratorKontakRoute
   AdministratorLayananRoute: typeof AdministratorLayananRoute
+  AdministratorMenuRoute: typeof AdministratorMenuRoute
   AdministratorMitraRoute: typeof AdministratorMitraRoute
   AdministratorPagesRoute: typeof AdministratorPagesRoute
   AdministratorSectionsRoute: typeof AdministratorSectionsRoute
@@ -428,6 +448,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorJamBesukRoute: AdministratorJamBesukRoute,
   AdministratorKontakRoute: AdministratorKontakRoute,
   AdministratorLayananRoute: AdministratorLayananRoute,
+  AdministratorMenuRoute: AdministratorMenuRoute,
   AdministratorMitraRoute: AdministratorMitraRoute,
   AdministratorPagesRoute: AdministratorPagesRoute,
   AdministratorSectionsRoute: AdministratorSectionsRoute,
@@ -449,3 +470,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
