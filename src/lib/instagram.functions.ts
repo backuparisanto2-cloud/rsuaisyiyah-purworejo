@@ -38,7 +38,7 @@ export const getInstagramPosts = createServerFn({ method: "GET" }).handler(
         }>;
       };
       const posts: IgPost[] = (json.payload ?? [])
-        .slice(0, 15)
+        .slice(0, 10)
         .map((p, i) => ({
           id: p.vendorId ?? `${i}`,
           image: p.media?.[0]?.thumbnail?.url ?? "",
