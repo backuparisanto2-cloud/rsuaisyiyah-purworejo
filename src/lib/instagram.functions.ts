@@ -17,7 +17,8 @@ export const getInstagramPosts = createServerFn({ method: "GET" }).handler(
     const sources = encodeURIComponent(
       JSON.stringify({ pid: SOURCE_PID, filters: [] })
     );
-    const url = `https://widget-data.service.elfsight.com/api/posts?sources[]=${sources}&sort=date&limit=15&offset=0`;
+    const url = `https://widget-data.service.elfsight.com/api/posts?sources[]=${sources}&sort=date&limit=10&offset=0`;
+
 
     try {
       const res = await fetch(url, {
