@@ -29,6 +29,7 @@ import { Route as AdministratorHeroContentRouteImport } from './routes/administr
 import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq'
 import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
 import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
+import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -132,6 +133,11 @@ const AdministratorChatbotRoute = AdministratorChatbotRouteImport.update({
   path: '/chatbot',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const ApiPublicIgImageRoute = ApiPublicIgImageRouteImport.update({
+  id: '/api/public/ig-image',
+  path: '/api/public/ig-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/administrator/theme': typeof AdministratorThemeRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
+  '/api/public/ig-image': typeof ApiPublicIgImageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/administrator/theme': typeof AdministratorThemeRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator': typeof AdministratorIndexRoute
+  '/api/public/ig-image': typeof ApiPublicIgImageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/administrator/theme': typeof AdministratorThemeRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
+  '/api/public/ig-image': typeof ApiPublicIgImageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/administrator/theme'
     | '/p/$slug'
     | '/administrator/'
+    | '/api/public/ig-image'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/administrator/theme'
     | '/p/$slug'
     | '/administrator'
+    | '/api/public/ig-image'
   id:
     | '__root__'
     | '/'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/administrator/theme'
     | '/p/$slug'
     | '/administrator/'
+    | '/api/public/ig-image'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   AdministratorRoute: typeof AdministratorRouteWithChildren
   AuthRoute: typeof AuthRoute
   PSlugRoute: typeof PSlugRoute
+  ApiPublicIgImageRoute: typeof ApiPublicIgImageRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -416,6 +429,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorChatbotRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/api/public/ig-image': {
+      id: '/api/public/ig-image'
+      path: '/api/public/ig-image'
+      fullPath: '/api/public/ig-image'
+      preLoaderRoute: typeof ApiPublicIgImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -466,6 +486,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdministratorRoute: AdministratorRouteWithChildren,
   AuthRoute: AuthRoute,
   PSlugRoute: PSlugRoute,
+  ApiPublicIgImageRoute: ApiPublicIgImageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
