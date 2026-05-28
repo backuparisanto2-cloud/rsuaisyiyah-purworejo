@@ -17,7 +17,8 @@ export const getInstagramPosts = createServerFn({ method: "GET" }).handler(
     const sources = encodeURIComponent(
       JSON.stringify({ pid: SOURCE_PID, filters: [] })
     );
-    const url = `https://widget-data.service.elfsight.com/api/posts?sources[]=${sources}&sort=date&limit=15&offset=0`;
+    const url = `https://widget-data.service.elfsight.com/api/posts?sources[]=${sources}&sort=date&limit=10&offset=0`;
+
 
     try {
       const res = await fetch(url, {
@@ -37,7 +38,7 @@ export const getInstagramPosts = createServerFn({ method: "GET" }).handler(
         }>;
       };
       const posts: IgPost[] = (json.payload ?? [])
-        .slice(0, 15)
+        .slice(0, 10)
         .map((p, i) => ({
           id: p.vendorId ?? `${i}`,
           image: p.media?.[0]?.thumbnail?.url ?? "",

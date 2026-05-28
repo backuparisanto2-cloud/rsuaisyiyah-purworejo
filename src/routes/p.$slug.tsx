@@ -24,6 +24,8 @@ type Page = {
   content: string;
   meta_description: string;
   is_published: boolean;
+  image_url: string | null;
+  image_position: "top" | "bottom" | "left" | "right";
 };
 
 function CustomPage() {
@@ -38,7 +40,7 @@ function CustomPage() {
       setLoading(true);
       const { data, error } = await supabase
         .from("custom_pages")
-        .select("title, content, meta_description, is_published")
+        .select("title, content, meta_description, is_published, image_url, image_position")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
@@ -75,16 +77,30 @@ function CustomPage() {
     );
   }
 
+  const pos = page.image_position || "top";
+  const isSide = pos === "left" || pos === "right";
+  const flexDir = pos === "left" ? "md:flex-row" : pos === "right" ? "md:flex-row-reverse" : pos === "bottom" ? "flex-col-reverse" : "flex-col";
+
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 py-12">
         <Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Beranda</Link>
         <h1 className="text-4xl font-bold mt-4 mb-6">{page.title}</h1>
-        <article
-          className="prose prose-lg max-w-none dark:prose-invert"
-          dangerouslySetInnerHTML={{ __html: page.content }}
-        />
+        <div className={`flex gap-8 ${flexDir}`}>
+          {page.image_url && (
+            <img
+              src={page.image_url}
+              alt={page.title}
+              className={`rounded-xl object-cover shadow-md ${isSide ? "md:w-2/5 w-full self-start" : "w-full max-h-[480px]"}`}
+            />
+          )}
+          <article
+            className="prose prose-lg max-w-none dark:prose-invert flex-1"
+            dangerouslySetInnerHTML={{ __html: page.content }}
+          />
+        </div>
       </div>
     </main>
   );
 }
+
