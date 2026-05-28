@@ -160,8 +160,11 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          image_position: string
+          image_url: string | null
           is_published: boolean
           meta_description: string
+          show_in_menu: boolean
           slug: string
           title: string
           updated_at: string
@@ -170,8 +173,11 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          image_position?: string
+          image_url?: string | null
           is_published?: boolean
           meta_description?: string
+          show_in_menu?: boolean
           slug: string
           title?: string
           updated_at?: string
@@ -180,8 +186,11 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          image_position?: string
+          image_url?: string | null
           is_published?: boolean
           meta_description?: string
+          show_in_menu?: boolean
           slug?: string
           title?: string
           updated_at?: string
