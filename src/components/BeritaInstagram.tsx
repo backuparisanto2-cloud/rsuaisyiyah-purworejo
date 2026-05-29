@@ -1,7 +1,47 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Heart, Instagram } from "lucide-react";
+import { useState } from "react";
 import { getInstagramPosts } from "@/lib/instagram.functions";
+
+function buildSources(raw: string) {
+  const bare = raw.replace(/^https?:\/\//, "");
+  return [
+    `/api/public/ig-image?u=${encodeURIComponent(raw)}`,
+    `https://images.weserv.nl/?url=${encodeURIComponent(bare)}&w=600&h=600&fit=cover&output=jpg`,
+    `https://wsrv.nl/?url=${encodeURIComponent(bare)}&w=600&h=600&fit=cover&output=jpg`,
+    `/api/public/ig-image?u=${encodeURIComponent(raw)}&_r=${Date.now()}`,
+  ];
+}
+
+function SmartIgImage({ src, alt }: { src: string; alt: string }) {
+  const [idx, setIdx] = useState(0);
+  const [failed, setFailed] = useState(false);
+  const sources = buildSources(src);
+
+  if (failed) {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted text-muted-foreground gap-1">
+        <Instagram className="w-6 h-6" />
+        <span className="text-[10px]">Buka di Instagram</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={sources[idx]}
+      alt={alt}
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => {
+        if (idx + 1 < sources.length) setIdx(idx + 1);
+        else setFailed(true);
+      }}
+      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+    />
+  );
+}
 
 function formatDate(iso: string) {
   if (!iso) return "";
