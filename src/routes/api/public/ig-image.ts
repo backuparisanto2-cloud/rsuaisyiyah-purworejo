@@ -24,10 +24,10 @@ export const Route = createFileRoute("/api/public/ig-image")({
 
         const upstream = await fetch(parsed.toString(), {
           headers: {
-            Accept: "image/*,*/*;q=0.8",
+            Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
             "User-Agent":
-              "Mozilla/5.0 (compatible; RSUAisyiyahBot/1.0; +https://rsuaisyiyah-purworejo.lovable.app)",
-            Referer: "https://www.instagram.com/",
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
           },
         });
         if (!upstream.ok) {
