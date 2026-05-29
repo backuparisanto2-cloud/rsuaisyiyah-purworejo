@@ -2,6 +2,8 @@ import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const Route = createFileRoute("/p/$slug")({
   component: CustomPage,
