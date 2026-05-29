@@ -61,17 +61,10 @@ export default function BeritaInstagram() {
           className="group relative aspect-square rounded-2xl overflow-hidden bg-muted shadow-md hover:shadow-xl transition-all"
         >
           <img
-            src={`https://images.weserv.nl/?url=${encodeURIComponent(p.image.replace(/^https?:\/\//, ""))}&w=600&h=600&fit=cover&output=jpg`}
+            src={`/api/public/ig-image?u=${encodeURIComponent(p.image)}`}
             alt={p.caption.slice(0, 80) || "Post Instagram RSU Aisyiyah"}
             loading="lazy"
             referrerPolicy="no-referrer"
-            onError={(e) => {
-              const img = e.currentTarget;
-              if (!img.dataset.fallback) {
-                img.dataset.fallback = "1";
-                img.src = `/api/public/ig-image?u=${encodeURIComponent(p.image)}`;
-              }
-            }}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 text-white">
