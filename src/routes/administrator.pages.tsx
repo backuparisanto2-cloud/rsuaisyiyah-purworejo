@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon } from "lucide-react";
 
 export const Route = createFileRoute("/administrator/pages")({
   head: () => ({ meta: [{ title: "Page Builder · Admin" }] }),
