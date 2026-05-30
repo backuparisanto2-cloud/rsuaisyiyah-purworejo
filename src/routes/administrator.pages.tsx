@@ -438,3 +438,135 @@ export function PagePreview({ content, images }: { content: string; images: Page
     </div>
   );
 }
+
+type MenuItem = {
+  id: string;
+  label: string;
+  href: string;
+  parent_id: string | null;
+  display_order: number;
+  is_active: boolean;
+};
+
+function MenuEditor() {
+  const [items, setItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("menu_items").select("*").order("display_order");
+    if (error) toast.error(error.message);
+    setItems((data ?? []) as MenuItem[]);
+    setLoading(false);
+  }
+  useEffect(() => { load(); }, []);
+
+  const roots = items.filter((i) => !i.parent_id).sort((a, b) => a.display_order - b.display_order);
+  const childrenOf = (pid: string) =>
+    items.filter((i) => i.parent_id === pid).sort((a, b) => a.display_order - b.display_order);
+
+  async function addItem(parent_id: string | null) {
+    const siblings = parent_id ? childrenOf(parent_id) : roots;
+    const nextOrder = (siblings.at(-1)?.display_order ?? 0) + 1;
+    const { error } = await supabase.from("menu_items").insert({
+      label: "Menu Baru", href: "#", parent_id, display_order: nextOrder,
+    });
+    if (error) return toast.error(error.message);
+    load();
+  }
+
+  async function updateItem(id: string, patch: Partial<MenuItem>) {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+    const { error } = await supabase.from("menu_items").update(patch).eq("id", id);
+    if (error) { toast.error(error.message); load(); }
+  }
+
+  async function removeItem(id: string) {
+    if (!confirm("Hapus item menu ini? Submenu di bawahnya juga akan terhapus.")) return;
+    const { error } = await supabase.from("menu_items").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Item menu dihapus");
+    load();
+  }
+
+  async function move(item: MenuItem, dir: -1 | 1) {
+    const siblings = item.parent_id ? childrenOf(item.parent_id) : roots;
+    const idx = siblings.findIndex((s) => s.id === item.id);
+    const swap = siblings[idx + dir];
+    if (!swap) return;
+    await Promise.all([
+      supabase.from("menu_items").update({ display_order: swap.display_order }).eq("id", item.id),
+      supabase.from("menu_items").update({ display_order: item.display_order }).eq("id", swap.id),
+    ]);
+    load();
+  }
+
+  function Row({ item, depth }: { item: MenuItem; depth: number }) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 p-2 border rounded-md bg-card" style={{ marginLeft: depth * 20 }}>
+          {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+          <div className="flex flex-col gap-0.5 shrink-0">
+            <button onClick={() => move(item, -1)} className="hover:text-primary"><ChevronUp className="h-3 w-3" /></button>
+            <button onClick={() => move(item, 1)} className="hover:text-primary"><ChevronDown className="h-3 w-3" /></button>
+          </div>
+          <Input
+            value={item.label}
+            onChange={(e) => setItems((p) => p.map((x) => x.id === item.id ? { ...x, label: e.target.value } : x))}
+            onBlur={() => updateItem(item.id, { label: item.label })}
+            placeholder="Label"
+            className="flex-1 min-w-0 h-8"
+          />
+          <Input
+            value={item.href}
+            onChange={(e) => setItems((p) => p.map((x) => x.id === item.id ? { ...x, href: e.target.value } : x))}
+            onBlur={() => updateItem(item.id, { href: item.href })}
+            placeholder="#anchor, /p/slug, atau https://..."
+            className="flex-1 min-w-0 font-mono text-xs h-8"
+          />
+          <Switch checked={item.is_active} onCheckedChange={(v) => updateItem(item.id, { is_active: v })} />
+          {depth === 0 && (
+            <Button size="sm" variant="outline" className="h-8" onClick={() => addItem(item.id)} title="Tambah submenu">
+              <Plus className="h-3 w-3" />
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" className="h-8" onClick={() => removeItem(item.id)}>
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+        {childrenOf(item.id).map((c) => <Row key={c.id} item={c} depth={depth + 1} />)}
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="cursor-pointer" onClick={() => setOpen((v) => !v)}>
+        <CardTitle className="text-base flex items-center justify-between">
+          <span className="flex items-center gap-2"><MenuIcon className="h-4 w-4" /> Menu Navigasi Header</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-normal text-muted-foreground">{items.length} item</span>
+            {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </div>
+        </CardTitle>
+      </CardHeader>
+      {open && (
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Edit label dan link tiap menu. Gunakan <code>#anchor</code> untuk section, <code>/p/slug</code> untuk halaman custom, atau <code>https://...</code> untuk link eksternal.
+          </p>
+          {loading ? (
+            <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : roots.length === 0 ? (
+            <p className="text-center py-6 text-sm text-muted-foreground">Belum ada menu.</p>
+          ) : (
+            <div className="space-y-2">{roots.map((r) => <Row key={r.id} item={r} depth={0} />)}</div>
+          )}
+          <Button size="sm" onClick={() => addItem(null)}><Plus className="h-3 w-3 mr-1" />Tambah Menu Utama</Button>
+        </CardContent>
+      )}
+    </Card>
+  );
+}
