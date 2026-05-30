@@ -1,9 +1,10 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { PagePreview } from "./administrator.pages";
 
 export const Route = createFileRoute("/p/$slug")({
   component: CustomPage,
@@ -21,6 +22,8 @@ export const Route = createFileRoute("/p/$slug")({
   ),
 });
 
+type PageImage = { url: string; position: "top" | "bottom" | "left" | "right" | "inline"; width: number; caption?: string };
+
 type Page = {
   title: string;
   content: string;
@@ -28,6 +31,7 @@ type Page = {
   is_published: boolean;
   image_url: string | null;
   image_position: "top" | "bottom" | "left" | "right";
+  images: PageImage[];
 };
 
 function CustomPage() {
@@ -42,13 +46,16 @@ function CustomPage() {
       setLoading(true);
       const { data, error } = await supabase
         .from("custom_pages")
-        .select("title, content, meta_description, is_published, image_url, image_position")
+        .select("title, content, meta_description, is_published, image_url, image_position, images")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
       if (!alive) return;
       if (error || !data) setNotFoundFlag(true);
-      else setPage(data as Page);
+      else {
+        const d = data as any;
+        setPage({ ...d, images: Array.isArray(d.images) ? d.images : [] } as Page);
+      }
       setLoading(false);
     })();
     return () => { alive = false; };
@@ -79,9 +86,11 @@ function CustomPage() {
     );
   }
 
-  const pos = page.image_position || "top";
-  const isSide = pos === "left" || pos === "right";
-  const flexDir = pos === "left" ? "md:flex-row" : pos === "right" ? "md:flex-row-reverse" : pos === "bottom" ? "flex-col-reverse" : "flex-col";
+  // Merge legacy image_url into images if no images set
+  let imgs = page.images;
+  if (imgs.length === 0 && page.image_url) {
+    imgs = [{ url: page.image_url, position: page.image_position || "top", width: 100 }];
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -90,23 +99,10 @@ function CustomPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Beranda</Link>
           <h1 className="text-4xl font-bold mt-4 mb-6">{page.title}</h1>
-          <div className={`flex gap-8 ${flexDir}`}>
-            {page.image_url && (
-              <img
-                src={page.image_url}
-                alt={page.title}
-                className={`rounded-xl object-cover shadow-md ${isSide ? "md:w-2/5 w-full self-start" : "w-full max-h-[480px]"}`}
-              />
-            )}
-            <article
-              className="prose prose-lg max-w-none dark:prose-invert flex-1"
-              dangerouslySetInnerHTML={{ __html: page.content }}
-            />
-          </div>
+          <PagePreview content={page.content} images={imgs} />
         </div>
       </main>
       <Footer />
     </div>
   );
 }
-
