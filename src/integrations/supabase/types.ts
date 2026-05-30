@@ -162,7 +162,9 @@ export type Database = {
           id: string
           image_position: string
           image_url: string | null
+          images: Json
           is_published: boolean
+          menu_href: string | null
           meta_description: string
           show_in_menu: boolean
           slug: string
@@ -175,7 +177,9 @@ export type Database = {
           id?: string
           image_position?: string
           image_url?: string | null
+          images?: Json
           is_published?: boolean
+          menu_href?: string | null
           meta_description?: string
           show_in_menu?: boolean
           slug: string
@@ -188,7 +192,9 @@ export type Database = {
           id?: string
           image_position?: string
           image_url?: string | null
+          images?: Json
           is_published?: boolean
+          menu_href?: string | null
           meta_description?: string
           show_in_menu?: boolean
           slug?: string
