@@ -23,6 +23,7 @@ import { Route as AdministratorMenuRouteImport } from './routes/administrator.me
 import { Route as AdministratorLayananRouteImport } from './routes/administrator.layanan'
 import { Route as AdministratorKontakRouteImport } from './routes/administrator.kontak'
 import { Route as AdministratorJamBesukRouteImport } from './routes/administrator.jam-besuk'
+import { Route as AdministratorInstagramRouteImport } from './routes/administrator.instagram'
 import { Route as AdministratorHeroSliderRouteImport } from './routes/administrator.hero-slider'
 import { Route as AdministratorHeroSettingsRouteImport } from './routes/administrator.hero-settings'
 import { Route as AdministratorHeroContentRouteImport } from './routes/administrator.hero-content'
@@ -101,6 +102,11 @@ const AdministratorJamBesukRoute = AdministratorJamBesukRouteImport.update({
   path: '/jam-besuk',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorInstagramRoute = AdministratorInstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
+  getParentRoute: () => AdministratorRoute,
+} as any)
 const AdministratorHeroSliderRoute = AdministratorHeroSliderRouteImport.update({
   id: '/hero-slider',
   path: '/hero-slider',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/administrator/hero-content': typeof AdministratorHeroContentRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/instagram': typeof AdministratorInstagramRoute
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/administrator/hero-content': typeof AdministratorHeroContentRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/instagram': typeof AdministratorInstagramRoute
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/administrator/hero-content': typeof AdministratorHeroContentRoute
   '/administrator/hero-settings': typeof AdministratorHeroSettingsRoute
   '/administrator/hero-slider': typeof AdministratorHeroSliderRoute
+  '/administrator/instagram': typeof AdministratorInstagramRoute
   '/administrator/jam-besuk': typeof AdministratorJamBesukRoute
   '/administrator/kontak': typeof AdministratorKontakRoute
   '/administrator/layanan': typeof AdministratorLayananRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/administrator/hero-content'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
+    | '/administrator/instagram'
     | '/administrator/jam-besuk'
     | '/administrator/kontak'
     | '/administrator/layanan'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/administrator/hero-content'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
+    | '/administrator/instagram'
     | '/administrator/jam-besuk'
     | '/administrator/kontak'
     | '/administrator/layanan'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/administrator/hero-content'
     | '/administrator/hero-settings'
     | '/administrator/hero-slider'
+    | '/administrator/instagram'
     | '/administrator/jam-besuk'
     | '/administrator/kontak'
     | '/administrator/layanan'
@@ -387,6 +399,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorJamBesukRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/instagram': {
+      id: '/administrator/instagram'
+      path: '/instagram'
+      fullPath: '/administrator/instagram'
+      preLoaderRoute: typeof AdministratorInstagramRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
     '/administrator/hero-slider': {
       id: '/administrator/hero-slider'
       path: '/hero-slider'
@@ -446,6 +465,7 @@ interface AdministratorRouteChildren {
   AdministratorHeroContentRoute: typeof AdministratorHeroContentRoute
   AdministratorHeroSettingsRoute: typeof AdministratorHeroSettingsRoute
   AdministratorHeroSliderRoute: typeof AdministratorHeroSliderRoute
+  AdministratorInstagramRoute: typeof AdministratorInstagramRoute
   AdministratorJamBesukRoute: typeof AdministratorJamBesukRoute
   AdministratorKontakRoute: typeof AdministratorKontakRoute
   AdministratorLayananRoute: typeof AdministratorLayananRoute
@@ -465,6 +485,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorHeroContentRoute: AdministratorHeroContentRoute,
   AdministratorHeroSettingsRoute: AdministratorHeroSettingsRoute,
   AdministratorHeroSliderRoute: AdministratorHeroSliderRoute,
+  AdministratorInstagramRoute: AdministratorInstagramRoute,
   AdministratorJamBesukRoute: AdministratorJamBesukRoute,
   AdministratorKontakRoute: AdministratorKontakRoute,
   AdministratorLayananRoute: AdministratorLayananRoute,
@@ -491,3 +512,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
