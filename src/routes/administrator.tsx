@@ -29,6 +29,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/mitra", label: "Mitra", icon: Handshake },
   { to: "/administrator/faq", label: "FAQ", icon: HelpCircle },
   { to: "/administrator/kontak", label: "Kontak / Footer", icon: Phone },
+  { to: "/administrator/instagram", label: "Berita & Instagram", icon: Instagram },
   { to: "/administrator/pages", label: "Page Builder", icon: FileText },
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
