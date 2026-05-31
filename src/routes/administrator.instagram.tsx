@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Instagram, Trash2, ArrowUp, ArrowDown, Plus, ExternalLink } from "lucide-react";
-import { extractShortcode, buildPermalink, buildThumbnail } from "@/lib/instagram-utils";
+import {
+  Instagram,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Plus,
+  ExternalLink,
+  Copy,
+  Check,
+} from "lucide-react";
+import {
+  extractShortcode,
+  isValidShortcode,
+  buildPermalink,
+  buildThumbnail,
+  buildEmbedCode,
+  extractCaptionFromEmbed,
+  normalizeCaption,
+} from "@/lib/instagram-utils";
 
 export const Route = createFileRoute("/administrator/instagram")({
   component: InstagramAdmin,
@@ -27,7 +44,9 @@ function InstagramAdmin() {
   const [rows, setRows] = useState<Row[]>([]);
   const [input, setInput] = useState("");
   const [caption, setCaption] = useState("");
+  const [captionTouched, setCaptionTouched] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   async function load() {
     const { data, error } = await supabase
@@ -38,38 +57,70 @@ function InstagramAdmin() {
     if (error) toast.error(error.message);
     else setRows((data as Row[]) ?? []);
   }
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    void load();
+  }, []);
 
   const previewShortcode = extractShortcode(input);
+  const valid = isValidShortcode(previewShortcode);
+
+  // Auto-fill caption from pasted embed snippet (only if user hasn't typed one).
+  useEffect(() => {
+    if (captionTouched) return;
+    const c = extractCaptionFromEmbed(input);
+    if (c) setCaption(c);
+  }, [input, captionTouched]);
+
+  const embedCode = useMemo(
+    () => (valid ? buildEmbedCode(previewShortcode!, normalizeCaption(caption, 120)) : ""),
+    [valid, previewShortcode, caption],
+  );
+
+  async function copyEmbed() {
+    if (!embedCode) return;
+    try {
+      await navigator.clipboard.writeText(embedCode);
+      setCopied(true);
+      toast.success("Kode embed disalin");
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      toast.error("Gagal menyalin");
+    }
+  }
 
   async function add() {
-    const sc = extractShortcode(input);
-    if (!sc) {
+    if (!valid) {
       toast.error("URL/embed Instagram tidak valid");
       return;
     }
     setBusy(true);
     const nextOrder = (rows[rows.length - 1]?.display_order ?? 0) + 1;
     const { error } = await supabase.from("instagram_posts").insert({
-      shortcode: sc,
-      permalink: buildPermalink(sc),
-      caption,
+      shortcode: previewShortcode!,
+      permalink: buildPermalink(previewShortcode!),
+      caption: normalizeCaption(caption),
       display_order: nextOrder,
       is_active: true,
     });
     setBusy(false);
     if (error) {
-      toast.error(error.message.includes("duplicate") ? "Post sudah ada" : error.message);
+      toast.error(
+        error.message.includes("duplicate") ? "Post sudah ada" : error.message,
+      );
       return;
     }
     setInput("");
     setCaption("");
+    setCaptionTouched(false);
     toast.success("Post ditambahkan");
     void load();
   }
 
   async function update(r: Row, patch: Partial<Row>) {
-    const { error } = await supabase.from("instagram_posts").update(patch).eq("id", r.id);
+    const { error } = await supabase
+      .from("instagram_posts")
+      .update(patch)
+      .eq("id", r.id);
     if (error) toast.error(error.message);
     else void load();
   }
@@ -87,8 +138,14 @@ function InstagramAdmin() {
     if (j < 0 || j >= rows.length) return;
     const other = rows[j];
     await Promise.all([
-      supabase.from("instagram_posts").update({ display_order: other.display_order }).eq("id", r.id),
-      supabase.from("instagram_posts").update({ display_order: r.display_order }).eq("id", other.id),
+      supabase
+        .from("instagram_posts")
+        .update({ display_order: other.display_order })
+        .eq("id", r.id),
+      supabase
+        .from("instagram_posts")
+        .update({ display_order: r.display_order })
+        .eq("id", other.id),
     ]);
     void load();
   }
@@ -100,51 +157,94 @@ function InstagramAdmin() {
           <Instagram className="w-6 h-6" /> Berita & Info Terkini (Instagram)
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Tempelkan URL post Instagram (mis. <code>https://www.instagram.com/p/XXXX/</code>) atau seluruh kode embed dari Instagram desktop. Thumbnail dibuat otomatis.
+          Cukup tempel URL Instagram apa pun — mis.{" "}
+          <code className="text-xs">
+            https://www.instagram.com/rsu_aisyiyah/p/DYWECk0k0ud/
+          </code>{" "}
+          — sistem akan otomatis mengekstrak shortcode, membuat thumbnail, dan
+          membangkitkan kode embed Instagram desktop resmi.
         </p>
       </div>
 
       <Card className="p-4 space-y-3">
         <label className="text-sm font-semibold">Tambah Post</label>
         <Textarea
-          placeholder="Tempel URL Instagram atau seluruh <blockquote class='instagram-media' ...> di sini"
+          placeholder="Tempel URL post Instagram, reel, atau seluruh kode <blockquote class='instagram-media' ...>"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           rows={4}
         />
         <Input
-          placeholder="Caption singkat (opsional, untuk hover)"
+          placeholder="Caption singkat (opsional — terisi otomatis dari embed)"
           value={caption}
-          onChange={(e) => setCaption(e.target.value)}
+          onChange={(e) => {
+            setCaption(e.target.value);
+            setCaptionTouched(true);
+          }}
         />
 
         <div className="grid md:grid-cols-2 gap-4 items-start">
           <div>
-            <div className="text-xs text-muted-foreground mb-2">Preview</div>
+            <div className="text-xs text-muted-foreground mb-2">Preview thumbnail</div>
             <div className="aspect-square w-full max-w-xs rounded-2xl overflow-hidden bg-muted relative border">
-              {previewShortcode ? (
+              {valid ? (
                 <img
-                  src={buildThumbnail(previewShortcode)}
+                  src={buildThumbnail(previewShortcode!)}
                   alt="preview"
                   className="absolute inset-0 w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground text-center px-3">
-                  Preview muncul setelah link/embed valid ditempel
+                  {input
+                    ? "URL Instagram tidak dikenali"
+                    : "Preview muncul setelah link/embed valid ditempel"}
                 </div>
               )}
             </div>
-            {previewShortcode && (
+            {valid && (
               <div className="text-xs text-muted-foreground mt-2 font-mono break-all">
                 shortcode: {previewShortcode}
+                <br />
+                permalink: {buildPermalink(previewShortcode!)}
               </div>
             )}
           </div>
-          <div className="flex md:justify-end">
-            <Button onClick={add} disabled={!previewShortcode || busy}>
-              <Plus className="w-4 h-4 mr-1" /> Tambah Post
-            </Button>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                Kode embed Instagram resmi
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={copyEmbed}
+                disabled={!embedCode}
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3 h-3 mr-1" /> Tersalin
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3 mr-1" /> Salin
+                  </>
+                )}
+              </Button>
+            </div>
+            <Textarea
+              readOnly
+              value={embedCode}
+              rows={8}
+              className="font-mono text-[11px]"
+              placeholder="Kode embed akan muncul setelah URL valid ditempel"
+            />
+            <div className="flex justify-end">
+              <Button onClick={add} disabled={!valid || busy}>
+                <Plus className="w-4 h-4 mr-1" /> Tambah Post
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
@@ -191,10 +291,20 @@ function InstagramAdmin() {
                       </a>
                     </div>
                     <div className="flex items-center gap-0.5">
-                      <Button size="icon" variant="ghost" onClick={() => move(r, -1)} disabled={i === 0}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => move(r, -1)}
+                        disabled={i === 0}
+                      >
                         <ArrowUp className="w-4 h-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => move(r, 1)} disabled={i === rows.length - 1}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => move(r, 1)}
+                        disabled={i === rows.length - 1}
+                      >
                         <ArrowDown className="w-4 h-4" />
                       </Button>
                       <Button size="icon" variant="ghost" onClick={() => remove(r)}>
