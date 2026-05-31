@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
-  Bot, LogOut, Loader2, Type, FileText,
+  Bot, LogOut, Loader2, Type, FileText, Instagram,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
