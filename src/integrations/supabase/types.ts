@@ -463,6 +463,39 @@ export type Database = {
         }
         Relationships: []
       }
+      instagram_posts: {
+        Row: {
+          caption: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          permalink: string
+          shortcode: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          permalink: string
+          shortcode: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          permalink?: string
+          shortcode?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           created_at: string
