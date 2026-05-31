@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
-  Bot, LogOut, Loader2, Type, FileText,
+  Bot, LogOut, Loader2, Type, FileText, Instagram,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/mitra", label: "Mitra", icon: Handshake },
   { to: "/administrator/faq", label: "FAQ", icon: HelpCircle },
   { to: "/administrator/kontak", label: "Kontak / Footer", icon: Phone },
+  { to: "/administrator/instagram", label: "Berita & Instagram", icon: Instagram },
   { to: "/administrator/pages", label: "Page Builder", icon: FileText },
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },

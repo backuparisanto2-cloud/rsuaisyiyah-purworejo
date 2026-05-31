@@ -19,7 +19,9 @@ export const Route = createFileRoute("/api/public/ig-image")({
           host.endsWith("cdninstagram.com") ||
           host.endsWith("fbcdn.net") ||
           host.endsWith("elfsight.com") ||
-          host.endsWith("elfsightcdn.com");
+          host.endsWith("elfsightcdn.com") ||
+          host === "instagram.com" ||
+          host.endsWith(".instagram.com");
         if (!allowed) return new Response("Host not allowed", { status: 400 });
 
         const upstream = await fetch(parsed.toString(), {
