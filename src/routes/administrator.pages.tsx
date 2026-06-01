@@ -135,7 +135,7 @@ function PagesAdmin() {
       image_url: editing.image_url,
       image_position: editing.image_position,
       show_in_menu: editing.show_in_menu,
-      menu_href: editing.menu_href?.trim() ? editing.menu_href.trim() : null,
+      menu_href: finalHref,
       images: editing.images,
     };
     const res = editing.id
