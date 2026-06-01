@@ -52,9 +52,8 @@ export default function BeritaInstagram() {
     queryFn: async (): Promise<Row[]> => {
       const { data, error } = await supabase
         .from("instagram_posts")
-        .select("id,shortcode,permalink,caption")
+        .select("id,shortcode,permalink,caption,created_at")
         .eq("is_active", true)
-        .order("display_order", { ascending: true })
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;

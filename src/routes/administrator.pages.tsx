@@ -108,8 +108,16 @@ function PagesAdmin() {
     setOriginalHref(p.menu_href || `/p/${p.slug}`);
   }
 
+  function normalizeHref(raw: string | null | undefined, slug: string): string {
+    const v = (raw ?? "").trim();
+    if (!v) return `/p/${slug}`;
+    // keep absolute URLs and in-page anchors as-is
+    if (/^https?:\/\//i.test(v) || v.startsWith("#") || v.startsWith("mailto:") || v.startsWith("tel:")) return v;
+    return v.startsWith("/") ? v : `/${v}`;
+  }
+
   const finalHref = editing
-    ? (editing.menu_href && editing.menu_href.trim() ? editing.menu_href.trim() : `/p/${slugify(editing.slug || editing.title)}`)
+    ? normalizeHref(editing.menu_href, slugify(editing.slug || editing.title))
     : "";
 
   async function save() {
@@ -127,7 +135,7 @@ function PagesAdmin() {
       image_url: editing.image_url,
       image_position: editing.image_position,
       show_in_menu: editing.show_in_menu,
-      menu_href: editing.menu_href?.trim() ? editing.menu_href.trim() : null,
+      menu_href: finalHref,
       images: editing.images,
     };
     const res = editing.id
