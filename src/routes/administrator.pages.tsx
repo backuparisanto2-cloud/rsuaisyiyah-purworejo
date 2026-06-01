@@ -73,12 +73,25 @@ async function syncMenuItem(opts: {
   }
 }
 
+type MenuOpt = { href: string; label: string };
+
 function PagesAdmin() {
   const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Page | null>(null);
   const [originalHref, setOriginalHref] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [menuOpts, setMenuOpts] = useState<MenuOpt[]>([]);
+  const [menuMode, setMenuMode] = useState<"default" | "existing" | "custom">("default");
+
+  async function loadMenuOpts() {
+    const { data } = await supabase
+      .from("menu_items")
+      .select("href,label")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+    setMenuOpts(((data ?? []) as MenuOpt[]).filter((m) => m.href && m.href !== "#"));
+  }
 
   async function load() {
     setLoading(true);
@@ -91,7 +104,7 @@ function PagesAdmin() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); loadMenuOpts(); }, []);
 
   function startNew() {
     setEditing({
