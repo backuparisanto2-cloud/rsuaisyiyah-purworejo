@@ -235,14 +235,58 @@ function PagesAdmin() {
                 </div>
               </div>
               <div>
-                <Label>URL Menu (opsional)</Label>
-                <Input
-                  value={editing.menu_href ?? ""}
-                  onChange={(e) => setEditing({ ...editing, menu_href: e.target.value })}
-                  placeholder={`/p/${editing.slug || "..."} (default)`}
-                />
+                <Label>URL Menu (mengikuti menu frontend)</Label>
+                <Select
+                  value={menuMode}
+                  onValueChange={(v) => {
+                    const mode = v as "default" | "existing" | "custom";
+                    setMenuMode(mode);
+                    if (mode === "default") setEditing({ ...editing, menu_href: null });
+                    else if (mode === "existing") setEditing({ ...editing, menu_href: menuOpts[0]?.href ?? null });
+                    else setEditing({ ...editing, menu_href: editing.menu_href ?? "" });
+                  }}
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Default — /p/{editing.slug || "slug"}</SelectItem>
+                    <SelectItem value="existing" disabled={menuOpts.length === 0}>
+                      Pilih dari menu frontend
+                    </SelectItem>
+                    <SelectItem value="custom">Custom / link eksternal…</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {menuMode === "existing" && (
+                  <Select
+                    value={editing.menu_href ?? ""}
+                    onValueChange={(v) => setEditing({ ...editing, menu_href: v })}
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue placeholder="Pilih menu…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {menuOpts.map((m) => (
+                        <SelectItem key={m.href} value={m.href}>
+                          {m.label} <span className="text-muted-foreground">— {m.href}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                {menuMode === "custom" && (
+                  <Input
+                    className="mt-2"
+                    value={editing.menu_href ?? ""}
+                    onChange={(e) => setEditing({ ...editing, menu_href: e.target.value })}
+                    placeholder="/path-relatif atau https://..."
+                  />
+                )}
+
                 <p className="text-xs text-muted-foreground mt-1">
-                  Kosongkan untuk pakai URL halaman. Bisa diisi link eksternal (https://...) atau path lain (mis. <code>/dokter</code>).
+                  Pilih menu frontend agar link relatif otomatis cocok, atau isi path bebas.
                 </p>
                 <p className="text-xs mt-1">Menu akan menuju: <code>{finalHref}</code></p>
               </div>
