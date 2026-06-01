@@ -114,11 +114,16 @@ function PagesAdmin() {
       menu_href: null, images: [], updated_at: "",
     });
     setOriginalHref("");
+    setMenuMode("default");
   }
 
   function startEdit(p: Page) {
     setEditing(p);
     setOriginalHref(p.menu_href || `/p/${p.slug}`);
+    const defaultHref = `/p/${p.slug}`;
+    if (!p.menu_href || p.menu_href === defaultHref) setMenuMode("default");
+    else if (menuOpts.some((m) => m.href === p.menu_href)) setMenuMode("existing");
+    else setMenuMode("custom");
   }
 
   function normalizeHref(raw: string | null | undefined, slug: string): string {
