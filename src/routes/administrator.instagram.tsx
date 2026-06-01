@@ -323,9 +323,32 @@ function InstagramAdmin() {
                       >
                         <ArrowDown className="w-4 h-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => remove(r)}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="icon" variant="ghost" title="Hapus post">
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus post Instagram?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Post <code className="font-mono">{r.shortcode}</code> akan dihapus
+                              permanen dari daftar Berita & Info Terkini. Tindakan ini tidak bisa
+                              dibatalkan.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => remove(r)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Hapus
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </div>
