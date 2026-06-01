@@ -96,21 +96,22 @@ export default function BeritaInstagram() {
 
   return (
     <div className="mt-6 max-w-3xl mx-auto">
-      <div className="grid grid-cols-2 gap-4">
-        {current.map((p) => (
+      <div key={page} className="grid grid-cols-2 gap-4">
+        {current.map((p, i) => (
           <a
             key={p.id}
             href={p.permalink || buildPermalink(p.shortcode)}
             target="_blank"
             rel="noreferrer"
-            className="group relative aspect-square rounded-2xl overflow-hidden bg-muted shadow-md hover:shadow-xl transition-all"
+            style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
+            className="group relative aspect-square rounded-2xl overflow-hidden bg-muted shadow-md ring-1 ring-transparent transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:ring-2 hover:ring-pink-400/50 animate-fade-in"
           >
             <SmartImg shortcode={p.shortcode} alt={p.caption || "Post Instagram"} />
-            <div className="absolute top-2 right-2 bg-white/90 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Instagram className="w-4 h-4 text-primary" />
+            <div className="absolute top-2 right-2 bg-white/95 rounded-full p-1.5 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 shadow-md">
+              <Instagram className="w-4 h-4 text-pink-500" />
             </div>
             {p.caption ? (
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 text-white text-xs line-clamp-3">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 p-3 text-white text-xs line-clamp-3">
                 {p.caption}
               </div>
             ) : null}
