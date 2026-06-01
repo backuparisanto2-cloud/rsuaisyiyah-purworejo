@@ -73,25 +73,12 @@ async function syncMenuItem(opts: {
   }
 }
 
-type MenuOpt = { href: string; label: string };
-
 function PagesAdmin() {
   const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Page | null>(null);
   const [originalHref, setOriginalHref] = useState<string>("");
   const [saving, setSaving] = useState(false);
-  const [menuOpts, setMenuOpts] = useState<MenuOpt[]>([]);
-  const [menuMode, setMenuMode] = useState<"default" | "existing" | "custom">("default");
-
-  async function loadMenuOpts() {
-    const { data } = await supabase
-      .from("menu_items")
-      .select("href,label")
-      .eq("is_active", true)
-      .order("display_order", { ascending: true });
-    setMenuOpts(((data ?? []) as MenuOpt[]).filter((m) => m.href && m.href !== "#"));
-  }
 
   async function load() {
     setLoading(true);
@@ -104,7 +91,7 @@ function PagesAdmin() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); loadMenuOpts(); }, []);
+  useEffect(() => { load(); }, []);
 
   function startNew() {
     setEditing({
@@ -114,16 +101,11 @@ function PagesAdmin() {
       menu_href: null, images: [], updated_at: "",
     });
     setOriginalHref("");
-    setMenuMode("default");
   }
 
   function startEdit(p: Page) {
     setEditing(p);
     setOriginalHref(p.menu_href || `/p/${p.slug}`);
-    const defaultHref = `/p/${p.slug}`;
-    if (!p.menu_href || p.menu_href === defaultHref) setMenuMode("default");
-    else if (menuOpts.some((m) => m.href === p.menu_href)) setMenuMode("existing");
-    else setMenuMode("custom");
   }
 
   function normalizeHref(raw: string | null | undefined, slug: string): string {
@@ -235,58 +217,14 @@ function PagesAdmin() {
                 </div>
               </div>
               <div>
-                <Label>URL Menu (mengikuti menu frontend)</Label>
-                <Select
-                  value={menuMode}
-                  onValueChange={(v) => {
-                    const mode = v as "default" | "existing" | "custom";
-                    setMenuMode(mode);
-                    if (mode === "default") setEditing({ ...editing, menu_href: null });
-                    else if (mode === "existing") setEditing({ ...editing, menu_href: menuOpts[0]?.href ?? null });
-                    else setEditing({ ...editing, menu_href: editing.menu_href ?? "" });
-                  }}
-                >
-                  <SelectTrigger className="mt-1.5">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="default">Default — /p/{editing.slug || "slug"}</SelectItem>
-                    <SelectItem value="existing" disabled={menuOpts.length === 0}>
-                      Pilih dari menu frontend
-                    </SelectItem>
-                    <SelectItem value="custom">Custom / link eksternal…</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {menuMode === "existing" && (
-                  <Select
-                    value={editing.menu_href ?? ""}
-                    onValueChange={(v) => setEditing({ ...editing, menu_href: v })}
-                  >
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Pilih menu…" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {menuOpts.map((m) => (
-                        <SelectItem key={m.href} value={m.href}>
-                          {m.label} <span className="text-muted-foreground">— {m.href}</span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-
-                {menuMode === "custom" && (
-                  <Input
-                    className="mt-2"
-                    value={editing.menu_href ?? ""}
-                    onChange={(e) => setEditing({ ...editing, menu_href: e.target.value })}
-                    placeholder="/path-relatif atau https://..."
-                  />
-                )}
-
+                <Label>URL Menu (opsional)</Label>
+                <Input
+                  value={editing.menu_href ?? ""}
+                  onChange={(e) => setEditing({ ...editing, menu_href: e.target.value })}
+                  placeholder={`/p/${editing.slug || "..."} (default)`}
+                />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Pilih menu frontend agar link relatif otomatis cocok, atau isi path bebas.
+                  Kosongkan untuk pakai URL halaman. Bisa diisi link eksternal (https://...) atau path lain (mis. <code>/dokter</code>).
                 </p>
                 <p className="text-xs mt-1">Menu akan menuju: <code>{finalHref}</code></p>
               </div>

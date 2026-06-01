@@ -5,17 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
@@ -137,15 +126,10 @@ function InstagramAdmin() {
   }
 
   async function remove(r: Row) {
-    setRows((prev) => prev.filter((x) => x.id !== r.id));
+    if (!confirm("Hapus post ini?")) return;
     const { error } = await supabase.from("instagram_posts").delete().eq("id", r.id);
-    if (error) {
-      toast.error(error.message);
-      void load();
-    } else {
-      toast.success("Post dihapus");
-      void load();
-    }
+    if (error) toast.error(error.message);
+    else void load();
   }
 
   async function move(r: Row, dir: -1 | 1) {
@@ -323,32 +307,9 @@ function InstagramAdmin() {
                       >
                         <ArrowDown className="w-4 h-4" />
                       </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" title="Hapus post">
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Hapus post Instagram?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Post <code className="font-mono">{r.shortcode}</code> akan dihapus
-                              permanen dari daftar Berita & Info Terkini. Tindakan ini tidak bisa
-                              dibatalkan.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Batal</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => remove(r)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Hapus
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <Button size="icon" variant="ghost" onClick={() => remove(r)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </div>
                   </div>
                 </div>
