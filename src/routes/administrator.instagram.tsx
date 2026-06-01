@@ -137,10 +137,15 @@ function InstagramAdmin() {
   }
 
   async function remove(r: Row) {
-    if (!confirm("Hapus post ini?")) return;
+    setRows((prev) => prev.filter((x) => x.id !== r.id));
     const { error } = await supabase.from("instagram_posts").delete().eq("id", r.id);
-    if (error) toast.error(error.message);
-    else void load();
+    if (error) {
+      toast.error(error.message);
+      void load();
+    } else {
+      toast.success("Post dihapus");
+      void load();
+    }
   }
 
   async function move(r: Row, dir: -1 | 1) {
