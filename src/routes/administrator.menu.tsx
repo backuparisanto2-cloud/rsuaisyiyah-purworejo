@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
-  Loader2, Plus, Trash2, ChevronUp, ChevronDown, RotateCcw, CornerDownRight,
+  Loader2, Plus, Trash2, ChevronUp, ChevronDown, RotateCcw, CornerDownRight, Save,
 } from "lucide-react";
 
 export const Route = createFileRoute("/administrator/menu")({
@@ -36,15 +36,19 @@ const DEFAULTS = [
 
 function MenuAdmin() {
   const [items, setItems] = useState<Item[]>([]);
+  const [original, setOriginal] = useState<Record<string, Item>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
     const { data, error } = await supabase
       .from("menu_items").select("*").order("display_order");
     if (error) toast.error(error.message);
-    setItems((data ?? []) as Item[]);
+    const rows = (data ?? []) as Item[];
+    setItems(rows);
+    setOriginal(Object.fromEntries(rows.map((r) => [r.id, r])));
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
@@ -52,6 +56,33 @@ function MenuAdmin() {
   const roots = items.filter((i) => !i.parent_id).sort((a, b) => a.display_order - b.display_order);
   const childrenOf = (pid: string) =>
     items.filter((i) => i.parent_id === pid).sort((a, b) => a.display_order - b.display_order);
+
+  const dirtyIds = items.filter((i) => {
+    const o = original[i.id];
+    return !o || o.label !== i.label || o.href !== i.href || o.is_active !== i.is_active;
+  }).map((i) => i.id);
+  const isDirty = dirtyIds.length > 0;
+
+  function patchLocal(id: string, patch: Partial<Item>) {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+  }
+
+  async function saveAll() {
+    if (!isDirty) return;
+    setSaving(true);
+    const errors: string[] = [];
+    for (const id of dirtyIds) {
+      const it = items.find((x) => x.id === id);
+      if (!it) continue;
+      const { error } = await supabase.from("menu_items")
+        .update({ label: it.label, href: it.href, is_active: it.is_active })
+        .eq("id", id);
+      if (error) errors.push(error.message);
+    }
+    setSaving(false);
+    if (errors.length) { toast.error(errors[0]); load(); }
+    else { toast.success(`Tersimpan (${dirtyIds.length} item)`); load(); }
+  }
 
   async function addItem(parent_id: string | null) {
     const siblings = parent_id ? childrenOf(parent_id) : roots;
@@ -61,12 +92,6 @@ function MenuAdmin() {
     });
     if (error) return toast.error(error.message);
     load();
-  }
-
-  async function update(id: string, patch: Partial<Item>) {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
-    const { error } = await supabase.from("menu_items").update(patch).eq("id", id);
-    if (error) { toast.error(error.message); load(); }
   }
 
   async function remove(id: string) {
@@ -103,10 +128,26 @@ function MenuAdmin() {
     load();
   }
 
+  // Keyboard: Cmd/Ctrl+S to save
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (isDirty && !saving) saveAll();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   function ItemRow({ item, depth }: { item: Item; depth: number }) {
+    const isItemDirty = dirtyIds.includes(item.id);
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-2 p-2 border rounded-md bg-card" style={{ marginLeft: depth * 24 }}>
+        <div
+          className={"flex items-center gap-2 p-2 border rounded-md bg-card " + (isItemDirty ? "border-primary/50" : "")}
+          style={{ marginLeft: depth * 24 }}
+        >
           {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted-foreground shrink-0" />}
           <div className="flex flex-col gap-0.5 shrink-0">
             <button onClick={() => move(item, -1)} className="hover:text-primary"><ChevronUp className="h-3 w-3" /></button>
@@ -114,21 +155,19 @@ function MenuAdmin() {
           </div>
           <Input
             value={item.label}
-            onChange={(e) => setItems((p) => p.map((x) => x.id === item.id ? { ...x, label: e.target.value } : x))}
-            onBlur={() => update(item.id, { label: item.label })}
+            onChange={(e) => patchLocal(item.id, { label: e.target.value })}
             placeholder="Label"
             className="flex-1 min-w-0"
           />
           <Input
             value={item.href}
-            onChange={(e) => setItems((p) => p.map((x) => x.id === item.id ? { ...x, href: e.target.value } : x))}
-            onBlur={() => update(item.id, { href: item.href })}
+            onChange={(e) => patchLocal(item.id, { href: e.target.value })}
             placeholder="#anchor atau /p/slug"
             className="flex-1 min-w-0 font-mono text-xs"
           />
           <Switch
             checked={item.is_active}
-            onCheckedChange={(v) => update(item.id, { is_active: v })}
+            onCheckedChange={(v) => patchLocal(item.id, { is_active: v })}
           />
           {depth === 0 && (
             <Button size="sm" variant="outline" onClick={() => addItem(item.id)} title="Tambah submenu">
@@ -149,14 +188,21 @@ function MenuAdmin() {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-2xl font-bold">Menu Builder</h1>
-          <p className="text-sm text-muted-foreground">Atur menu navigasi header beserta submenu-nya.</p>
+          <p className="text-sm text-muted-foreground">
+            Atur menu navigasi header beserta submenu-nya.
+            {isDirty && <span className="ml-2 text-primary font-semibold">● {dirtyIds.length} perubahan belum tersimpan</span>}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={resetDefault} disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RotateCcw className="h-4 w-4 mr-2" />}
             Reset Default
           </Button>
-          <Button onClick={() => addItem(null)}><Plus className="h-4 w-4 mr-2" />Menu Utama</Button>
+          <Button variant="outline" onClick={() => addItem(null)}><Plus className="h-4 w-4 mr-2" />Menu Utama</Button>
+          <Button onClick={saveAll} disabled={!isDirty || saving}>
+            {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            Simpan Perubahan
+          </Button>
         </div>
       </div>
 
@@ -178,6 +224,7 @@ function MenuAdmin() {
 
       <div className="text-xs text-muted-foreground">
         Tips: <code>#beranda</code> untuk anchor section, <code>/p/slug</code> untuk halaman custom, <code>https://...</code> untuk link eksternal.
+        Tekan <kbd className="px-1 py-0.5 border rounded">Ctrl/Cmd + S</kbd> untuk simpan cepat.
       </div>
     </div>
   );

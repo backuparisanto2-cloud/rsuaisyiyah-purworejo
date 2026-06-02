@@ -537,6 +537,50 @@ export type Database = {
           },
         ]
       }
+      page_menu_items: {
+        Row: {
+          created_at: string
+          display_order: number
+          href: string
+          id: string
+          is_active: boolean
+          label: string
+          page_id: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          href?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          page_id: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          href?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          page_id?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_menu_items_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "custom_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partners: {
         Row: {
           created_at: string

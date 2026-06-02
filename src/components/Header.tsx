@@ -22,15 +22,31 @@ const DEFAULT_NAV: MenuItem[] = [
   { id: "d7", label: "Kontak", href: "#kontak", parent_id: null, display_order: 7, is_active: true },
 ];
 
-export default function Header() {
+export default function Header({ pageId }: { pageId?: string } = {}) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<MenuItem[]>(DEFAULT_NAV);
 
   useEffect(() => {
-    supabase.from("menu_items").select("*").order("display_order").then(({ data }) => {
+    let cancelled = false;
+    (async () => {
+      if (pageId) {
+        const { data } = await supabase
+          .from("page_menu_items")
+          .select("*")
+          .eq("page_id", pageId)
+          .order("display_order");
+        if (cancelled) return;
+        if (data && data.length) {
+          setItems(data as MenuItem[]);
+          return;
+        }
+      }
+      const { data } = await supabase.from("menu_items").select("*").order("display_order");
+      if (cancelled) return;
       if (data && data.length) setItems(data as MenuItem[]);
-    });
-  }, []);
+    })();
+    return () => { cancelled = true; };
+  }, [pageId]);
 
   const active = items.filter((i) => i.is_active);
   const roots = active.filter((i) => !i.parent_id);
