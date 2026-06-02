@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/administrator/pages")({
   head: () => ({ meta: [{ title: "Page Builder · Admin" }] }),
@@ -323,6 +323,8 @@ function PagesAdmin() {
               )}
             </CardContent>
           </Card>
+
+          {editing.id && <MenuEditor pageId={editing.id} />}
         </div>
 
         <div className="lg:sticky lg:top-4 lg:self-start">
@@ -355,7 +357,9 @@ function PagesAdmin() {
         <Button onClick={startNew}><Plus className="h-4 w-4 mr-2" />Halaman Baru</Button>
       </div>
 
-      <MenuEditor />
+
+
+
 
 
       {loading ? (
