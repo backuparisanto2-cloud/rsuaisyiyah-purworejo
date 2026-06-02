@@ -95,7 +95,7 @@ function CustomPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Header pageId={page.id} />
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-4 py-12">
           <Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Beranda</Link>
