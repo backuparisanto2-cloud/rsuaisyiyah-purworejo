@@ -25,6 +25,7 @@ export const Route = createFileRoute("/p/$slug")({
 type PageImage = { url: string; position: "top" | "bottom" | "left" | "right" | "inline"; width: number; caption?: string };
 
 type Page = {
+  id: string;
   title: string;
   content: string;
   meta_description: string;
@@ -46,7 +47,7 @@ function CustomPage() {
       setLoading(true);
       const { data, error } = await supabase
         .from("custom_pages")
-        .select("title, content, meta_description, is_published, image_url, image_position, images")
+        .select("id, title, content, meta_description, is_published, image_url, image_position, images")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
