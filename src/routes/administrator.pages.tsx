@@ -456,44 +456,122 @@ type MenuItem = {
   is_active: boolean;
 };
 
-function MenuEditor() {
+// Auto-prefix '../../' for relative menu hrefs in page menu.
+// Keep anchors, absolute URLs, mailto/tel, and already-relative ('/', '../') as-is.
+export function normalizePageMenuHref(raw: string): string {
+  const v = (raw ?? "").trim();
+  if (!v) return "#";
+  if (
+    v.startsWith("#") ||
+    v.startsWith("/") ||
+    v.startsWith("../") ||
+    /^https?:\/\//i.test(v) ||
+    v.startsWith("mailto:") ||
+    v.startsWith("tel:")
+  ) return v;
+  return `../../${v.replace(/^\.\/+/, "")}`;
+}
+
+function MenuEditor({ pageId }: { pageId: string }) {
   const [items, setItems] = useState<MenuItem[]>([]);
+  const [original, setOriginal] = useState<Record<string, MenuItem>>({});
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [seeding, setSeeding] = useState(false);
   const [open, setOpen] = useState(false);
 
   async function load() {
     setLoading(true);
     const { data, error } = await supabase
-      .from("menu_items").select("*").order("display_order");
-    if (error) toast.error(error.message);
-    setItems((data ?? []) as MenuItem[]);
+      .from("page_menu_items").select("*").eq("page_id", pageId).order("display_order");
+    if (error) { toast.error(error.message); setLoading(false); return; }
+    let rows = (data ?? []) as MenuItem[];
+
+    // Seed from global menu_items if empty.
+    if (rows.length === 0) {
+      setSeeding(true);
+      const { data: globalRows } = await supabase
+        .from("menu_items").select("*").order("display_order");
+      const seedSrc = (globalRows ?? []) as MenuItem[];
+      if (seedSrc.length) {
+        // Two-pass to preserve parent_id relationships.
+        const idMap = new Map<string, string>();
+        const roots = seedSrc.filter((r) => !r.parent_id);
+        const children = seedSrc.filter((r) => r.parent_id);
+        for (const r of roots) {
+          const { data: ins } = await supabase.from("page_menu_items").insert({
+            page_id: pageId, label: r.label, href: r.href, parent_id: null,
+            display_order: r.display_order, is_active: r.is_active,
+          }).select("id").maybeSingle();
+          if (ins) idMap.set(r.id, (ins as any).id);
+        }
+        for (const c of children) {
+          const newParent = c.parent_id ? idMap.get(c.parent_id) ?? null : null;
+          await supabase.from("page_menu_items").insert({
+            page_id: pageId, label: c.label, href: c.href, parent_id: newParent,
+            display_order: c.display_order, is_active: c.is_active,
+          });
+        }
+        const { data: reloaded } = await supabase
+          .from("page_menu_items").select("*").eq("page_id", pageId).order("display_order");
+        rows = (reloaded ?? []) as MenuItem[];
+      }
+      setSeeding(false);
+    }
+    setItems(rows);
+    setOriginal(Object.fromEntries(rows.map((r) => [r.id, r])));
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (pageId) load(); /* eslint-disable-next-line */ }, [pageId]);
 
   const roots = items.filter((i) => !i.parent_id).sort((a, b) => a.display_order - b.display_order);
   const childrenOf = (pid: string) =>
     items.filter((i) => i.parent_id === pid).sort((a, b) => a.display_order - b.display_order);
 
+  const dirtyIds = items.filter((i) => {
+    const o = original[i.id];
+    return !o || o.label !== i.label || o.href !== i.href || o.is_active !== i.is_active;
+  }).map((i) => i.id);
+  const isDirty = dirtyIds.length > 0;
+
+  function patchLocal(id: string, patch: Partial<MenuItem>) {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+  }
+
+  async function saveAll() {
+    if (!isDirty) return;
+    setSaving(true);
+    const errors: string[] = [];
+    for (const id of dirtyIds) {
+      const it = items.find((x) => x.id === id);
+      if (!it) continue;
+      const normalizedHref = normalizePageMenuHref(it.href);
+      const { error } = await supabase.from("page_menu_items")
+        .update({ label: it.label, href: normalizedHref, is_active: it.is_active })
+        .eq("id", id);
+      if (error) errors.push(error.message);
+    }
+    setSaving(false);
+    if (errors.length) { toast.error(errors[0]); load(); }
+    else { toast.success(`Tersimpan (${dirtyIds.length} item)`); load(); }
+  }
+
   async function addItem(parent_id: string | null) {
     const siblings = parent_id ? childrenOf(parent_id) : roots;
     const nextOrder = (siblings.at(-1)?.display_order ?? 0) + 1;
-    const { error } = await supabase.from("menu_items").insert({
-      label: "Menu Baru", href: "#", parent_id, display_order: nextOrder,
+    const { error } = await supabase.from("page_menu_items").insert({
+      page_id: pageId, label: "Menu Baru", href: "#", parent_id, display_order: nextOrder,
     });
     if (error) return toast.error(error.message);
     load();
   }
 
-  async function updateItem(id: string, patch: Partial<MenuItem>) {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
-    const { error } = await supabase.from("menu_items").update(patch).eq("id", id);
-    if (error) { toast.error(error.message); load(); }
-  }
-
   async function removeItem(id: string) {
     if (!confirm("Hapus item menu ini? Submenu di bawahnya juga akan terhapus.")) return;
-    const { error } = await supabase.from("menu_items").delete().eq("id", id);
+    // Cascade manual for children (parent_id self-reference not set, so do it ourselves)
+    const kids = items.filter((i) => i.parent_id === id);
+    for (const k of kids) await supabase.from("page_menu_items").delete().eq("id", k.id);
+    const { error } = await supabase.from("page_menu_items").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Item menu dihapus");
     load();
@@ -505,16 +583,28 @@ function MenuEditor() {
     const swap = siblings[idx + dir];
     if (!swap) return;
     await Promise.all([
-      supabase.from("menu_items").update({ display_order: swap.display_order }).eq("id", item.id),
-      supabase.from("menu_items").update({ display_order: item.display_order }).eq("id", swap.id),
+      supabase.from("page_menu_items").update({ display_order: swap.display_order }).eq("id", item.id),
+      supabase.from("page_menu_items").update({ display_order: item.display_order }).eq("id", swap.id),
     ]);
     load();
   }
 
+  async function pullFromGlobal() {
+    if (!confirm("Tarik ulang dari Menu Utama? Semua menu halaman ini akan diganti.")) return;
+    setSeeding(true);
+    await supabase.from("page_menu_items").delete().eq("page_id", pageId);
+    setSeeding(false);
+    load();
+  }
+
   function Row({ item, depth }: { item: MenuItem; depth: number }) {
+    const isItemDirty = dirtyIds.includes(item.id);
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-2 p-2 border rounded-md bg-card" style={{ marginLeft: depth * 20 }}>
+        <div
+          className={"flex items-center gap-2 p-2 border rounded-md bg-card " + (isItemDirty ? "border-primary/50" : "")}
+          style={{ marginLeft: depth * 20 }}
+        >
           {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted-foreground shrink-0" />}
           <div className="flex flex-col gap-0.5 shrink-0">
             <button onClick={() => move(item, -1)} className="hover:text-primary"><ChevronUp className="h-3 w-3" /></button>
@@ -522,19 +612,17 @@ function MenuEditor() {
           </div>
           <Input
             value={item.label}
-            onChange={(e) => setItems((p) => p.map((x) => x.id === item.id ? { ...x, label: e.target.value } : x))}
-            onBlur={() => updateItem(item.id, { label: item.label })}
+            onChange={(e) => patchLocal(item.id, { label: e.target.value })}
             placeholder="Label"
             className="flex-1 min-w-0 h-8"
           />
           <Input
             value={item.href}
-            onChange={(e) => setItems((p) => p.map((x) => x.id === item.id ? { ...x, href: e.target.value } : x))}
-            onBlur={() => updateItem(item.id, { href: item.href })}
-            placeholder="#anchor, /p/slug, atau https://..."
+            onChange={(e) => patchLocal(item.id, { href: e.target.value })}
+            placeholder="../../namamenu, #anchor, atau https://..."
             className="flex-1 min-w-0 font-mono text-xs h-8"
           />
-          <Switch checked={item.is_active} onCheckedChange={(v) => updateItem(item.id, { is_active: v })} />
+          <Switch checked={item.is_active} onCheckedChange={(v) => patchLocal(item.id, { is_active: v })} />
           {depth === 0 && (
             <Button size="sm" variant="outline" className="h-8" onClick={() => addItem(item.id)} title="Tambah submenu">
               <Plus className="h-3 w-3" />
@@ -553,28 +641,47 @@ function MenuEditor() {
     <Card>
       <CardHeader className="cursor-pointer" onClick={() => setOpen((v) => !v)}>
         <CardTitle className="text-base flex items-center justify-between">
-          <span className="flex items-center gap-2"><MenuIcon className="h-4 w-4" /> Menu Navigasi Header</span>
+          <span className="flex items-center gap-2"><MenuIcon className="h-4 w-4" /> Menu Navigasi Halaman Ini</span>
           <div className="flex items-center gap-2">
+            {isDirty && <span className="text-xs font-normal text-primary">● {dirtyIds.length} belum disimpan</span>}
             <span className="text-xs font-normal text-muted-foreground">{items.length} item</span>
             {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </CardTitle>
       </CardHeader>
       {open && (
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3" onClick={(e) => e.stopPropagation()}>
           <p className="text-xs text-muted-foreground">
-            Edit label dan link tiap menu. Gunakan <code>#anchor</code> untuk section, <code>/p/slug</code> untuk halaman custom, atau <code>https://...</code> untuk link eksternal.
+            Menu khusus halaman ini (independen dari menu utama). Path relatif otomatis diberi prefix <code>../../</code> saat disimpan.
+            Gunakan <code>#anchor</code>, <code>/p/slug</code>, atau <code>https://...</code> untuk link eksternal.
           </p>
-          {loading ? (
-            <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          {(loading || seeding) ? (
+            <div className="flex items-center justify-center py-6 gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              {seeding ? "Menyalin dari menu utama..." : "Memuat..."}
+            </div>
           ) : roots.length === 0 ? (
             <p className="text-center py-6 text-sm text-muted-foreground">Belum ada menu.</p>
           ) : (
             <div className="space-y-2">{roots.map((r) => <Row key={r.id} item={r} depth={0} />)}</div>
           )}
-          <Button size="sm" onClick={() => addItem(null)}><Plus className="h-3 w-3 mr-1" />Tambah Menu Utama</Button>
+          <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t">
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => addItem(null)}>
+                <Plus className="h-3 w-3 mr-1" />Menu Utama
+              </Button>
+              <Button size="sm" variant="ghost" onClick={pullFromGlobal} disabled={seeding}>
+                <RotateCcw className="h-3 w-3 mr-1" />Tarik dari Menu Utama
+              </Button>
+            </div>
+            <Button size="sm" onClick={saveAll} disabled={!isDirty || saving}>
+              {saving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
+              Simpan Perubahan
+            </Button>
+          </div>
         </CardContent>
       )}
     </Card>
   );
 }
+
