@@ -40,6 +40,8 @@ function MenuAdmin() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [lastError, setLastError] = useState<string>("");
 
   async function load() {
     setLoading(true);
@@ -65,11 +67,15 @@ function MenuAdmin() {
 
   function patchLocal(id: string, patch: Partial<Item>) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+    if (saveStatus === "saved" || saveStatus === "error") setSaveStatus("idle");
   }
 
   async function saveAll() {
     if (!isDirty) return;
     setSaving(true);
+    setSaveStatus("saving");
+    const count = dirtyIds.length;
+    const tId = toast.loading(`Menyimpan ${count} perubahan...`);
     const errors: string[] = [];
     for (const id of dirtyIds) {
       const it = items.find((x) => x.id === id);
@@ -80,8 +86,17 @@ function MenuAdmin() {
       if (error) errors.push(error.message);
     }
     setSaving(false);
-    if (errors.length) { toast.error(errors[0]); load(); }
-    else { toast.success(`Tersimpan (${dirtyIds.length} item)`); load(); }
+    if (errors.length) {
+      setSaveStatus("error");
+      setLastError(errors[0]);
+      toast.error(`Gagal menyimpan: ${errors[0]}`, { id: tId });
+      load();
+    } else {
+      setSaveStatus("saved");
+      setLastError("");
+      toast.success(`Berhasil tersimpan (${count} item)`, { id: tId });
+      load();
+    }
   }
 
   async function addItem(parent_id: string | null) {
