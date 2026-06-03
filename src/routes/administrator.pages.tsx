@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon, RotateCcw } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon, RotateCcw, Check, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/administrator/pages")({
   head: () => ({ meta: [{ title: "Page Builder · Admin" }] }),
@@ -481,6 +481,8 @@ function MenuEditor({ pageId }: { pageId: string }) {
   const [original, setOriginal] = useState<Record<string, MenuItem>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [lastError, setLastError] = useState<string>("");
   const [seeding, setSeeding] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -540,11 +542,15 @@ function MenuEditor({ pageId }: { pageId: string }) {
 
   function patchLocal(id: string, patch: Partial<MenuItem>) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+    if (saveStatus === "saved" || saveStatus === "error") setSaveStatus("idle");
   }
 
   async function saveAll() {
     if (!isDirty) return;
     setSaving(true);
+    setSaveStatus("saving");
+    const count = dirtyIds.length;
+    const tId = toast.loading(`Menyimpan ${count} perubahan menu halaman...`);
     const errors: string[] = [];
     for (const id of dirtyIds) {
       const it = items.find((x) => x.id === id);
@@ -556,8 +562,17 @@ function MenuEditor({ pageId }: { pageId: string }) {
       if (error) errors.push(error.message);
     }
     setSaving(false);
-    if (errors.length) { toast.error(errors[0]); load(); }
-    else { toast.success(`Tersimpan (${dirtyIds.length} item)`); load(); }
+    if (errors.length) {
+      setSaveStatus("error");
+      setLastError(errors[0]);
+      toast.error(`Gagal menyimpan: ${errors[0]}`, { id: tId });
+      load();
+    } else {
+      setSaveStatus("saved");
+      setLastError("");
+      toast.success(`Berhasil tersimpan (${count} item)`, { id: tId });
+      load();
+    }
   }
 
   async function addItem(parent_id: string | null) {
@@ -606,8 +621,8 @@ function MenuEditor({ pageId }: { pageId: string }) {
     return (
       <div className="space-y-2">
         <div
-          className={"flex items-center gap-2 p-2 border rounded-md bg-card " + (isItemDirty ? "border-primary/50" : "")}
-          style={{ marginLeft: depth * 20 }}
+          className={"flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 border rounded-md bg-card " + (isItemDirty ? "border-primary/50" : "")}
+          style={{ marginLeft: depth * 16 }}
         >
           {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted-foreground shrink-0" />}
           <div className="flex flex-col gap-0.5 shrink-0">
@@ -618,37 +633,49 @@ function MenuEditor({ pageId }: { pageId: string }) {
             value={item.label}
             onChange={(e) => patchLocal(item.id, { label: e.target.value })}
             placeholder="Label"
-            className="flex-1 min-w-0 h-8"
+            className="flex-1 min-w-[120px] h-8"
           />
           <Input
             value={item.href}
             onChange={(e) => patchLocal(item.id, { href: e.target.value })}
             placeholder="../../namamenu, #anchor, atau https://..."
-            className="flex-1 min-w-0 font-mono text-xs h-8"
+            className="flex-1 min-w-[120px] font-mono text-xs h-8"
           />
-          <Switch checked={item.is_active} onCheckedChange={(v) => patchLocal(item.id, { is_active: v })} />
-          {depth === 0 && (
-            <Button size="sm" variant="outline" className="h-8" onClick={() => addItem(item.id)} title="Tambah submenu">
-              <Plus className="h-3 w-3" />
+          <div className="flex items-center gap-1 ml-auto">
+            <Switch checked={item.is_active} onCheckedChange={(v) => patchLocal(item.id, { is_active: v })} />
+            {depth === 0 && (
+              <Button size="sm" variant="outline" className="h-8" onClick={() => addItem(item.id)} title="Tambah submenu">
+                <Plus className="h-3 w-3" />
+              </Button>
+            )}
+            <Button size="sm" variant="ghost" className="h-8" onClick={() => removeItem(item.id)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
-          )}
-          <Button size="sm" variant="ghost" className="h-8" onClick={() => removeItem(item.id)}>
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
+          </div>
         </div>
         {childrenOf(item.id).map((c) => <Row key={c.id} item={c} depth={depth + 1} />)}
       </div>
     );
   }
 
+  const statusBadge = saveStatus === "saving" ? (
+    <span className="inline-flex items-center gap-1 text-xs font-normal text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Menyimpan...</span>
+  ) : saveStatus === "saved" ? (
+    <span className="inline-flex items-center gap-1 text-xs font-normal text-green-600 dark:text-green-500"><Check className="h-3 w-3" /> Tersimpan</span>
+  ) : saveStatus === "error" ? (
+    <span className="inline-flex items-center gap-1 text-xs font-normal text-destructive" title={lastError}><AlertCircle className="h-3 w-3" /> Gagal</span>
+  ) : isDirty ? (
+    <span className="text-xs font-normal text-primary">● {dirtyIds.length} belum disimpan</span>
+  ) : null;
+
   return (
     <Card>
       <CardHeader className="cursor-pointer" onClick={() => setOpen((v) => !v)}>
-        <CardTitle className="text-base flex items-center justify-between">
-          <span className="flex items-center gap-2"><MenuIcon className="h-4 w-4" /> Menu Navigasi Halaman Ini</span>
-          <div className="flex items-center gap-2">
-            {isDirty && <span className="text-xs font-normal text-primary">● {dirtyIds.length} belum disimpan</span>}
-            <span className="text-xs font-normal text-muted-foreground">{items.length} item</span>
+        <CardTitle className="text-base flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2 min-w-0"><MenuIcon className="h-4 w-4 shrink-0" /> <span className="truncate">Menu Navigasi Halaman Ini</span></span>
+          <div className="flex items-center gap-2 shrink-0">
+            {statusBadge}
+            <span className="text-xs font-normal text-muted-foreground hidden sm:inline">{items.length} item</span>
             {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </CardTitle>
@@ -670,7 +697,7 @@ function MenuEditor({ pageId }: { pageId: string }) {
             <div className="space-y-2">{roots.map((r) => <Row key={r.id} item={r} depth={0} />)}</div>
           )}
           <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Button size="sm" variant="outline" onClick={() => addItem(null)}>
                 <Plus className="h-3 w-3 mr-1" />Menu Utama
               </Button>

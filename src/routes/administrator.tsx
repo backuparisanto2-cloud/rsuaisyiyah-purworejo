@@ -1,11 +1,12 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
-  Bot, LogOut, Loader2, Type, FileText, Instagram,
+  Bot, LogOut, Loader2, Type, FileText, Instagram, Menu as MenuIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -37,10 +38,29 @@ const NAV: NavItem[] = [
   { to: "/administrator/chatbot", label: "Chatbot", icon: Bot },
 ];
 
+function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  return (
+    <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
+      {NAV.map((n) => {
+        const Icon = n.icon;
+        const active = pathname === n.to;
+        const cls = cn(
+          "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium",
+          active ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+          n.disabled && "opacity-50 cursor-not-allowed",
+        );
+        if (n.disabled) return <div key={n.to} className={cls} title="Fase berikutnya"><Icon className="h-4 w-4" /> {n.label}</div>;
+        return <Link key={n.to} to={n.to} className={cls} onClick={onNavigate}><Icon className="h-4 w-4" /> {n.label}</Link>;
+      })}
+    </nav>
+  );
+}
+
 function AdminLayout() {
   const { session, isAdmin, loading, signOut, user } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -55,36 +75,47 @@ function AdminLayout() {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
 
+  const currentLabel = NAV.find((n) => n.to === pathname)?.label ?? "Panel Admin";
+
   return (
     <div className="min-h-screen flex bg-muted/30">
-      <aside className="w-64 shrink-0 bg-card border-r flex flex-col">
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-64 shrink-0 bg-card border-r flex-col">
         <div className="p-4 border-b"><div className="font-bold">RSU Aisyiyah</div><div className="text-xs text-muted-foreground">Admin CMS</div></div>
-        <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
-          {NAV.map((n) => {
-            const Icon = n.icon;
-            const active = pathname === n.to;
-            const cls = cn(
-              "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium",
-              active ? "bg-primary text-primary-foreground" : "hover:bg-muted",
-              n.disabled && "opacity-50 cursor-not-allowed",
-            );
-            if (n.disabled) return <div key={n.to} className={cls} title="Fase berikutnya"><Icon className="h-4 w-4" /> {n.label}</div>;
-            return <Link key={n.to} to={n.to} className={cls}><Icon className="h-4 w-4" /> {n.label}</Link>;
-          })}
-        </nav>
+        <NavList pathname={pathname} />
         <div className="p-3 border-t text-xs text-muted-foreground truncate">{user?.email}</div>
       </aside>
+
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 bg-card border-b flex items-center justify-between px-4">
-          <div className="text-sm text-muted-foreground">Panel Admin</div>
-          <div className="flex items-center gap-2">
-            <Link to="/" className="text-sm text-muted-foreground hover:underline">Lihat website ↗</Link>
+        <header className="h-14 bg-card border-b flex items-center justify-between px-3 sm:px-4 gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Mobile menu trigger */}
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <Button size="icon" variant="outline" className="md:hidden h-9 w-9 shrink-0">
+                  <MenuIcon className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-72 flex flex-col">
+                <SheetTitle className="sr-only">Menu Admin</SheetTitle>
+                <div className="p-4 border-b">
+                  <div className="font-bold">RSU Aisyiyah</div>
+                  <div className="text-xs text-muted-foreground">Admin CMS</div>
+                </div>
+                <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+                <div className="p-3 border-t text-xs text-muted-foreground truncate">{user?.email}</div>
+              </SheetContent>
+            </Sheet>
+            <div className="text-sm font-medium truncate">{currentLabel}</div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link to="/" className="hidden sm:inline text-sm text-muted-foreground hover:underline">Lihat website ↗</Link>
             <Button size="sm" variant="outline" onClick={() => signOut().then(() => navigate({ to: "/auth" }))}>
-              <LogOut className="h-4 w-4 mr-1" /> Logout
+              <LogOut className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </header>
-        <main className="flex-1 p-6 overflow-x-hidden"><Outlet /></main>
+        <main className="flex-1 p-3 sm:p-6 overflow-x-hidden"><Outlet /></main>
       </div>
     </div>
   );
