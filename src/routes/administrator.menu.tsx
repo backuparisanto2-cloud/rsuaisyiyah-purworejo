@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
-  Loader2, Plus, Trash2, ChevronUp, ChevronDown, RotateCcw, CornerDownRight, Save,
+  Loader2, Plus, Trash2, ChevronUp, ChevronDown, RotateCcw, CornerDownRight, Save, Check, AlertCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/administrator/menu")({
