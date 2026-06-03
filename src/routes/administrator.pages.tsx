@@ -542,11 +542,15 @@ function MenuEditor({ pageId }: { pageId: string }) {
 
   function patchLocal(id: string, patch: Partial<MenuItem>) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+    if (saveStatus === "saved" || saveStatus === "error") setSaveStatus("idle");
   }
 
   async function saveAll() {
     if (!isDirty) return;
     setSaving(true);
+    setSaveStatus("saving");
+    const count = dirtyIds.length;
+    const tId = toast.loading(`Menyimpan ${count} perubahan menu halaman...`);
     const errors: string[] = [];
     for (const id of dirtyIds) {
       const it = items.find((x) => x.id === id);
@@ -558,8 +562,17 @@ function MenuEditor({ pageId }: { pageId: string }) {
       if (error) errors.push(error.message);
     }
     setSaving(false);
-    if (errors.length) { toast.error(errors[0]); load(); }
-    else { toast.success(`Tersimpan (${dirtyIds.length} item)`); load(); }
+    if (errors.length) {
+      setSaveStatus("error");
+      setLastError(errors[0]);
+      toast.error(`Gagal menyimpan: ${errors[0]}`, { id: tId });
+      load();
+    } else {
+      setSaveStatus("saved");
+      setLastError("");
+      toast.success(`Berhasil tersimpan (${count} item)`, { id: tId });
+      load();
+    }
   }
 
   async function addItem(parent_id: string | null) {
