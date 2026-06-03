@@ -481,6 +481,8 @@ function MenuEditor({ pageId }: { pageId: string }) {
   const [original, setOriginal] = useState<Record<string, MenuItem>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [lastError, setLastError] = useState<string>("");
   const [seeding, setSeeding] = useState(false);
   const [open, setOpen] = useState(false);
 
