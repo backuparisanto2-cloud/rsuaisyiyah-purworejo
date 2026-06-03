@@ -160,8 +160,8 @@ function MenuAdmin() {
     return (
       <div className="space-y-2">
         <div
-          className={"flex items-center gap-2 p-2 border rounded-md bg-card " + (isItemDirty ? "border-primary/50" : "")}
-          style={{ marginLeft: depth * 24 }}
+          className={"flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 border rounded-md bg-card " + (isItemDirty ? "border-primary/50" : "")}
+          style={{ marginLeft: depth * (typeof window !== "undefined" && window.innerWidth < 640 ? 12 : 24) }}
         >
           {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted-foreground shrink-0" />}
           <div className="flex flex-col gap-0.5 shrink-0">
@@ -172,54 +172,68 @@ function MenuAdmin() {
             value={item.label}
             onChange={(e) => patchLocal(item.id, { label: e.target.value })}
             placeholder="Label"
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-[140px]"
           />
           <Input
             value={item.href}
             onChange={(e) => patchLocal(item.id, { href: e.target.value })}
             placeholder="#anchor atau /p/slug"
-            className="flex-1 min-w-0 font-mono text-xs"
+            className="flex-1 min-w-[140px] font-mono text-xs"
           />
-          <Switch
-            checked={item.is_active}
-            onCheckedChange={(v) => patchLocal(item.id, { is_active: v })}
-          />
-          {depth === 0 && (
-            <Button size="sm" variant="outline" onClick={() => addItem(item.id)} title="Tambah submenu">
-              <Plus className="h-3 w-3" />
+          <div className="flex items-center gap-1 ml-auto">
+            <Switch
+              checked={item.is_active}
+              onCheckedChange={(v) => patchLocal(item.id, { is_active: v })}
+            />
+            {depth === 0 && (
+              <Button size="sm" variant="outline" onClick={() => addItem(item.id)} title="Tambah submenu">
+                <Plus className="h-3 w-3" />
+              </Button>
+            )}
+            <Button size="sm" variant="ghost" onClick={() => remove(item.id)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
-          )}
-          <Button size="sm" variant="ghost" onClick={() => remove(item.id)}>
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
+          </div>
         </div>
         {childrenOf(item.id).map((c) => <ItemRow key={c.id} item={c} depth={depth + 1} />)}
       </div>
     );
   }
 
+  const statusBadge = saveStatus === "saving" ? (
+    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Menyimpan...</span>
+  ) : saveStatus === "saved" ? (
+    <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-500"><Check className="h-3 w-3" /> Tersimpan</span>
+  ) : saveStatus === "error" ? (
+    <span className="inline-flex items-center gap-1 text-xs text-destructive" title={lastError}><AlertCircle className="h-3 w-3" /> Gagal menyimpan</span>
+  ) : isDirty ? (
+    <span className="text-xs text-primary font-semibold">● {dirtyIds.length} belum tersimpan</span>
+  ) : null;
+
   return (
     <div className="space-y-4 max-w-4xl">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div>
-          <h1 className="text-2xl font-bold">Menu Builder</h1>
-          <p className="text-sm text-muted-foreground">
-            Atur menu navigasi header beserta submenu-nya.
-            {isDirty && <span className="ml-2 text-primary font-semibold">● {dirtyIds.length} perubahan belum tersimpan</span>}
+      <div className="flex items-start justify-between flex-wrap gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold">Menu Builder</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Atur menu navigasi header beserta submenu-nya. {statusBadge}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={resetDefault} disabled={busy}>
-            {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RotateCcw className="h-4 w-4 mr-2" />}
-            Reset Default
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button size="sm" variant="outline" onClick={resetDefault} disabled={busy}>
+            {busy ? <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" /> : <RotateCcw className="h-4 w-4 sm:mr-2" />}
+            <span className="hidden sm:inline">Reset Default</span>
           </Button>
-          <Button variant="outline" onClick={() => addItem(null)}><Plus className="h-4 w-4 mr-2" />Menu Utama</Button>
-          <Button onClick={saveAll} disabled={!isDirty || saving}>
+          <Button size="sm" variant="outline" onClick={() => addItem(null)}>
+            <Plus className="h-4 w-4 sm:mr-2" /><span className="hidden sm:inline">Menu Utama</span>
+          </Button>
+          <Button size="sm" onClick={saveAll} disabled={!isDirty || saving}>
             {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-            Simpan Perubahan
+            Simpan
           </Button>
         </div>
       </div>
+
 
       <Card>
         <CardContent className="py-4">
