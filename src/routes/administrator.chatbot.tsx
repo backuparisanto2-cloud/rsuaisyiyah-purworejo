@@ -92,7 +92,8 @@ function ChatbotAdmin() {
     <div className="space-y-6 max-w-5xl">
       <h1 className="text-2xl font-bold">Chatbot</h1>
 
-      <Card className="p-4 space-y-4">
+      <Card className="p-4 space-y-4" data-tour="chatbot-settings">
+
         <h2 className="font-semibold">Pengaturan Bot</h2>
         {settings ? (
           <div className="grid md:grid-cols-[200px_1fr] gap-4">
