@@ -96,7 +96,7 @@ function AdminLayout() {
             {/* Mobile menu trigger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
-                <Button size="icon" variant="outline" className="md:hidden h-9 w-9 shrink-0">
+                <Button size="icon" variant="outline" className="md:hidden h-9 w-9 shrink-0" data-tour="mobile-menu-trigger">
                   <MenuIcon className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -114,10 +114,20 @@ function AdminLayout() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link to="/" className="hidden sm:inline text-sm text-muted-foreground hover:underline">Lihat website ↗</Link>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => startTour(pathname)}
+              data-tour="header-tutorial"
+              title="Mulai tutorial halaman ini"
+            >
+              <HelpCircle className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Tutorial</span>
+            </Button>
             <Button size="sm" variant="outline" onClick={() => signOut().then(() => navigate({ to: "/auth" }))}>
               <LogOut className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
+
         </header>
         <main className="flex-1 p-3 sm:p-6 overflow-x-hidden"><Outlet /></main>
       </div>
