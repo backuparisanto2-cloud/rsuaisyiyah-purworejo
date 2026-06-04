@@ -575,6 +575,16 @@ function MenuEditor({ pageId }: { pageId: string }) {
     }
   }
 
+  // Auto-save dengan debounce 800ms
+  useEffect(() => {
+    if (loading || saving || !isDirty) return;
+    const t = setTimeout(() => { saveAll(); }, 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, loading]);
+
+
+
   async function addItem(parent_id: string | null) {
     const siblings = parent_id ? childrenOf(parent_id) : roots;
     const nextOrder = (siblings.at(-1)?.display_order ?? 0) + 1;
