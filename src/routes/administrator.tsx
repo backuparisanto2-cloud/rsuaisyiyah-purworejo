@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { startTour } from "@/lib/tour";
+
 
 export const Route = createFileRoute("/administrator")({
   head: () => ({ meta: [{ title: "Admin CMS · RSU Aisyiyah Purworejo" }] }),
