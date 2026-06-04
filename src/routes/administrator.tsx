@@ -83,11 +83,12 @@ function AdminLayout() {
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 shrink-0 bg-card border-r flex-col">
+      <aside className="hidden md:flex w-64 shrink-0 bg-card border-r flex-col" data-tour="sidebar">
         <div className="p-4 border-b"><div className="font-bold">RSU Aisyiyah</div><div className="text-xs text-muted-foreground">Admin CMS</div></div>
         <NavList pathname={pathname} />
         <div className="p-3 border-t text-xs text-muted-foreground truncate">{user?.email}</div>
       </aside>
+
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 bg-card border-b flex items-center justify-between px-3 sm:px-4 gap-2">
