@@ -155,6 +155,15 @@ function MenuAdmin() {
     return () => window.removeEventListener("keydown", onKey);
   });
 
+  // Auto-save dengan debounce 800ms
+  useEffect(() => {
+    if (loading || saving || !isDirty) return;
+    const t = setTimeout(() => { saveAll(); }, 800);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, loading]);
+
+
   function ItemRow({ item, depth }: { item: Item; depth: number }) {
     const isItemDirty = dirtyIds.includes(item.id);
     return (
