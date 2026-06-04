@@ -52,7 +52,8 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
           n.disabled && "opacity-50 cursor-not-allowed",
         );
         if (n.disabled) return <div key={n.to} className={cls} title="Fase berikutnya"><Icon className="h-4 w-4" /> {n.label}</div>;
-        return <Link key={n.to} to={n.to} className={cls} onClick={onNavigate}><Icon className="h-4 w-4" /> {n.label}</Link>;
+        return <Link key={n.to} to={n.to} className={cls} onClick={onNavigate} data-tour={`nav-${n.to}`}><Icon className="h-4 w-4" /> {n.label}</Link>;
+
       })}
     </nav>
   );
