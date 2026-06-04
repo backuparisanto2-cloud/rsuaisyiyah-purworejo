@@ -31,7 +31,7 @@ async function ensureMobileSidebarClosed(): Promise<void> {
   await new Promise((r) => setTimeout(r, 200));
 }
 
-function buildTour(steps: StepDef[]): Shepherd.Tour {
+function buildTour(steps: StepDef[]) {
   const tour = new Shepherd.Tour({
     useModalOverlay: true,
     defaultStepOptions: {
