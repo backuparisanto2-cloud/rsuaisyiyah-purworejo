@@ -107,10 +107,11 @@ function ThemeAdmin() {
           <h1 className="text-2xl font-bold">Tema Warna</h1>
           <p className="text-sm text-muted-foreground">Ubah warna situs. Perubahan diterapkan realtime ke semua halaman.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2" data-tour="theme-save">
           <Button variant="outline" onClick={reset}><RotateCcw className="h-4 w-4 mr-1" /> Reset Default</Button>
           <Button onClick={save} disabled={saving}><Save className="h-4 w-4 mr-1" /> {saving ? "Menyimpan…" : "Simpan"}</Button>
         </div>
+
       </div>
 
       {GROUPS.map((g) => (

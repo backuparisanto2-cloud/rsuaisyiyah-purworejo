@@ -138,3 +138,59 @@ html.a11y-underline a { text-decoration: underline !important; text-underline-of
 html.a11y-big-cursor, html.a11y-big-cursor * {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24'><path fill='black' stroke='white' stroke-width='1.5' d='M3 2l7 18 2-8 8-2z'/></svg>") 2 2, auto !important;
 }
+
+/* Shepherd.js tour theming */
+.shepherd-element.lov-shepherd {
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+  max-width: 360px;
+  font-family: inherit;
+}
+.shepherd-element.lov-shepherd .shepherd-header {
+  background: transparent;
+  padding: 12px 16px 4px;
+}
+.shepherd-element.lov-shepherd .shepherd-title {
+  color: var(--foreground);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.shepherd-element.lov-shepherd .shepherd-text {
+  color: var(--muted-foreground);
+  padding: 8px 16px 12px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.shepherd-element.lov-shepherd .shepherd-footer {
+  padding: 0 12px 12px;
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.shepherd-element.lov-shepherd .shepherd-button {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: calc(var(--radius) - 2px);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+.shepherd-element.lov-shepherd .shepherd-button:hover { opacity: 0.9; }
+.shepherd-element.lov-shepherd .shepherd-button.shepherd-button-secondary {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.shepherd-element.lov-shepherd .shepherd-cancel-icon {
+  color: var(--muted-foreground);
+  font-size: 1.5rem;
+}
+.shepherd-element.lov-shepherd .shepherd-arrow:before {
+  background: var(--background);
+  border: 1px solid var(--border);
+}
+.shepherd-modal-overlay-container { opacity: 0.5; }

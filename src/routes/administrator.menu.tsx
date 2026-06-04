@@ -229,14 +229,14 @@ function MenuAdmin() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Button size="sm" variant="outline" onClick={resetDefault} disabled={busy}>
+          <Button size="sm" variant="outline" onClick={resetDefault} disabled={busy} data-tour="menu-reset">
             {busy ? <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" /> : <RotateCcw className="h-4 w-4 sm:mr-2" />}
             <span className="hidden sm:inline">Reset Default</span>
           </Button>
-          <Button size="sm" variant="outline" onClick={() => addItem(null)}>
+          <Button size="sm" variant="outline" onClick={() => addItem(null)} data-tour="menu-add">
             <Plus className="h-4 w-4 sm:mr-2" /><span className="hidden sm:inline">Menu Utama</span>
           </Button>
-          <Button size="sm" onClick={saveAll} disabled={!isDirty || saving}>
+          <Button size="sm" onClick={saveAll} disabled={!isDirty || saving} data-tour="menu-save">
             {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             Simpan
           </Button>
@@ -244,7 +244,8 @@ function MenuAdmin() {
       </div>
 
 
-      <Card>
+      <Card data-tour="menu-list">
+
         <CardContent className="py-4">
           {loading ? (
             <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>

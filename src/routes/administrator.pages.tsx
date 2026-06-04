@@ -354,10 +354,8 @@ function PagesAdmin() {
           <h1 className="text-2xl font-bold">Page Builder</h1>
           <p className="text-sm text-muted-foreground">Kelola halaman dinamis. Halaman yang dipublikasikan otomatis muncul di menu.</p>
         </div>
-        <Button onClick={startNew}><Plus className="h-4 w-4 mr-2" />Halaman Baru</Button>
+        <Button onClick={startNew} data-tour="pages-new"><Plus className="h-4 w-4 mr-2" />Halaman Baru</Button>
       </div>
-
-
 
 
 
@@ -367,7 +365,8 @@ function PagesAdmin() {
       ) : pages.length === 0 ? (
         <Card><CardContent className="py-12 text-center text-muted-foreground">Belum ada halaman.</CardContent></Card>
       ) : (
-        <div className="grid gap-2">
+        <div className="grid gap-2" data-tour="pages-list">
+
           {pages.map((p) => (
             <Card key={p.id}>
               <CardContent className="py-4 flex items-center justify-between gap-3">

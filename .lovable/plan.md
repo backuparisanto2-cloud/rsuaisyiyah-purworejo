@@ -1,93 +1,84 @@
-## Tujuan
+# Tutorial Tour Admin Panel
 
-Tiga perbaikan admin panel + frontend:
-1. **Page Builder Menu Editor** jadi per-halaman (override), seeded sekali dari menu utama.
-2. **Tombol Save eksplisit** di Menu Builder utama & Menu Builder per-halaman; hilangkan auto-save onBlur agar edit lancar.
-3. **Search caption** untuk section Berita & Info Terkini di frontend.
+Menambahkan mode tur interaktif yang menjelaskan setiap area admin panel, dijalankan saat user menekan tombol "Mulai Tutorial". Pakai library Shepherd.js untuk highlight elemen + popover bertahap.
 
----
+## Yang akan dibuat
 
-## 1. Per-Page Menu Override
+### 1. Tombol pemicu tour
+- Tombol ikon (HelpCircle) "Tutorial" di header admin (`src/routes/administrator.tsx`), sebelah tombol Logout.
+- Klik tombol = jalankan tour sesuai konteks:
+  - Di halaman root `/administrator` (Dashboard) → tour global (orientasi sidebar + alur kerja).
+  - Di halaman lain → tour spesifik halaman tersebut (kalau ada), fallback ke tour global jika halaman belum punya skrip tour.
+- Tombol di mobile menampilkan ikon saja; di desktop dengan label "Tutorial".
 
-### Database
-Migrasi baru: tabel `page_menu_items` mirror `menu_items` + kolom `page_id uuid` (FK ke `custom_pages`, ON DELETE CASCADE).
+### 2. Infrastruktur tour (`src/lib/tour.ts`)
+- Helper `startTour(tourId)` membuat instance `Shepherd.Tour` dengan opsi default (Tailwind-themed, tombol Sebelumnya/Selanjutnya/Lewati, scroll otomatis).
+- Registry `TOURS: Record<string, TourBuilder>` memetakan id → fungsi builder steps (agar bisa dipanggil per halaman).
+- Tema custom: override CSS Shepherd via `src/styles.css` mengikuti token (`--background`, `--primary`, `--border`, `--radius`).
 
-```text
-page_menu_items
-├── id, page_id, label, href, parent_id, display_order, is_active
-└── RLS: public read; admin write (sama pola dgn menu_items)
-```
+### 3. Tour global (`tour:global`)
+Steps berfokus pada orientasi keseluruhan, dijalankan dari Dashboard:
+1. Welcome popover (tengah layar) — ucapan selamat datang + ringkasan.
+2. Highlight sidebar (`aside` atau item nav pertama) — "Semua menu admin ada di sini".
+3. Highlight grup Konten Hero (Hero Teks, Hero Slider, Pengaturan Slider).
+4. Highlight grup Konten Halaman (Tentang, Jam Besuk, Layanan, Dokter, Mitra, FAQ, Kontak).
+5. Highlight Berita & Instagram.
+6. Highlight Page Builder + Menu Builder + Urutan Section (alat tata letak).
+7. Highlight Tema Warna + Chatbot.
+8. Highlight tombol "Lihat website" + Logout di header.
+9. Penutup — "Klik tombol Tutorial di halaman manapun untuk panduan spesifik".
 
-GRANT untuk anon/authenticated/service_role. Index `(page_id, display_order)`.
+### 4. Tour per halaman
+Setiap halaman admin utama dapat tour singkat (3-6 langkah). Implementasi: tiap route file mendaftarkan tour-nya via `registerTour('tour:menu', buildMenuTour)` (atau builder didefinisikan terpusat di `src/lib/tour.ts` untuk menjaga agar elemen target diidentifikasi dengan `data-tour="..."` attribute yang ditaruh di komponen halaman).
 
-### Seeding & sinkronisasi
-- Saat halaman baru dibuat ATAU saat Menu Editor di Page Builder dibuka untuk halaman yang belum punya entri `page_menu_items` → otomatis copy semua row `menu_items` ke `page_menu_items` dgn `page_id = current page`.
-- Setelah seeding, editor sepenuhnya independen. Menu utama tidak pernah ditarik ulang otomatis.
-- Tombol manual **"Tarik Ulang dari Menu Utama"** (konfirmasi) untuk replace isi.
+Halaman yang dapat tour pada fase ini:
+- **Menu Builder** (`administrator.menu.tsx`): tombol Tambah, baris item (label/href/switch/move/hapus), badge dirty + tombol Simpan, tombol Reset Default.
+- **Page Builder** (`administrator.pages.tsx`): daftar halaman, tombol Baru, editor slug/title/content, tab Menu per-halaman dengan tombol "Tarik dari Menu Utama".
+- **Hero Slider** (`administrator.hero-slider.tsx`): upload slide, reorder, toggle aktif.
+- **Berita & Instagram** (`administrator.instagram.tsx`): input embed Instagram, daftar post, tombol hapus.
+- **Jadwal Dokter** (`administrator.dokter.tsx`): import jadwal, edit baris, simpan.
+- **Tema Warna** (`administrator.theme.tsx`): pilih palet, preview, simpan.
+- **Chatbot** (`administrator.chatbot.tsx`): system prompt, knowledge base, model.
 
-### Konsumsi di frontend halaman `/p/{slug}`
-File `src/routes/p.$slug.tsx`: header navigasi halaman membaca dari `page_menu_items` (filter `page_id`), fallback ke `menu_items` global kalau kosong. Halaman lain (home dll) tetap pakai `menu_items` global.
+Halaman lain (Tentang, Jam Besuk, Layanan, Mitra, FAQ, Kontak, Hero Teks, Hero Settings, Urutan Section) memakai tour generik 2 langkah otomatis: highlight kartu utama + tombol Simpan, agar konsisten tanpa harus menulis skrip detail tiap halaman.
 
-### Placeholder href auto-prefix `../../`
-Di MenuEditor Page Builder: saat user mengetik href yang **bukan** anchor (`#`), absolute (`http(s)://`), protokol (`mailto:`/`tel:`), atau sudah diawali `/` atau `../`, otomatis tambahkan `../../` saat blur/save. Placeholder ditampilkan `../../namamenu` untuk memandu. Logic terisolasi (`normalizePageMenuHref`).
+### 5. Penanda target (`data-tour`)
+Daripada selector CSS rapuh, setiap elemen yang jadi target tour ditandai dengan attribute `data-tour="<id>"` (mis. `data-tour="menu-add"`, `data-tour="menu-save"`, `data-tour="sidebar"`, `data-tour="header-view-site"`). Builder tour memilih lewat `[data-tour="<id>"]`.
 
----
+### 6. UX detail
+- Tombol Tutorial selalu aktif (tidak ada gating localStorage karena pemicu manual).
+- Saat tour aktif: scroll otomatis ke elemen, overlay gelap, tombol "Lewati" menutup tour.
+- Jika elemen target tidak ditemukan (mis. halaman belum siap render), step di-skip dengan toast info ringan agar tour tidak nyangkut.
+- Tour responsive: di mobile, sidebar tersembunyi di balik Sheet → langkah yang menargetkan sidebar otomatis membuka Sheet dulu (handler `beforeShowPromise`).
+- Ctrl/Cmd+Shift+H sebagai shortcut opsional untuk membuka tour halaman saat ini.
 
-## 2. Tombol Save Eksplisit
+## Detail teknis
 
-### `administrator.menu.tsx` (Menu Utama)
-- Hilangkan `onBlur → update` per-field.
-- Tambah state `dirty` (Map id → patch) di parent.
-- Header: tombol **Simpan Perubahan** (disable kalau tidak dirty) + indikator "● Belum tersimpan". Reset/Tambah/Hapus/Move tetap langsung commit (tidak melalui Save).
-- Cmd/Ctrl+S binding optional → trigger save.
+### Dependency
+- Tambah `shepherd.js` via bun.
+- Import CSS Shepherd: `import 'shepherd.js/dist/css/shepherd.css'` di `src/lib/tour.ts` (one-time).
 
-### Menu Editor di Page Builder
-Pakai pola dirty-state yang sama dgn tombol Save di header card editor.
+### File yang disentuh
+- **Baru**: `src/lib/tour.ts` — registry + builder semua tour, theming.
+- **Edit**: `src/routes/administrator.tsx` — tombol Tutorial di header, prop `data-tour` di sidebar/header/nav, integrasi `beforeShowPromise` membuka mobile Sheet.
+- **Edit (penambahan `data-tour` saja, tanpa ubah logika)**:
+  - `src/routes/administrator.menu.tsx`
+  - `src/routes/administrator.pages.tsx`
+  - `src/routes/administrator.hero-slider.tsx`
+  - `src/routes/administrator.instagram.tsx`
+  - `src/routes/administrator.dokter.tsx`
+  - `src/routes/administrator.theme.tsx`
+  - `src/routes/administrator.chatbot.tsx`
+- **Edit**: `src/styles.css` — kelas `.shepherd-element` mengikuti token desain (background, border, shadow, font).
 
-### UX edit lancar
-- Hindari focus loss dari re-render: gunakan local component state untuk row input, parent menerima via `onChange` ringan.
-- Hapus konfirmasi `confirm()` blocking untuk save; tetap untuk delete.
+### Mapping pathname → tourId
+Di tombol Tutorial: `const tourId = TOURS[pathname] ? pathnameToId(pathname) : 'tour:global'`. Builder generik dipakai untuk halaman tanpa entry khusus.
 
----
+### Bundle
+Shepherd.js ~30KB gzip + CSS — diimpor hanya di route `/administrator/*` (route tree TanStack code-split per file route), jadi tidak membebani halaman publik.
 
-## 3. Search Caption Frontend
-
-`src/components/BeritaInstagram.tsx`:
-- Tambah `useState` untuk query string.
-- Input search (icon `Search` dari lucide) di atas grid, di-debounce 200ms.
-- Filter `rows` berdasarkan `caption.toLowerCase().includes(q.toLowerCase())` sebelum paginasi.
-- Reset `page` ke 0 saat query berubah.
-- Empty state ketika hasil filter 0: "Tidak ada post yang cocok dengan '{q}'".
-
----
-
-## File yang Disentuh
-
-### Baru
-- `supabase/migrations/<ts>_page_menu_items.sql` — tabel + GRANT + RLS + index.
-
-### Diedit
-- `src/integrations/supabase/types.ts` — auto (setelah migrasi).
-- `src/routes/administrator.menu.tsx` — explicit save, dirty state.
-- `src/routes/administrator.pages.tsx` — MenuEditor jadi per-halaman, dirty state + Save, seeding, auto-prefix `../../`. `startNew()` / `startEdit()` trigger seeding bila kosong. Hapus efek samping `syncMenuItem` yang menyentuh menu global (atau batasi ke `menu_items` global hanya saat halaman baru pertama kali, sebelum per-page override dipakai — TBD: bila per-page menu ada, halaman tidak menambah ke menu global lagi).
-- `src/routes/p.$slug.tsx` — header pakai `page_menu_items` (fallback global).
-- `src/components/BeritaInstagram.tsx` — search bar caption.
-
-### Tidak diubah
-- Tabel `menu_items` (struktur).
-- Halaman home & route lain.
-
----
-
-## Catatan Teknis
-
-- **Seeding idempotent**: cek `count(page_menu_items where page_id=X) = 0` sebelum insert.
-- **Cascade delete**: `ON DELETE CASCADE` pada FK `page_id` agar hapus page bersihkan menu-nya.
-- **Auto-prefix `../../`** hanya kosmetik di sisi Page Builder; URL final tetap dinormalisasi untuk dipakai sebagai href `<a>` di `p.$slug.tsx` (resolve relatif terhadap URL halaman).
-- **Performa search**: jumlah post kecil (≤50, sudah `.limit(50)`), filter di client cukup.
-
-## Out of Scope
-
-- Drag-and-drop reorder menu.
-- Search lintas section (hanya caption Instagram).
-- Migrasi data lama: page lama yang sudah pernah menambah entry ke `menu_items` global tidak otomatis dibersihkan; user bisa hapus manual di Menu Builder utama.
+## Di luar lingkup
+- Tidak menyimpan progress tour (selalu mulai dari awal).
+- Tidak ada video/GIF — hanya teks + highlight.
+- Tidak otomatis muncul untuk user baru (pemicu manual saja, sesuai pilihan).
+- Tidak menerjemahkan ke bahasa lain (Bahasa Indonesia saja).

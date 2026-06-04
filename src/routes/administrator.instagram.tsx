@@ -166,7 +166,7 @@ function InstagramAdmin() {
         </p>
       </div>
 
-      <Card className="p-4 space-y-3">
+      <Card className="p-4 space-y-3" data-tour="ig-input">
         <label className="text-sm font-semibold">Tambah Post</label>
         <Textarea
           placeholder="Tempel URL post Instagram, reel, atau seluruh kode <blockquote class='instagram-media' ...>"

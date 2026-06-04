@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { startTour } from "@/lib/tour";
+
 
 export const Route = createFileRoute("/administrator")({
   head: () => ({ meta: [{ title: "Admin CMS · RSU Aisyiyah Purworejo" }] }),
@@ -50,7 +52,8 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
           n.disabled && "opacity-50 cursor-not-allowed",
         );
         if (n.disabled) return <div key={n.to} className={cls} title="Fase berikutnya"><Icon className="h-4 w-4" /> {n.label}</div>;
-        return <Link key={n.to} to={n.to} className={cls} onClick={onNavigate}><Icon className="h-4 w-4" /> {n.label}</Link>;
+        return <Link key={n.to} to={n.to} className={cls} onClick={onNavigate} data-tour={`nav-${n.to}`}><Icon className="h-4 w-4" /> {n.label}</Link>;
+
       })}
     </nav>
   );
@@ -80,11 +83,12 @@ function AdminLayout() {
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 shrink-0 bg-card border-r flex-col">
+      <aside className="hidden md:flex w-64 shrink-0 bg-card border-r flex-col" data-tour="sidebar">
         <div className="p-4 border-b"><div className="font-bold">RSU Aisyiyah</div><div className="text-xs text-muted-foreground">Admin CMS</div></div>
         <NavList pathname={pathname} />
         <div className="p-3 border-t text-xs text-muted-foreground truncate">{user?.email}</div>
       </aside>
+
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 bg-card border-b flex items-center justify-between px-3 sm:px-4 gap-2">
@@ -92,7 +96,7 @@ function AdminLayout() {
             {/* Mobile menu trigger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
-                <Button size="icon" variant="outline" className="md:hidden h-9 w-9 shrink-0">
+                <Button size="icon" variant="outline" className="md:hidden h-9 w-9 shrink-0" data-tour="mobile-menu-trigger">
                   <MenuIcon className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -110,10 +114,20 @@ function AdminLayout() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link to="/" className="hidden sm:inline text-sm text-muted-foreground hover:underline">Lihat website ↗</Link>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => startTour(pathname)}
+              data-tour="header-tutorial"
+              title="Mulai tutorial halaman ini"
+            >
+              <HelpCircle className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Tutorial</span>
+            </Button>
             <Button size="sm" variant="outline" onClick={() => signOut().then(() => navigate({ to: "/auth" }))}>
               <LogOut className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
+
         </header>
         <main className="flex-1 p-3 sm:p-6 overflow-x-hidden"><Outlet /></main>
       </div>
