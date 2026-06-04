@@ -89,9 +89,10 @@ function HeroSliderAdmin() {
           <h1 className="text-2xl font-bold">Hero Slider</h1>
           <p className="text-sm text-muted-foreground">{slides.length}/5 slide · Drag untuk mengurutkan</p>
         </div>
-        <Button disabled={!canAdd} onClick={() => setEditing({ ...empty, display_order: slides.length + 1 })}>
+        <Button disabled={!canAdd} onClick={() => setEditing({ ...empty, display_order: slides.length + 1 })} data-tour="hero-add">
           <Plus className="h-4 w-4 mr-1" /> Tambah Slide
         </Button>
+
       </div>
 
       {loading ? <p className="text-muted-foreground">Memuat...</p>
