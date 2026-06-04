@@ -113,7 +113,7 @@ function ChatbotAdmin() {
         ) : <div className="text-sm text-muted-foreground">Memuat…</div>}
       </Card>
 
-      <Card className="p-4 space-y-4">
+      <Card className="p-4 space-y-4" data-tour="chatbot-kb">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold">Knowledge Chatbot ({rows.length})</h2>
           <div className="flex gap-2 flex-wrap items-center">
