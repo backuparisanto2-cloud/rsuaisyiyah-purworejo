@@ -7,9 +7,13 @@ type About = {
   subtitle: string;
   body: string;
   image_url: string | null;
+  cta_label: string;
+  cta_url: string;
 };
 
 const FALLBACK: About = {
+  cta_label: "Selengkapnya",
+  cta_url: "#layanan",
   title: "Keramahan Sebenarnya & Mutu Pelayanan Syariah",
   subtitle: "RSU Aisyiyah Purworejo",
   body: "RSU Aisyiyah Purworejo berdedikasi memberikan pelayanan kesehatan prima berbasis syariah dengan integritas tinggi, mengutamakan keselamatan pasien dan mewujudkan keramahan sebenarnya dalam setiap layanan, termasuk fasilitas ramah difabel.\n\nKami terus mengembangkan fasilitas berkualitas dan modern, menyediakan layanan spesialis dan subspesialis unggulan, ditunjang peralatan medis berteknologi terkini serta layanan penunjang diagnostik mutakhir.",
@@ -23,7 +27,7 @@ export default function TentangSection() {
     const load = async () => {
       const { data: row } = await supabase
         .from("about_page")
-        .select("title,subtitle,body,image_url")
+        .select("title,subtitle,body,image_url,cta_label,cta_url")
         .maybeSingle();
       if (row) setData({ ...FALLBACK, ...row });
     };
@@ -52,9 +56,15 @@ export default function TentangSection() {
           {data.body.split(/\n\n+/).map((p, i) => (
             <p key={i} className="mt-4 text-muted-foreground leading-relaxed whitespace-pre-line">{p}</p>
           ))}
-          <a href="#layanan" className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary-dark transition-colors">
-            Selengkapnya <ChevronRight className="h-4 w-4" />
-          </a>
+          {data.cta_url && (
+            <a
+              href={data.cta_url}
+              {...(/^https?:\/\//i.test(data.cta_url) ? { target: "_blank", rel: "noreferrer" } : {})}
+              className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary-dark transition-colors"
+            >
+              {data.cta_label || "Selengkapnya"} <ChevronRight className="h-4 w-4" />
+            </a>
+          )}
         </div>
       </div>
     </section>

@@ -18,6 +18,8 @@ export type Database = {
         Row: {
           body: string
           created_at: string
+          cta_label: string
+          cta_url: string
           id: string
           image_url: string | null
           singleton: boolean
@@ -28,6 +30,8 @@ export type Database = {
         Insert: {
           body?: string
           created_at?: string
+          cta_label?: string
+          cta_url?: string
           id?: string
           image_url?: string | null
           singleton?: boolean
@@ -38,6 +42,8 @@ export type Database = {
         Update: {
           body?: string
           created_at?: string
+          cta_label?: string
+          cta_url?: string
           id?: string
           image_url?: string | null
           singleton?: boolean
