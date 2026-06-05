@@ -368,7 +368,7 @@ const REGISTRY: Record<string, TourBuilder> = {
   "/administrator/chatbot": chatbotTour,
 };
 
-let activeTour: Shepherd.Tour | null = null;
+let activeTour: InstanceType<typeof Shepherd.Tour> | null = null;
 
 export function startTour(pathname: string, navigate: NavigateFn = defaultNavigate) {
   // Cancel any in-flight tour so highlight tracks the freshly chosen one
