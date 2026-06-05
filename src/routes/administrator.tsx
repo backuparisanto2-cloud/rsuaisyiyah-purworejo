@@ -122,7 +122,7 @@ function AdminLayout() {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => startTour(pathname)}
+              onClick={() => startTour(pathname, (to) => navigate({ to: to as string }))}
               data-tour="header-tutorial"
               title="Mulai tutorial halaman ini"
             >
