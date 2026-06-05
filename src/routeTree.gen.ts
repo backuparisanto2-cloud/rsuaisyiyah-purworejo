@@ -30,6 +30,7 @@ import { Route as AdministratorHeroContentRouteImport } from './routes/administr
 import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq'
 import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
 import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
+import { Route as AdministratorBackupRouteImport } from './routes/administrator.backup'
 import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
 
 const AuthRoute = AuthRouteImport.update({
@@ -139,6 +140,11 @@ const AdministratorChatbotRoute = AdministratorChatbotRouteImport.update({
   path: '/chatbot',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorBackupRoute = AdministratorBackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
+  getParentRoute: () => AdministratorRoute,
+} as any)
 const ApiPublicIgImageRoute = ApiPublicIgImageRouteImport.update({
   id: '/api/public/ig-image',
   path: '/api/public/ig-image',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
   '/administrator/faq': typeof AdministratorFaqRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
     | '/administrator/faq'
@@ -448,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorChatbotRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/backup': {
+      id: '/administrator/backup'
+      path: '/backup'
+      fullPath: '/administrator/backup'
+      preLoaderRoute: typeof AdministratorBackupRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
     '/api/public/ig-image': {
       id: '/api/public/ig-image'
       path: '/api/public/ig-image'
@@ -459,6 +478,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdministratorRouteChildren {
+  AdministratorBackupRoute: typeof AdministratorBackupRoute
   AdministratorChatbotRoute: typeof AdministratorChatbotRoute
   AdministratorDokterRoute: typeof AdministratorDokterRoute
   AdministratorFaqRoute: typeof AdministratorFaqRoute
@@ -479,6 +499,7 @@ interface AdministratorRouteChildren {
 }
 
 const AdministratorRouteChildren: AdministratorRouteChildren = {
+  AdministratorBackupRoute: AdministratorBackupRoute,
   AdministratorChatbotRoute: AdministratorChatbotRoute,
   AdministratorDokterRoute: AdministratorDokterRoute,
   AdministratorFaqRoute: AdministratorFaqRoute,

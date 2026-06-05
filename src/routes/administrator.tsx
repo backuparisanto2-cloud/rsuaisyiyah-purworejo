@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
-  Bot, LogOut, Loader2, Type, FileText, Instagram, Menu as MenuIcon,
+  Bot, LogOut, Loader2, Type, FileText, Instagram, Menu as MenuIcon, Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
   { to: "/administrator/theme", label: "Tema Warna", icon: Palette },
   { to: "/administrator/chatbot", label: "Chatbot", icon: Bot },
+  { to: "/administrator/backup", label: "Backup Database", icon: Database },
 ];
 
 function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
