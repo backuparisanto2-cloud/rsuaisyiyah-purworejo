@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/administrator/tentang")({ component: TentangAdmin });
 
-type About = { id: string; title: string; subtitle: string; body: string; image_url: string | null };
+type About = { id: string; title: string; subtitle: string; body: string; image_url: string | null; cta_label: string; cta_url: string };
 
 function TentangAdmin() {
   const [data, setData] = useState<About | null>(null);
