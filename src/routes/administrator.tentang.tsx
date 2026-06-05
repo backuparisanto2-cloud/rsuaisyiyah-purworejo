@@ -24,6 +24,7 @@ function TentangAdmin() {
     if (!data) return;
     const { error } = await supabase.from("about_page").update({
       title: data.title, subtitle: data.subtitle, body: data.body, image_url: data.image_url,
+      cta_label: data.cta_label, cta_url: data.cta_url,
     }).eq("id", data.id);
     if (error) toast.error(error.message); else toast.success("Tersimpan");
   }
