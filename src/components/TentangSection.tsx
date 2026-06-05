@@ -7,9 +7,13 @@ type About = {
   subtitle: string;
   body: string;
   image_url: string | null;
+  cta_label: string;
+  cta_url: string;
 };
 
 const FALLBACK: About = {
+  cta_label: "Selengkapnya",
+  cta_url: "#layanan",
   title: "Keramahan Sebenarnya & Mutu Pelayanan Syariah",
   subtitle: "RSU Aisyiyah Purworejo",
   body: "RSU Aisyiyah Purworejo berdedikasi memberikan pelayanan kesehatan prima berbasis syariah dengan integritas tinggi, mengutamakan keselamatan pasien dan mewujudkan keramahan sebenarnya dalam setiap layanan, termasuk fasilitas ramah difabel.\n\nKami terus mengembangkan fasilitas berkualitas dan modern, menyediakan layanan spesialis dan subspesialis unggulan, ditunjang peralatan medis berteknologi terkini serta layanan penunjang diagnostik mutakhir.",
