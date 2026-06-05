@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { startTour } from "@/lib/tour";
+import { startTour, syncTourWithRoute } from "@/lib/tour";
 
 
 export const Route = createFileRoute("/administrator")({
