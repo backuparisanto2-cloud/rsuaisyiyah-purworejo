@@ -56,9 +56,15 @@ export default function TentangSection() {
           {data.body.split(/\n\n+/).map((p, i) => (
             <p key={i} className="mt-4 text-muted-foreground leading-relaxed whitespace-pre-line">{p}</p>
           ))}
-          <a href="#layanan" className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary-dark transition-colors">
-            Selengkapnya <ChevronRight className="h-4 w-4" />
-          </a>
+          {data.cta_url && (
+            <a
+              href={data.cta_url}
+              {...(/^https?:\/\//i.test(data.cta_url) ? { target: "_blank", rel: "noreferrer" } : {})}
+              className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary-dark transition-colors"
+            >
+              {data.cta_label || "Selengkapnya"} <ChevronRight className="h-4 w-4" />
+            </a>
+          )}
         </div>
       </div>
     </section>
