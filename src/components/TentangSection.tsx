@@ -27,7 +27,7 @@ export default function TentangSection() {
     const load = async () => {
       const { data: row } = await supabase
         .from("about_page")
-        .select("title,subtitle,body,image_url")
+        .select("title,subtitle,body,image_url,cta_label,cta_url")
         .maybeSingle();
       if (row) setData({ ...FALLBACK, ...row });
     };
