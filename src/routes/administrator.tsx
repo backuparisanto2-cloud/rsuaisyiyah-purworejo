@@ -74,6 +74,11 @@ function AdminLayout() {
     }
   }, [session, isAdmin, loading, navigate]);
 
+  // Keep the active tour highlight in sync when the admin route changes mid-tour
+  useEffect(() => {
+    syncTourWithRoute(pathname, (to) => navigate({ to: to as string }));
+  }, [pathname, navigate]);
+
   if (loading || !session || !isAdmin) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
