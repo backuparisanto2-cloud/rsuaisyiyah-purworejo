@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { startTour } from "@/lib/tour";
+import { startTour, syncTourWithRoute } from "@/lib/tour";
 
 
 export const Route = createFileRoute("/administrator")({
@@ -74,6 +74,11 @@ function AdminLayout() {
     }
   }, [session, isAdmin, loading, navigate]);
 
+  // Keep the active tour highlight in sync when the admin route changes mid-tour
+  useEffect(() => {
+    syncTourWithRoute(pathname, (to) => navigate({ to: to as string }));
+  }, [pathname, navigate]);
+
   if (loading || !session || !isAdmin) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
@@ -117,7 +122,7 @@ function AdminLayout() {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => startTour(pathname)}
+              onClick={() => startTour(pathname, (to) => navigate({ to: to as string }))}
               data-tour="header-tutorial"
               title="Mulai tutorial halaman ini"
             >
