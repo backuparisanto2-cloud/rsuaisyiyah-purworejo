@@ -224,12 +224,10 @@ export const restoreFromBackup = createServerFn({ method: "POST" })
           continue;
         }
         if (data.mode === "replace") {
-          // Delete all existing rows (filter that always matches non-null id)
-          const { error: delErr } = await supabaseAdmin.from(t).delete().not("id", "is", null);
-          if (delErr) {
-            // Some tables (e.g. with composite keys) may not have id; try generic
-            await supabaseAdmin.from(t).delete().gte("created_at", "1900-01-01").throwOnError;
-          }
+          const delTbl = supabaseAdmin.from(t) as unknown as {
+            delete: () => { not: (col: string, op: string, val: unknown) => Promise<{ error: { message: string } | null }> };
+          };
+          await delTbl.delete().not("id", "is", null);
         }
         if (rows.length === 0) {
           log.push({ table: t, inserted: 0, skipped: 0 });
