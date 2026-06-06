@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo-pku.png";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -97,10 +97,6 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2 ml-2">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <input placeholder="Cari…" className="w-32 rounded-full bg-white text-foreground text-xs pl-7 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-gold" />
-          </div>
           <div className="flex items-center gap-1 text-xs">
             <span className="opacity-70">EN</span><span className="opacity-50">|</span><span className="font-bold">ID</span>
           </div>
