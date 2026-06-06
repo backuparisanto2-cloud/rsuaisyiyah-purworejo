@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo-pku.png";
 import { supabase } from "@/integrations/supabase/client";
 
