@@ -240,10 +240,13 @@ export const restoreFromBackup = createServerFn({ method: "POST" })
         const batchSize = 500;
         for (let i = 0; i < rows.length; i += batchSize) {
           const batch = rows.slice(i, i + batchSize);
-          const { error: upErr } = await supabaseAdmin.from(t).upsert(batch, { onConflict: "id" });
+          const tbl = supabaseAdmin.from(t) as unknown as {
+            upsert: (rows: unknown, opts?: { onConflict?: string }) => Promise<{ error: { message: string } | null }>;
+            insert: (rows: unknown) => Promise<{ error: { message: string } | null }>;
+          };
+          const { error: upErr } = await tbl.upsert(batch, { onConflict: "id" });
           if (upErr) {
-            // Fall back to insert without onConflict (e.g. composite PK tables)
-            const { error: insErr } = await supabaseAdmin.from(t).insert(batch);
+            const { error: insErr } = await tbl.insert(batch);
             if (insErr) {
               log.push({ table: t, inserted, skipped: rows.length - inserted, error: insErr.message });
               break;
