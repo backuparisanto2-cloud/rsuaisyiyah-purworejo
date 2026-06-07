@@ -55,8 +55,10 @@ export type Database = {
       }
       chatbot_knowledge: {
         Row: {
+          category: string
           content: string
           created_at: string
+          embedding: string | null
           id: string
           is_active: boolean
           source: string
@@ -65,8 +67,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category?: string
           content: string
           created_at?: string
+          embedding?: string | null
           id?: string
           is_active?: boolean
           source?: string
@@ -75,8 +79,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category?: string
           content?: string
           created_at?: string
+          embedding?: string | null
           id?: string
           is_active?: boolean
           source?: string
@@ -823,6 +829,20 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      match_chatbot_knowledge: {
+        Args: {
+          match_count?: number
+          min_similarity?: number
+          query_embedding: string
+        }
+        Returns: {
+          category: string
+          content: string
+          id: string
+          similarity: number
+          title: string
+        }[]
       }
     }
     Enums: {
