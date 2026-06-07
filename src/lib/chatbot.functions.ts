@@ -4,6 +4,8 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
 const SITE_URL = "https://rsuaisyiyah-purworejo.lovable.app";
+const EMBEDDING_MODEL = "openai/text-embedding-3-small"; // 1536 dims
+const EMBEDDING_DIMS = 1536;
 
 function htmlToText(html: string): string {
   return html
@@ -42,6 +44,69 @@ async function callLovableAI(apiKey: string, system: string, user: string) {
   const content = json?.choices?.[0]?.message?.content ?? "{}";
   try { return JSON.parse(content) as { entries?: { title: string; content: string }[] }; }
   catch { throw new Error("AI mengembalikan format tidak valid"); }
+}
+
+export async function embedTexts(apiKey: string, inputs: string[]): Promise<number[][]> {
+  if (!inputs.length) return [];
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: EMBEDDING_MODEL, input: inputs }),
+  });
+  if (res.status === 429) throw new Error("Permintaan AI terlalu banyak. Coba lagi sebentar.");
+  if (res.status === 402) throw new Error("Kuota AI habis.");
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`Embedding error ${res.status}: ${t.slice(0, 200)}`);
+  }
+  const j = await res.json();
+  return (j.data ?? []).map((d: { embedding: number[] }) => d.embedding);
+}
+
+function chunkText(text: string, target = 800, overlap = 80): string[] {
+  const cleaned = text.replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").trim();
+  if (!cleaned) return [];
+  // Split by paragraphs first
+  const paras = cleaned.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const chunks: string[] = [];
+  let cur = "";
+  for (const p of paras) {
+    if ((cur + "\n\n" + p).length <= target * 1.4) {
+      cur = cur ? `${cur}\n\n${p}` : p;
+    } else {
+      if (cur) chunks.push(cur);
+      if (p.length <= target * 1.4) {
+        cur = p;
+      } else {
+        // Long paragraph: hard-split by sentence
+        const sents = p.split(/(?<=[.!?])\s+/);
+        let buf = "";
+        for (const s of sents) {
+          if ((buf + " " + s).length > target) {
+            if (buf) chunks.push(buf.trim());
+            buf = s;
+          } else {
+            buf = buf ? `${buf} ${s}` : s;
+          }
+        }
+        if (buf) cur = buf.trim();
+        else cur = "";
+      }
+    }
+  }
+  if (cur) chunks.push(cur);
+  // Apply small overlap
+  if (overlap > 0 && chunks.length > 1) {
+    for (let i = 1; i < chunks.length; i++) {
+      const tail = chunks[i - 1].slice(-overlap);
+      chunks[i] = `${tail} ${chunks[i]}`.trim();
+    }
+  }
+  return chunks;
+}
+
+function vectorLiteral(arr: number[]): string {
+  return `[${arr.join(",")}]`;
 }
 
 /**
