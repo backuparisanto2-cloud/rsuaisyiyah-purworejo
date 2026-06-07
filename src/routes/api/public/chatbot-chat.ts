@@ -49,18 +49,39 @@ function scoreKnowledge(query: string, items: { title: string; content: string }
   return top.length ? top : items.slice(0, Math.min(3, items.length));
 }
 
-async function buildSystemContext(userQuery: string) {
-  const [{ data: settings }, { data: kb }, { data: contact }, { data: visiting }, { data: doctors }, { data: schedules }] =
+async function buildSystemContext(userQuery: string, apiKey: string) {
+  const [{ data: settings }, { data: kbAll }, { data: contact }, { data: visiting }, { data: doctors }, { data: schedules }] =
     await Promise.all([
       supabaseAdmin.from("chatbot_settings").select("*").maybeSingle(),
-      supabaseAdmin.from("chatbot_knowledge").select("title,content").eq("is_active", true),
+      supabaseAdmin.from("chatbot_knowledge").select("title,content,category").eq("is_active", true),
       supabaseAdmin.from("contact_settings").select("whatsapp,phone,address,email,instagram").maybeSingle(),
       supabaseAdmin.from("visiting_hours").select("label,time_range").eq("is_active", true).order("display_order"),
       supabaseAdmin.from("doctors").select("id,name,specialty").eq("is_active", true).order("display_order"),
       supabaseAdmin.from("doctor_schedules").select("doctor_id,day_of_week,time_start,time_end,poli"),
     ]);
 
-  const top = scoreKnowledge(userQuery, kb ?? []);
+  // Try semantic match first; fall back to keyword scoring if it fails or returns nothing.
+  let top: { title: string; content: string; category?: string | null }[] = [];
+  if (userQuery.trim().length > 1) {
+    try {
+      const [vec] = await embedTexts(apiKey, [userQuery]);
+      if (vec?.length) {
+        const { data: matched, error } = await supabaseAdmin.rpc("match_chatbot_knowledge", {
+          query_embedding: `[${vec.join(",")}]` as unknown as never,
+          match_count: 6,
+          min_similarity: 0.25,
+        });
+        if (!error && matched?.length) {
+          top = matched.map((m: { title: string; content: string; category: string | null }) => ({
+            title: m.title, content: m.content, category: m.category,
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn("semantic match failed:", (e as Error).message);
+    }
+  }
+  if (!top.length) top = scoreKnowledge(userQuery, kbAll ?? []);
 
   const lines: string[] = [];
   lines.push("KONTEKS RSU AISYIYAH PURWOREJO (gunakan hanya info ini untuk fakta spesifik):");
