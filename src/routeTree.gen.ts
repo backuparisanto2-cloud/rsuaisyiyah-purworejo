@@ -32,6 +32,7 @@ import { Route as AdministratorDokterRouteImport } from './routes/administrator.
 import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
 import { Route as AdministratorBackupRouteImport } from './routes/administrator.backup'
 import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
+import { Route as ApiPublicChatbotChatRouteImport } from './routes/api/public/chatbot-chat'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -150,6 +151,11 @@ const ApiPublicIgImageRoute = ApiPublicIgImageRouteImport.update({
   path: '/api/public/ig-image',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicChatbotChatRoute = ApiPublicChatbotChatRouteImport.update({
+  id: '/api/public/chatbot-chat',
+  path: '/api/public/chatbot-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/administrator/theme': typeof AdministratorThemeRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
+  '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
 }
 export interface FileRoutesByTo {
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/administrator/theme': typeof AdministratorThemeRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator': typeof AdministratorIndexRoute
+  '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
 }
 export interface FileRoutesById {
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/administrator/theme': typeof AdministratorThemeRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
+  '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
 }
 export interface FileRouteTypes {
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/administrator/theme'
     | '/p/$slug'
     | '/administrator/'
+    | '/api/public/chatbot-chat'
     | '/api/public/ig-image'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/administrator/theme'
     | '/p/$slug'
     | '/administrator'
+    | '/api/public/chatbot-chat'
     | '/api/public/ig-image'
   id:
     | '__root__'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/administrator/theme'
     | '/p/$slug'
     | '/administrator/'
+    | '/api/public/chatbot-chat'
     | '/api/public/ig-image'
   fileRoutesById: FileRoutesById
 }
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   AdministratorRoute: typeof AdministratorRouteWithChildren
   AuthRoute: typeof AuthRoute
   PSlugRoute: typeof PSlugRoute
+  ApiPublicChatbotChatRoute: typeof ApiPublicChatbotChatRoute
   ApiPublicIgImageRoute: typeof ApiPublicIgImageRoute
 }
 
@@ -474,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIgImageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/chatbot-chat': {
+      id: '/api/public/chatbot-chat'
+      path: '/api/public/chatbot-chat'
+      fullPath: '/api/public/chatbot-chat'
+      preLoaderRoute: typeof ApiPublicChatbotChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -528,18 +548,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdministratorRoute: AdministratorRouteWithChildren,
   AuthRoute: AuthRoute,
   PSlugRoute: PSlugRoute,
+  ApiPublicChatbotChatRoute: ApiPublicChatbotChatRoute,
   ApiPublicIgImageRoute: ApiPublicIgImageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
