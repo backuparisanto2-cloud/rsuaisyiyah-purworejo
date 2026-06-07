@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { embedTexts } from "@/lib/chatbot.functions";
 import { z } from "zod";
 
 // Naive in-worker rate limiter (resets on cold start).
