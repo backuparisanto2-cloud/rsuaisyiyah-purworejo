@@ -34,8 +34,21 @@ type Settings = {
   quick_questions: string[];
   max_messages_per_session: number;
 };
-type Knowledge = { id: string; title: string; content: string; source: string; source_url: string | null; is_active: boolean };
-const emptyK: Omit<Knowledge, "id"> = { title: "", content: "", source: "manual", source_url: "", is_active: true };
+type Knowledge = {
+  id: string;
+  title: string;
+  content: string;
+  source: string;
+  source_url: string | null;
+  is_active: boolean;
+  category: string;
+  embedding: string | null;
+};
+const emptyK: Omit<Knowledge, "id"> = {
+  title: "", content: "", source: "manual", source_url: "", is_active: true, category: "umum", embedding: null,
+};
+
+const DEFAULT_CATEGORIES = ["umum", "FAQ", "layanan", "dokter", "kontak", "jadwal", "fasilitas", "BPJS"];
 
 function ChatbotAdmin() {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -46,9 +59,23 @@ function ChatbotAdmin() {
   const [syncing, setSyncing] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [activateOnImport, setActivateOnImport] = useState(true);
+  const [filterCategory, setFilterCategory] = useState<string>("__all__");
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadCategory, setUploadCategory] = useState("umum");
+  const [uploadText, setUploadText] = useState("");
+  const [uploadSource, setUploadSource] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [rebuilding, setRebuilding] = useState(false);
+  const [bulkCategory, setBulkCategory] = useState("umum");
 
   const syncFn = useServerFn(syncKnowledgeFromWebsite);
   const genFn = useServerFn(generateKnowledgeFromAI);
+  const ingestFn = useServerFn(ingestKnowledgeDocument);
+  const rebuildFn = useServerFn(rebuildKnowledgeIndex);
+  const bulkFn = useServerFn(bulkUpdateKnowledge);
 
   async function load() {
     const [{ data: s }, { data: k }] = await Promise.all([
