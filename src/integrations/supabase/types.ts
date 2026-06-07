@@ -88,30 +88,48 @@ export type Database = {
       }
       chatbot_settings: {
         Row: {
+          ai_enabled: boolean
           avatar_url: string | null
           created_at: string
           greeting: string
           id: string
+          max_messages_per_session: number
+          model: string
           name: string
+          quick_questions: Json
           singleton: boolean
+          system_prompt: string
+          temperature: number
           updated_at: string
         }
         Insert: {
+          ai_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           greeting?: string
           id?: string
+          max_messages_per_session?: number
+          model?: string
           name?: string
+          quick_questions?: Json
           singleton?: boolean
+          system_prompt?: string
+          temperature?: number
           updated_at?: string
         }
         Update: {
+          ai_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           greeting?: string
           id?: string
+          max_messages_per_session?: number
+          model?: string
           name?: string
+          quick_questions?: Json
           singleton?: boolean
+          system_prompt?: string
+          temperature?: number
           updated_at?: string
         }
         Relationships: []

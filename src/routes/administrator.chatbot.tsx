@@ -16,7 +16,18 @@ import { Plus, Pencil, Trash2, RefreshCw, Sparkles, Loader2, Save } from "lucide
 
 export const Route = createFileRoute("/administrator/chatbot")({ component: ChatbotAdmin });
 
-type Settings = { id: string; name: string; avatar_url: string | null; greeting: string };
+type Settings = {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  greeting: string;
+  ai_enabled: boolean;
+  system_prompt: string;
+  temperature: number;
+  model: string;
+  quick_questions: string[];
+  max_messages_per_session: number;
+};
 type Knowledge = { id: string; title: string; content: string; source: string; source_url: string | null; is_active: boolean };
 const emptyK: Omit<Knowledge, "id"> = { title: "", content: "", source: "manual", source_url: "", is_active: true };
 
@@ -47,7 +58,15 @@ function ChatbotAdmin() {
     if (!settings) return;
     setSavingSettings(true);
     const { error } = await supabase.from("chatbot_settings").update({
-      name: settings.name, avatar_url: settings.avatar_url, greeting: settings.greeting,
+      name: settings.name,
+      avatar_url: settings.avatar_url,
+      greeting: settings.greeting,
+      ai_enabled: settings.ai_enabled,
+      system_prompt: settings.system_prompt,
+      temperature: settings.temperature,
+      model: settings.model,
+      quick_questions: settings.quick_questions,
+      max_messages_per_session: settings.max_messages_per_session,
     }).eq("id", settings.id);
     setSavingSettings(false);
     if (error) return toast.error(error.message);
@@ -104,6 +123,75 @@ function ChatbotAdmin() {
             <div className="space-y-3">
               <div><Label>Nama</Label><Input value={settings.name} onChange={(e) => setSettings({ ...settings, name: e.target.value })} /></div>
               <div><Label>Pesan Sambutan</Label><Textarea rows={3} value={settings.greeting} onChange={(e) => setSettings({ ...settings, greeting: e.target.value })} /></div>
+
+              <div className="border-t pt-3 space-y-3">
+                <div className="flex items-center justify-between gap-3 rounded-md border p-3 bg-muted/30">
+                  <div>
+                    <Label className="text-sm">Mode AI (chatbot pintar)</Label>
+                    <div className="text-xs text-muted-foreground">Bila dimatikan, chatbot kembali memakai pencocokan kata kunci.</div>
+                  </div>
+                  <Switch
+                    checked={settings.ai_enabled}
+                    onCheckedChange={(v) => setSettings({ ...settings, ai_enabled: v })}
+                  />
+                </div>
+
+                <div>
+                  <Label>Persona / System Prompt</Label>
+                  <Textarea
+                    rows={6}
+                    value={settings.system_prompt}
+                    onChange={(e) => setSettings({ ...settings, system_prompt: e.target.value })}
+                    placeholder="Aturan dan kepribadian asisten…"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Tentukan gaya bicara, batasan, dan bagaimana asisten harus merespons. Data resmi (dokter, jadwal, kontak) ditambahkan otomatis.
+                  </p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label>Model</Label>
+                    <select
+                      className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+                      value={settings.model}
+                      onChange={(e) => setSettings({ ...settings, model: e.target.value })}
+                    >
+                      <option value="google/gemini-3-flash-preview">Cepat (Gemini 3 Flash)</option>
+                      <option value="google/gemini-2.5-flash">Seimbang (Gemini 2.5 Flash)</option>
+                      <option value="google/gemini-2.5-pro">Cerdas (Gemini 2.5 Pro)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label>Kreativitas: {Number(settings.temperature).toFixed(2)}</Label>
+                    <input
+                      type="range"
+                      min={0.1}
+                      max={0.9}
+                      step={0.05}
+                      value={settings.temperature}
+                      onChange={(e) => setSettings({ ...settings, temperature: parseFloat(e.target.value) })}
+                      className="w-full mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Pertanyaan Cepat (satu per baris)</Label>
+                  <Textarea
+                    rows={5}
+                    value={(settings.quick_questions ?? []).join("\n")}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        quick_questions: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
+                      })
+                    }
+                    placeholder={"Jadwal dokter\nPendaftaran online\nJam besuk"}
+                  />
+                </div>
+              </div>
+
               <Button onClick={saveSettings} disabled={savingSettings}>
                 {savingSettings ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
                 Simpan Pengaturan

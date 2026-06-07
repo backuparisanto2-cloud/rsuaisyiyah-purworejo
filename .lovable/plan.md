@@ -1,84 +1,82 @@
-# Tutorial Tour Admin Panel
+## Tujuan
 
-Menambahkan mode tur interaktif yang menjelaskan setiap area admin panel, dijalankan saat user menekan tombol "Mulai Tutorial". Pakai library Shepherd.js untuk highlight elemen + popover bertahap.
+Saat ini chatbot Arini hanya memakai pencocokan kata kunci sederhana terhadap basis pengetahuan, sehingga sering memberi jawaban yang kaku atau jatuh ke fallback. Tujuan: ubah menjadi asisten AI sungguhan yang memahami konteks percakapan, menjawab dalam bahasa alami, dan tetap berpijak pada data resmi rumah sakit.
 
-## Yang akan dibuat
+## Apa yang berubah untuk pengguna
 
-### 1. Tombol pemicu tour
-- Tombol ikon (HelpCircle) "Tutorial" di header admin (`src/routes/administrator.tsx`), sebelah tombol Logout.
-- Klik tombol = jalankan tour sesuai konteks:
-  - Di halaman root `/administrator` (Dashboard) → tour global (orientasi sidebar + alur kerja).
-  - Di halaman lain → tour spesifik halaman tersebut (kalau ada), fallback ke tour global jika halaman belum punya skrip tour.
-- Tombol di mobile menampilkan ikon saja; di desktop dengan label "Tutorial".
+- Jawaban ditulis ulang dalam bahasa alami, ramah, dan sesuai persona "Arini".
+- Mengingat percakapan sebelumnya (mis. "tadi saya tanya jadwal dr. X, kalau hari Sabtu bagaimana?").
+- Menjawab pertanyaan yang tidak persis cocok kata kunci (sinonim, salah ketik, bahasa Jawa ringan).
+- Jawaban mengalir bertahap (streaming) sehingga terasa responsif.
+- Tetap menyertakan tautan/kontak yang relevan: WhatsApp CS, halaman layanan, jadwal dokter.
+- Indikator "sedang mengetik" dan tombol berhenti.
 
-### 2. Infrastruktur tour (`src/lib/tour.ts`)
-- Helper `startTour(tourId)` membuat instance `Shepherd.Tour` dengan opsi default (Tailwind-themed, tombol Sebelumnya/Selanjutnya/Lewati, scroll otomatis).
-- Registry `TOURS: Record<string, TourBuilder>` memetakan id → fungsi builder steps (agar bisa dipanggil per halaman).
-- Tema custom: override CSS Shepherd via `src/styles.css` mengikuti token (`--background`, `--primary`, `--border`, `--radius`).
+## Pengaman & batasan
 
-### 3. Tour global (`tour:global`)
-Steps berfokus pada orientasi keseluruhan, dijalankan dari Dashboard:
-1. Welcome popover (tengah layar) — ucapan selamat datang + ringkasan.
-2. Highlight sidebar (`aside` atau item nav pertama) — "Semua menu admin ada di sini".
-3. Highlight grup Konten Hero (Hero Teks, Hero Slider, Pengaturan Slider).
-4. Highlight grup Konten Halaman (Tentang, Jam Besuk, Layanan, Dokter, Mitra, FAQ, Kontak).
-5. Highlight Berita & Instagram.
-6. Highlight Page Builder + Menu Builder + Urutan Section (alat tata letak).
-7. Highlight Tema Warna + Chatbot.
-8. Highlight tombol "Lihat website" + Logout di header.
-9. Penutup — "Klik tombol Tutorial di halaman manapun untuk panduan spesifik".
+- Hanya menjawab seputar RSU Aisyiyah Purworejo + kesehatan umum ringan; menolak halus topik di luar itu.
+- Tidak memberi diagnosis medis — selalu mengarahkan ke layanan/CS untuk keluhan klinis.
+- Tetap memakai basis pengetahuan (`chatbot_knowledge`) + data dokter/jadwal/jam besuk/kontak terbaru sebagai sumber kebenaran. Bila tidak ada data, AI mengakui tidak tahu, bukan mengarang.
+- Rate-limit per sesi browser (mis. maks 20 pesan / 5 menit) untuk mencegah penyalahgunaan kredit.
+- Tangani error 429 (terlalu banyak permintaan) dan 402 (kredit habis) dengan pesan ramah.
 
-### 4. Tour per halaman
-Setiap halaman admin utama dapat tour singkat (3-6 langkah). Implementasi: tiap route file mendaftarkan tour-nya via `registerTour('tour:menu', buildMenuTour)` (atau builder didefinisikan terpusat di `src/lib/tour.ts` untuk menjaga agar elemen target diidentifikasi dengan `data-tour="..."` attribute yang ditaruh di komponen halaman).
+## Panel admin
 
-Halaman yang dapat tour pada fase ini:
-- **Menu Builder** (`administrator.menu.tsx`): tombol Tambah, baris item (label/href/switch/move/hapus), badge dirty + tombol Simpan, tombol Reset Default.
-- **Page Builder** (`administrator.pages.tsx`): daftar halaman, tombol Baru, editor slug/title/content, tab Menu per-halaman dengan tombol "Tarik dari Menu Utama".
-- **Hero Slider** (`administrator.hero-slider.tsx`): upload slide, reorder, toggle aktif.
-- **Berita & Instagram** (`administrator.instagram.tsx`): input embed Instagram, daftar post, tombol hapus.
-- **Jadwal Dokter** (`administrator.dokter.tsx`): import jadwal, edit baris, simpan.
-- **Tema Warna** (`administrator.theme.tsx`): pilih palet, preview, simpan.
-- **Chatbot** (`administrator.chatbot.tsx`): system prompt, knowledge base, model.
+Halaman `administrator/chatbot` ditambah:
+- Saklar **Mode AI** (on/off). Jika off, kembali ke pencocokan kata kunci lama (fallback aman).
+- Editor **System prompt** (persona + aturan jawab) dengan default yang sudah diisi.
+- Slider **Kreativitas** (temperature 0.2–0.9, default 0.4).
+- Daftar **Pertanyaan cepat** yang bisa diedit (menggantikan konstanta `QUICK` hardcoded).
+- Pilihan **Model** sederhana: Cepat (`gemini-3-flash-preview`, default) / Cerdas (`gemini-2.5-pro`).
 
-Halaman lain (Tentang, Jam Besuk, Layanan, Mitra, FAQ, Kontak, Hero Teks, Hero Settings, Urutan Section) memakai tour generik 2 langkah otomatis: highlight kartu utama + tombol Simpan, agar konsisten tanpa harus menulis skrip detail tiap halaman.
+## Rincian teknis
 
-### 5. Penanda target (`data-tour`)
-Daripada selector CSS rapuh, setiap elemen yang jadi target tour ditandai dengan attribute `data-tour="<id>"` (mis. `data-tour="menu-add"`, `data-tour="menu-save"`, `data-tour="sidebar"`, `data-tour="header-view-site"`). Builder tour memilih lewat `[data-tour="<id>"]`.
+1. **Migrasi DB** — tambah kolom di `chatbot_settings`:
+   - `ai_enabled` boolean default true
+   - `system_prompt` text (default persona Arini)
+   - `temperature` numeric default 0.4
+   - `model` text default `google/gemini-3-flash-preview`
+   - `quick_questions` jsonb default daftar saat ini
+   - `max_messages_per_session` int default 20
 
-### 6. UX detail
-- Tombol Tutorial selalu aktif (tidak ada gating localStorage karena pemicu manual).
-- Saat tour aktif: scroll otomatis ke elemen, overlay gelap, tombol "Lewati" menutup tour.
-- Jika elemen target tidak ditemukan (mis. halaman belum siap render), step di-skip dengan toast info ringan agar tour tidak nyangkut.
-- Tour responsive: di mobile, sidebar tersembunyi di balik Sheet → langkah yang menargetkan sidebar otomatis membuka Sheet dulu (handler `beforeShowPromise`).
-- Ctrl/Cmd+Shift+H sebagai shortcut opsional untuk membuka tour halaman saat ini.
+2. **Server route streaming** baru: `src/routes/api/public/chatbot-chat.ts` (POST).
+   - Input: `{ messages: {role, content}[] }`, divalidasi Zod (panjang konten, jumlah pesan ≤ 12 terakhir).
+   - Ambil `chatbot_settings` + top-N entri pengetahuan paling relevan via skor kata kunci sederhana di server (cepat, tanpa embedding) untuk dimasukkan sebagai konteks system.
+   - Lampirkan ringkasan data live: kontak, jam besuk, daftar dokter aktif + jadwal hari ini.
+   - Panggil Lovable AI Gateway dengan `stream: true`, model dari settings.
+   - Teruskan SSE ke client; tangani 429/402.
+   - Rate-limit sederhana berbasis IP + cookie sesi (in-memory map per worker; tidak butuh KV).
+   - `verify_jwt = false` (chat publik untuk pengunjung).
 
-## Detail teknis
+3. **Server fn admin** untuk update settings + quick questions (sudah ada pola serupa di `chatbot.functions.ts`, ditambah `updateChatbotSettings`).
 
-### Dependency
-- Tambah `shepherd.js` via bun.
-- Import CSS Shepherd: `import 'shepherd.js/dist/css/shepherd.css'` di `src/lib/tour.ts` (one-time).
+4. **`ChatbotArini.tsx`** — perbarui:
+   - Hapus `findAnswer` keyword matching dari path utama; pakai `fetch` streaming ke `/api/public/chatbot-chat`.
+   - Render markdown ringan (sudah memuat `react-markdown` jika belum, tambahkan).
+   - State `messages` simpan riwayat lengkap; kirim 12 pesan terakhir ke server.
+   - Persist riwayat di `sessionStorage` agar pop-up tidak kehilangan konteks saat ditutup-buka.
+   - Indikator typing, tombol "Hentikan" (AbortController), tombol "Mulai percakapan baru".
+   - Quick questions diambil dari settings.
+   - Fallback ke jawaban keyword lama bila `ai_enabled = false` atau request gagal total.
 
-### File yang disentuh
-- **Baru**: `src/lib/tour.ts` — registry + builder semua tour, theming.
-- **Edit**: `src/routes/administrator.tsx` — tombol Tutorial di header, prop `data-tour` di sidebar/header/nav, integrasi `beforeShowPromise` membuka mobile Sheet.
-- **Edit (penambahan `data-tour` saja, tanpa ubah logika)**:
-  - `src/routes/administrator.menu.tsx`
-  - `src/routes/administrator.pages.tsx`
-  - `src/routes/administrator.hero-slider.tsx`
-  - `src/routes/administrator.instagram.tsx`
-  - `src/routes/administrator.dokter.tsx`
-  - `src/routes/administrator.theme.tsx`
-  - `src/routes/administrator.chatbot.tsx`
-- **Edit**: `src/styles.css` — kelas `.shepherd-element` mengikuti token desain (background, border, shadow, font).
+5. **System prompt default** berisi:
+   - Persona Arini (sopan, salam Islami opsional, Bahasa Indonesia).
+   - Selalu jawab ringkas (≤ 4 kalimat) kecuali diminta detail.
+   - Sertakan kontak CS WhatsApp untuk pertanyaan janji temu/keluhan.
+   - Tolak halus permintaan diagnosis medis.
+   - Boleh menjawab "saya belum punya informasi itu" — tidak boleh mengarang jadwal/nomor.
 
-### Mapping pathname → tourId
-Di tombol Tutorial: `const tourId = TOURS[pathname] ? pathnameToId(pathname) : 'tour:global'`. Builder generik dipakai untuk halaman tanpa entry khusus.
+6. **Sinkronisasi pengetahuan** — fungsi `syncKnowledgeFromWebsite` yang sudah ada tetap dipakai; tidak perlu embedding di tahap ini (skor kata kunci server-side cukup untuk volume entri saat ini).
 
-### Bundle
-Shepherd.js ~30KB gzip + CSS — diimpor hanya di route `/administrator/*` (route tree TanStack code-split per file route), jadi tidak membebani halaman publik.
+## Yang TIDAK dikerjakan di plan ini
 
-## Di luar lingkup
-- Tidak menyimpan progress tour (selalu mulai dari awal).
-- Tidak ada video/GIF — hanya teks + highlight.
-- Tidak otomatis muncul untuk user baru (pemicu manual saja, sesuai pilihan).
-- Tidak menerjemahkan ke bahasa lain (Bahasa Indonesia saja).
+- Vector embeddings / pgvector (bisa jadi peningkatan lanjutan kalau KB tumbuh > 500 entri).
+- Voice input / TTS.
+- Eskalasi otomatis ke operator manusia (tetap arahkan ke WhatsApp CS).
+- Multi-bahasa selain Bahasa Indonesia.
+
+## Verifikasi setelah implementasi
+
+- Buka chatbot di halaman publik → kirim pertanyaan umum ("jadwal poli anak hari Sabtu", "berapa nomor IGD", "saya batuk 3 hari apa yang harus saya lakukan") dan pastikan jawaban masuk akal + streaming.
+- Test pertanyaan di luar konteks ("siapa presiden Indonesia") → ditolak halus.
+- Matikan Mode AI di admin → chatbot kembali memakai keyword matching tanpa error.
+- Cek panel admin: ubah persona / quick questions, refresh halaman publik, perubahan terlihat.
