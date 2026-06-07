@@ -307,6 +307,9 @@ function ChatbotAdmin() {
               {syncing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1" />}
               Update dari Website
             </Button>
+            <Button variant="outline" onClick={() => setUploadOpen(true)}>
+              <Upload className="h-4 w-4 mr-1" />Unggah Dokumen
+            </Button>
             <Button onClick={() => setEditing({ ...emptyK })}><Plus className="h-4 w-4 mr-1" />Tambah Manual</Button>
           </div>
         </div>
@@ -322,22 +325,93 @@ function ChatbotAdmin() {
           </Button>
         </div>
 
+        <div className="border-t pt-4 flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[180px]">
+            <Label>Cari</Label>
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari judul/isi…" />
+          </div>
+          <div>
+            <Label>Kategori</Label>
+            <select
+              className="h-9 rounded-md border bg-background px-2 text-sm"
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+            >
+              <option value="__all__">Semua kategori</option>
+              {Array.from(new Set([...DEFAULT_CATEGORIES, ...rows.map((r) => r.category)])).map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+          <div className="ml-auto flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => doRebuild("missing")} disabled={rebuilding}>
+              {rebuilding ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Database className="h-4 w-4 mr-1" />}
+              Indeks yang Hilang
+            </Button>
+            <Button variant="secondary" onClick={() => doRebuild("all")} disabled={rebuilding}>
+              {rebuilding ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1" />}
+              Bangun Ulang Semua
+            </Button>
+          </div>
+        </div>
+
+        {selected.size > 0 && (
+          <div className="border rounded-md p-3 bg-muted/50 flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium">{selected.size} terpilih</span>
+            <select
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+              value={bulkCategory}
+              onChange={(e) => setBulkCategory(e.target.value)}
+            >
+              {Array.from(new Set([...DEFAULT_CATEGORIES, ...rows.map((r) => r.category)])).map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <Button size="sm" variant="outline" onClick={() => doBulk("set_category")}>Ubah Kategori</Button>
+            <Button size="sm" variant="outline" onClick={() => doBulk("activate")}>Aktifkan</Button>
+            <Button size="sm" variant="outline" onClick={() => doBulk("deactivate")}>Nonaktifkan</Button>
+            <Button size="sm" variant="destructive" onClick={() => doBulk("delete")}>Hapus</Button>
+            <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Batal</Button>
+          </div>
+        )}
+
         <div className="space-y-2">
-          {rows.map((r) => (
-            <div key={r.id} className="border rounded-md p-3 flex items-start gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold truncate">{r.title}</span>
-                  <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{r.source}</span>
+          {rows
+            .filter((r) => filterCategory === "__all__" || r.category === filterCategory)
+            .filter((r) => !search || `${r.title} ${r.content}`.toLowerCase().includes(search.toLowerCase()))
+            .map((r) => (
+              <div key={r.id} className="border rounded-md p-3 flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  className="mt-1.5"
+                  checked={selected.has(r.id)}
+                  onChange={(e) => {
+                    const next = new Set(selected);
+                    if (e.target.checked) next.add(r.id); else next.delete(r.id);
+                    setSelected(next);
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold truncate">{r.title}</span>
+                    <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-primary/10 text-primary">{r.category}</span>
+                    <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{r.source}</span>
+                    {r.embedding ? (
+                      <span className="text-[10px] inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                        <CheckCircle2 className="h-3 w-3" /> terindeks
+                      </span>
+                    ) : (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400">belum terindeks</span>
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground line-clamp-2 mt-1 whitespace-pre-wrap">{r.content}</div>
                 </div>
-                <div className="text-sm text-muted-foreground line-clamp-2 mt-1 whitespace-pre-wrap">{r.content}</div>
+                <Switch checked={r.is_active} onCheckedChange={async () => { await supabase.from("chatbot_knowledge").update({ is_active: !r.is_active }).eq("id", r.id); void load(); }} />
+                <Button size="icon" variant="outline" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
+                <Button size="icon" variant="destructive" onClick={() => removeK(r.id)}><Trash2 className="h-4 w-4" /></Button>
               </div>
-              <Switch checked={r.is_active} onCheckedChange={async () => { await supabase.from("chatbot_knowledge").update({ is_active: !r.is_active }).eq("id", r.id); void load(); }} />
-              <Button size="icon" variant="outline" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
-              <Button size="icon" variant="destructive" onClick={() => removeK(r.id)}><Trash2 className="h-4 w-4" /></Button>
-            </div>
-          ))}
-          {!rows.length && <div className="text-sm text-muted-foreground text-center py-8">Belum ada knowledge. Klik "Update dari Website" untuk mengimpor data eksisting.</div>}
+            ))}
+          {!rows.length && <div className="text-sm text-muted-foreground text-center py-8">Belum ada knowledge. Klik "Update dari Website" atau "Unggah Dokumen".</div>}
         </div>
       </Card>
 
@@ -347,12 +421,72 @@ function ChatbotAdmin() {
           {editing && (
             <div className="space-y-3">
               <div><Label>Judul</Label><Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
+              <div>
+                <Label>Kategori</Label>
+                <select
+                  className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+                  value={editing.category || "umum"}
+                  onChange={(e) => setEditing({ ...editing, category: e.target.value })}
+                >
+                  {Array.from(new Set([...DEFAULT_CATEGORIES, editing.category || "umum"])).map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
               <div><Label>Isi</Label><Textarea rows={6} value={editing.content} onChange={(e) => setEditing({ ...editing, content: e.target.value })} /></div>
               <div><Label>URL Sumber (opsional)</Label><Input value={editing.source_url ?? ""} onChange={(e) => setEditing({ ...editing, source_url: e.target.value })} /></div>
               <div className="flex items-center gap-2"><Switch checked={editing.is_active} onCheckedChange={(v) => setEditing({ ...editing, is_active: v })} /><Label>Aktif</Label></div>
             </div>
           )}
           <DialogFooter><Button variant="outline" onClick={() => setEditing(null)}>Batal</Button><Button onClick={saveK}>Simpan</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Unggah Dokumen / Tempel Teks</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground flex items-start gap-2">
+              <FileText className="h-4 w-4 mt-0.5 shrink-0" />
+              Mendukung file teks (.txt, .md, .csv, .json) hingga 2MB, atau tempel teks panjang langsung. Untuk PDF/DOCX, salin isinya ke kotak teks di bawah.
+            </p>
+            <div>
+              <Label>Judul Dokumen</Label>
+              <Input value={uploadTitle} onChange={(e) => setUploadTitle(e.target.value)} placeholder="mis. Panduan Pendaftaran BPJS" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label>Kategori</Label>
+                <select
+                  className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+                  value={uploadCategory}
+                  onChange={(e) => setUploadCategory(e.target.value)}
+                >
+                  {DEFAULT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <Label>Sumber (opsional)</Label>
+                <Input value={uploadSource} onChange={(e) => setUploadSource(e.target.value)} placeholder="nama file / URL" />
+              </div>
+            </div>
+            <div>
+              <Label>File</Label>
+              <Input type="file" accept=".txt,.md,.markdown,.csv,.json,text/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onPickFile(f); }} />
+            </div>
+            <div>
+              <Label>Teks (otomatis dipotong & diindeks)</Label>
+              <Textarea rows={10} value={uploadText} onChange={(e) => setUploadText(e.target.value)} placeholder="Tempel teks panjang di sini…" />
+              <div className="text-xs text-muted-foreground mt-1">{uploadText.length.toLocaleString()} karakter</div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUploadOpen(false)}>Batal</Button>
+            <Button onClick={doUpload} disabled={uploading}>
+              {uploading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Upload className="h-4 w-4 mr-1" />}
+              Serap & Indeks
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
