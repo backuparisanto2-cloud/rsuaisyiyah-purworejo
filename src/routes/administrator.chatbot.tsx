@@ -108,17 +108,78 @@ function ChatbotAdmin() {
 
   async function saveK() {
     if (!editing) return;
-    const p = { title: editing.title, content: editing.content, source: editing.source, source_url: editing.source_url || null, is_active: editing.is_active };
+    const p = {
+      title: editing.title, content: editing.content, source: editing.source,
+      source_url: editing.source_url || null, is_active: editing.is_active,
+      category: editing.category || "umum",
+    };
     const { error } = editing.id
       ? await supabase.from("chatbot_knowledge").update(p).eq("id", editing.id)
       : await supabase.from("chatbot_knowledge").insert(p);
     if (error) return toast.error(error.message);
-    toast.success("Tersimpan"); setEditing(null); void load();
+    toast.success("Tersimpan. Jalankan 'Bangun Ulang Indeks' agar tercari secara semantik."); setEditing(null); void load();
   }
   async function removeK(id: string) {
     if (!confirm("Hapus entri ini?")) return;
     await supabase.from("chatbot_knowledge").delete().eq("id", id); void load();
   }
+
+  async function doUpload() {
+    if (!uploadTitle.trim() || uploadText.trim().length < 20) {
+      return toast.error("Isi judul dan teks minimal 20 karakter.");
+    }
+    setUploading(true);
+    try {
+      const r = await ingestFn({
+        data: {
+          title: uploadTitle.trim(),
+          text: uploadText,
+          category: uploadCategory || "umum",
+          sourceUrl: uploadSource.trim() || null,
+          isActive: activateOnImport,
+        },
+      });
+      toast.success(`Dokumen diserap menjadi ${r.count} potongan terindeks`);
+      setUploadOpen(false); setUploadTitle(""); setUploadText(""); setUploadSource("");
+      void load();
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setUploading(false); }
+  }
+
+  async function onPickFile(file: File) {
+    if (file.size > 2_000_000) return toast.error("Maksimal 2MB. Untuk dokumen besar, pecah dulu.");
+    const allowedExt = /\.(txt|md|markdown|csv|json)$/i;
+    if (!allowedExt.test(file.name) && !file.type.startsWith("text/")) {
+      return toast.error("Hanya file teks (.txt, .md, .csv, .json). Untuk PDF/DOCX, salin isinya ke kotak teks.");
+    }
+    const text = await file.text();
+    setUploadTitle((t) => t || file.name.replace(/\.[^.]+$/, ""));
+    setUploadText(text);
+    setUploadSource((s) => s || file.name);
+  }
+
+  async function doRebuild(mode: "missing" | "all") {
+    if (mode === "all" && !confirm("Bangun ulang SEMUA embedding? Operasi ini menggunakan kredit AI.")) return;
+    setRebuilding(true);
+    try {
+      const r = await rebuildFn({ data: { mode } });
+      toast.success(`Indeks diperbarui: ${r.updated} dari ${r.total} entri`);
+      void load();
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setRebuilding(false); }
+  }
+
+  async function doBulk(action: "set_category" | "activate" | "deactivate" | "delete") {
+    const ids = Array.from(selected);
+    if (!ids.length) return toast.error("Pilih entri dulu");
+    if (action === "delete" && !confirm(`Hapus ${ids.length} entri?`)) return;
+    try {
+      await bulkFn({ data: { ids, action, category: action === "set_category" ? bulkCategory : undefined } });
+      toast.success("Selesai");
+      setSelected(new Set()); void load();
+    } catch (e) { toast.error((e as Error).message); }
+  }
+
 
   async function doSync() {
     setSyncing(true);
