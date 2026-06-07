@@ -2,7 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { syncKnowledgeFromWebsite, generateKnowledgeFromAI } from "@/lib/chatbot.functions";
+import {
+  syncKnowledgeFromWebsite,
+  generateKnowledgeFromAI,
+  ingestKnowledgeDocument,
+  rebuildKnowledgeIndex,
+  bulkUpdateKnowledge,
+} from "@/lib/chatbot.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +18,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, RefreshCw, Sparkles, Loader2, Save } from "lucide-react";
+import { Plus, Pencil, Trash2, RefreshCw, Sparkles, Loader2, Save, Upload, Database, FileText, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/administrator/chatbot")({ component: ChatbotAdmin });
 
