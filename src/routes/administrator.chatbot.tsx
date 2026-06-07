@@ -58,7 +58,15 @@ function ChatbotAdmin() {
     if (!settings) return;
     setSavingSettings(true);
     const { error } = await supabase.from("chatbot_settings").update({
-      name: settings.name, avatar_url: settings.avatar_url, greeting: settings.greeting,
+      name: settings.name,
+      avatar_url: settings.avatar_url,
+      greeting: settings.greeting,
+      ai_enabled: settings.ai_enabled,
+      system_prompt: settings.system_prompt,
+      temperature: settings.temperature,
+      model: settings.model,
+      quick_questions: settings.quick_questions,
+      max_messages_per_session: settings.max_messages_per_session,
     }).eq("id", settings.id);
     setSavingSettings(false);
     if (error) return toast.error(error.message);
