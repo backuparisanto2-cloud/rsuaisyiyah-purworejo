@@ -163,7 +163,7 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
         }
 
         const lastUser = [...body.messages].reverse().find((m) => m.role === "user");
-        const { settings, contextText } = await buildSystemContext(lastUser?.content ?? "");
+        const { settings, contextText } = await buildSystemContext(lastUser?.content ?? "", apiKey);
 
         if (settings && settings.ai_enabled === false) {
           return new Response(JSON.stringify({ error: "Mode AI sedang dinonaktifkan." }), {
