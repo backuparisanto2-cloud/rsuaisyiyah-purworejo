@@ -16,7 +16,18 @@ import { Plus, Pencil, Trash2, RefreshCw, Sparkles, Loader2, Save } from "lucide
 
 export const Route = createFileRoute("/administrator/chatbot")({ component: ChatbotAdmin });
 
-type Settings = { id: string; name: string; avatar_url: string | null; greeting: string };
+type Settings = {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  greeting: string;
+  ai_enabled: boolean;
+  system_prompt: string;
+  temperature: number;
+  model: string;
+  quick_questions: string[];
+  max_messages_per_session: number;
+};
 type Knowledge = { id: string; title: string; content: string; source: string; source_url: string | null; is_active: boolean };
 const emptyK: Omit<Knowledge, "id"> = { title: "", content: "", source: "manual", source_url: "", is_active: true };
 
