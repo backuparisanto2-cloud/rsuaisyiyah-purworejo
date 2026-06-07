@@ -327,7 +327,7 @@ export const bulkUpdateKnowledge = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       return { affected: data.ids.length };
     }
-    const patch: Record<string, unknown> = {};
+    const patch: { is_active?: boolean; category?: string } = {};
     if (data.action === "activate") patch.is_active = true;
     if (data.action === "deactivate") patch.is_active = false;
     if (data.action === "set_category") {
