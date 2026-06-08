@@ -348,17 +348,14 @@ function PagesAdmin() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="flex items-center justify-between mb-6 md:mb-10">
         <div>
           <h1 className="text-2xl font-bold">Page Builder</h1>
           <p className="text-sm text-muted-foreground">Kelola halaman dinamis. Halaman yang dipublikasikan otomatis muncul di menu.</p>
         </div>
         <Button onClick={startNew} data-tour="pages-new"><Plus className="h-4 w-4 mr-2" />Halaman Baru</Button>
       </div>
-
-      <br />
-      <br />
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
