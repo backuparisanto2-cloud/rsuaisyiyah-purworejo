@@ -18,6 +18,8 @@ import FaqSection from "@/components/FaqSection";
 import KontakSection from "@/components/KontakSection";
 import Footer from "@/components/Footer";
 import logo from "@/assets/logo-hero.png";
+import LazySection from "@/components/LazySection";
+import { useLightMode } from "@/hooks/use-light-mode";
 
 export const Route = createFileRoute("/")({
   head: () => ({
