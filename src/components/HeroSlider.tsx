@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLightMode } from "@/hooks/use-light-mode";
 import hero1 from "@/assets/hero-1.png";
 import hero2 from "@/assets/hero-2.png";
 import hero3 from "@/assets/hero-3.png";
@@ -21,6 +22,7 @@ const FALLBACK: Slide[] = [hero3, hero2, heroDental, hero1].map((src, i) => ({
 }));
 
 export default function HeroSlider() {
+  const light = useLightMode();
   const [slides, setSlides] = useState<Slide[]>(FALLBACK);
   const [settings, setSettings] = useState<Settings>({
     autoplay: true,
