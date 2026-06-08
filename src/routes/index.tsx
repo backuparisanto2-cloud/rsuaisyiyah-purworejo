@@ -18,6 +18,8 @@ import FaqSection from "@/components/FaqSection";
 import KontakSection from "@/components/KontakSection";
 import Footer from "@/components/Footer";
 import logo from "@/assets/logo-hero.png";
+import LazySection from "@/components/LazySection";
+import { useLightMode } from "@/hooks/use-light-mode";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,7 +45,7 @@ const DEFAULT_ORDER: SectionRow[] = [
   { key: "kontak", display_order: 9, is_active: true },
 ];
 
-function renderSection(key: string) {
+function renderSection(key: string, light: boolean) {
   switch (key) {
     case "tentang": return <TentangSection key={key} />;
     case "jam_besuk": return <JamBesukSection key={key} />;
@@ -53,7 +55,7 @@ function renderSection(key: string) {
         <section key={key} id="berita" className="py-20 px-6 bg-muted/30">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-center text-primary">BERITA, INFO TERKINI & PROMO</h2>
-            <p className="text-center text-sm text-muted-foreground mt-2">10 unggahan terbaru dari Instagram @rsu_aisyiyah</p>
+            <p className="text-center text-sm text-muted-foreground mt-2">Unggahan terbaru dari Instagram @rsu_aisyiyah</p>
             <BeritaInstagram />
           </div>
         </section>
@@ -71,10 +73,12 @@ function renderSection(key: string) {
             <p className="mt-3 text-center text-sm opacity-85 max-w-xl mx-auto">
               Update terbaru seputar layanan, edukasi kesehatan, dan kegiatan RSU Aisyiyah Purworejo langsung dari akun resmi kami.
             </p>
-            <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full max-w-5xl">
-              <script src="https://elfsightcdn.com/platform.js" async />
-              <div className="elfsight-app-feb3351d-45de-424a-a93b-4e602e938274" data-elfsight-app-lazy />
-            </div>
+            {!light && (
+              <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full max-w-5xl">
+                <script src="https://elfsightcdn.com/platform.js" async />
+                <div className="elfsight-app-feb3351d-45de-424a-a93b-4e602e938274" data-elfsight-app-lazy />
+              </div>
+            )}
             <div className="mt-10 text-center">
               <a
                 href="https://www.instagram.com/rsu_aisyiyah?igsh=MWVqZDVtODdreXVqbg=="
@@ -120,6 +124,7 @@ const DEFAULT_HERO: HeroContent = {
 };
 
 function HomePage() {
+  const light = useLightMode();
   const [pendaftaranOpen, setPendaftaranOpen] = useState(false);
   const [sections, setSections] = useState<SectionRow[]>(DEFAULT_ORDER);
   const [hero, setHero] = useState<HeroContent>(DEFAULT_HERO);
@@ -156,14 +161,14 @@ function HomePage() {
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO (fixed) */}
-      <section id="beranda" className="relative pt-20 sm:pt-24 min-h-[88vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
+      <section id="beranda" className="relative pt-20 sm:pt-24 min-h-[72vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
         <HeroSlider />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ backgroundColor: hero.overlay_color, opacity: hero.overlay_opacity / 100 }}
         />
         <div className="relative z-10 text-center px-4 sm:px-6 text-primary-foreground max-w-3xl">
-          <img src={hero.logo_url || logo} alt="Logo RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-contain aspect-square drop-shadow-2xl animate-float" />
+          <img src={hero.logo_url || logo} alt="Logo RSU Aisyiyah Purworejo" loading="eager" decoding="async" className={`h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-contain aspect-square drop-shadow-2xl ${light ? "" : "animate-float"}`} />
           <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             {hero.title_line1}<br/><span className="text-gold">{hero.title_line2}</span>
           </h1>
@@ -178,7 +183,15 @@ function HomePage() {
         </div>
       </section>
 
-      {sections.filter((s) => s.is_active).map((s) => renderSection(s.key))}
+      {sections.filter((s) => s.is_active).map((s, idx) => {
+        const node = renderSection(s.key, light);
+        if (!node) return null;
+        // On light devices, defer below-the-fold sections until they near the viewport.
+        if (light && idx > 0) {
+          return <LazySection key={s.key} minHeight={500}>{node}</LazySection>;
+        }
+        return node;
+      })}
 
       <Footer />
     </div>

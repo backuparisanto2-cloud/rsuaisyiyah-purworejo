@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLightMode } from "@/hooks/use-light-mode";
 import hero1 from "@/assets/hero-1.png";
 import hero2 from "@/assets/hero-2.png";
 import hero3 from "@/assets/hero-3.png";
@@ -21,6 +22,7 @@ const FALLBACK: Slide[] = [hero3, hero2, heroDental, hero1].map((src, i) => ({
 }));
 
 export default function HeroSlider() {
+  const light = useLightMode();
   const [slides, setSlides] = useState<Slide[]>(FALLBACK);
   const [settings, setSettings] = useState<Settings>({
     autoplay: true,
@@ -47,6 +49,8 @@ export default function HeroSlider() {
       if (st) setSettings(st as Settings);
     })();
 
+    if (light) return () => { alive = false; };
+
     const channel = supabase
       .channel("hero_public")
       .on("postgres_changes", { event: "*", schema: "public", table: "hero_slides" }, () => {
@@ -68,23 +72,41 @@ export default function HeroSlider() {
       alive = false;
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [light]);
 
   const iRef = useRef(i);
   iRef.current = i;
   useEffect(() => {
-    if (!settings.autoplay || slides.length <= 1) return;
+    if (light || !settings.autoplay || slides.length <= 1) return;
     const ms = Math.max(2, Math.min(15, settings.autoplay_interval)) * 1000;
     const id = setInterval(() => {
       const next = iRef.current + 1;
       setI(settings.loop ? next % slides.length : Math.min(next, slides.length - 1));
     }, ms);
     return () => clearInterval(id);
-  }, [settings.autoplay, settings.autoplay_interval, settings.loop, slides.length]);
+  }, [light, settings.autoplay, settings.autoplay_interval, settings.loop, slides.length]);
 
   useEffect(() => {
     if (i >= slides.length) setI(0);
   }, [slides.length, i]);
+
+  // Light mode: render only the first slide as a static image. No fade, no dots, no autoplay.
+  if (light) {
+    const s = slides[0];
+    if (!s) return <div className="absolute inset-0 bg-primary-dark" />;
+    return (
+      <div className="absolute inset-0">
+        <img
+          src={s.image_url}
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0">
@@ -94,6 +116,8 @@ export default function HeroSlider() {
           src={s.image_url}
           alt=""
           aria-hidden="true"
+          loading={idx === 0 ? "eager" : "lazy"}
+          decoding="async"
           className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
             idx === i ? "opacity-100" : "opacity-0"
           }`}
@@ -116,3 +140,4 @@ export default function HeroSlider() {
     </div>
   );
 }
+
