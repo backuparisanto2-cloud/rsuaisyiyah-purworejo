@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Instagram, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLightMode } from "@/hooks/use-light-mode";
 import { buildPermalink, buildThumbnail } from "@/lib/instagram-utils";
 
 type Row = {
@@ -10,8 +11,6 @@ type Row = {
   permalink: string;
   caption: string;
 };
-
-const PAGE_SIZE = 10;
 
 function SmartImg({ shortcode, alt }: { shortcode: string; alt: string }) {
   const sources = [
@@ -36,26 +35,30 @@ function SmartImg({ shortcode, alt }: { shortcode: string; alt: string }) {
       src={sources[idx]}
       alt={alt}
       loading="lazy"
+      decoding="async"
       referrerPolicy="no-referrer"
       onError={() => {
         if (idx + 1 < sources.length) setIdx(idx + 1);
         else setFailed(true);
       }}
-      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      className="absolute inset-0 w-full h-full object-cover md:transition-transform md:duration-500 md:group-hover:scale-105"
     />
   );
 }
 
 export default function BeritaInstagram() {
+  const light = useLightMode();
+  const PAGE_SIZE = light ? 6 : 10;
+  const FETCH_LIMIT = light ? 20 : 50;
   const { data, isLoading } = useQuery({
-    queryKey: ["instagram-posts-manual"],
+    queryKey: ["instagram-posts-manual", FETCH_LIMIT],
     queryFn: async (): Promise<Row[]> => {
       const { data, error } = await supabase
         .from("instagram_posts")
         .select("id,shortcode,permalink,caption,created_at")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(FETCH_LIMIT);
       if (error) throw error;
       return (data ?? []) as Row[];
     },
