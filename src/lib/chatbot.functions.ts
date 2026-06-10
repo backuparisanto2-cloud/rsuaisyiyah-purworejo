@@ -114,7 +114,7 @@ function vectorLiteral(arr: number[]): string {
  * concise knowledge entries. Replaces all entries with source='website'.
  */
 export const syncKnowledgeFromWebsite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAdmin])
   .inputValidator((input) =>
     z.object({ isActive: z.boolean().optional().default(true) }).parse(input ?? {})
   )
@@ -181,7 +181,7 @@ export const syncKnowledgeFromWebsite = createServerFn({ method: "POST" })
  * Use Lovable AI to generate knowledge entries about the hospital from general internet knowledge.
  */
 export const generateKnowledgeFromAI = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAdmin])
   .inputValidator((input) =>
     z.object({
       topic: z.string().min(3).max(500),
@@ -219,7 +219,7 @@ Balas HANYA JSON valid dengan bentuk: {"entries":[{"title":"...","content":"..."
  * automatically chunk it, embed the chunks, and store as knowledge entries.
  */
 export const ingestKnowledgeDocument = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAdmin])
   .inputValidator((input) =>
     z.object({
       title: z.string().min(1).max(200),
@@ -269,7 +269,7 @@ export const ingestKnowledgeDocument = createServerFn({ method: "POST" })
  * mode="all" re-embeds every active entry (use after model change).
  */
 export const rebuildKnowledgeIndex = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAdmin])
   .inputValidator((input) =>
     z.object({ mode: z.enum(["missing", "all"]).default("missing") }).parse(input ?? {})
   )
@@ -313,7 +313,7 @@ export const rebuildKnowledgeIndex = createServerFn({ method: "POST" })
  * Bulk re-categorize, activate/deactivate, or delete entries.
  */
 export const bulkUpdateKnowledge = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAdmin])
   .inputValidator((input) =>
     z.object({
       ids: z.array(z.string().uuid()).min(1).max(500),

@@ -41,7 +41,7 @@ Aturan:
 - Hanya kembalikan JSON, tanpa teks lain.`;
 
 export const extractScheduleFromImage = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAdmin])
   .inputValidator((input) =>
     z.object({
       imageBase64: z.string().min(50),
