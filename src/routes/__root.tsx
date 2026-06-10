@@ -97,6 +97,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
 import ThemeProvider from "@/components/ThemeProvider";
+import VisitorTracker from "@/components/VisitorTracker";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -104,6 +105,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider>
+          <VisitorTracker />
           <Outlet />
           <Toaster />
         </ThemeProvider>

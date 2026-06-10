@@ -32,6 +32,8 @@ import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq
 import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
 import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
 import { Route as AdministratorBackupRouteImport } from './routes/administrator.backup'
+import { Route as AdministratorAnalyticsRouteImport } from './routes/administrator.analytics'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
 import { Route as ApiPublicChatbotChatRouteImport } from './routes/api/public/chatbot-chat'
 
@@ -152,6 +154,16 @@ const AdministratorBackupRoute = AdministratorBackupRouteImport.update({
   path: '/backup',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorAnalyticsRoute = AdministratorAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIgImageRoute = ApiPublicIgImageRouteImport.update({
   id: '/api/public/ig-image',
   path: '/api/public/ig-image',
@@ -167,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/analytics': typeof AdministratorAnalyticsRoute
   '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
@@ -189,10 +202,12 @@ export interface FileRoutesByFullPath {
   '/administrator/': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/administrator/analytics': typeof AdministratorAnalyticsRoute
   '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
@@ -215,12 +230,14 @@ export interface FileRoutesByTo {
   '/administrator': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
+  '/administrator/analytics': typeof AdministratorAnalyticsRoute
   '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
@@ -243,6 +260,7 @@ export interface FileRoutesById {
   '/administrator/': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -250,6 +268,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/analytics'
     | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
@@ -272,10 +291,12 @@ export interface FileRouteTypes {
     | '/administrator/'
     | '/api/public/chatbot-chat'
     | '/api/public/ig-image'
+    | '/api/public/track'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/administrator/analytics'
     | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
@@ -298,11 +319,13 @@ export interface FileRouteTypes {
     | '/administrator'
     | '/api/public/chatbot-chat'
     | '/api/public/ig-image'
+    | '/api/public/track'
   id:
     | '__root__'
     | '/'
     | '/administrator'
     | '/auth'
+    | '/administrator/analytics'
     | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
@@ -325,6 +348,7 @@ export interface FileRouteTypes {
     | '/administrator/'
     | '/api/public/chatbot-chat'
     | '/api/public/ig-image'
+    | '/api/public/track'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -334,6 +358,7 @@ export interface RootRouteChildren {
   PSlugRoute: typeof PSlugRoute
   ApiPublicChatbotChatRoute: typeof ApiPublicChatbotChatRoute
   ApiPublicIgImageRoute: typeof ApiPublicIgImageRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -499,6 +524,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorBackupRouteImport
       parentRoute: typeof AdministratorRoute
     }
+    '/administrator/analytics': {
+      id: '/administrator/analytics'
+      path: '/analytics'
+      fullPath: '/administrator/analytics'
+      preLoaderRoute: typeof AdministratorAnalyticsRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ig-image': {
       id: '/api/public/ig-image'
       path: '/api/public/ig-image'
@@ -517,6 +556,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdministratorRouteChildren {
+  AdministratorAnalyticsRoute: typeof AdministratorAnalyticsRoute
   AdministratorBackupRoute: typeof AdministratorBackupRoute
   AdministratorChatbotRoute: typeof AdministratorChatbotRoute
   AdministratorDokterRoute: typeof AdministratorDokterRoute
@@ -539,6 +579,7 @@ interface AdministratorRouteChildren {
 }
 
 const AdministratorRouteChildren: AdministratorRouteChildren = {
+  AdministratorAnalyticsRoute: AdministratorAnalyticsRoute,
   AdministratorBackupRoute: AdministratorBackupRoute,
   AdministratorChatbotRoute: AdministratorChatbotRoute,
   AdministratorDokterRoute: AdministratorDokterRoute,
@@ -571,17 +612,8 @@ const rootRouteChildren: RootRouteChildren = {
   PSlugRoute: PSlugRoute,
   ApiPublicChatbotChatRoute: ApiPublicChatbotChatRoute,
   ApiPublicIgImageRoute: ApiPublicIgImageRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
