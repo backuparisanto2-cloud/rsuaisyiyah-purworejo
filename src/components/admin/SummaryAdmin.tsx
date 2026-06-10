@@ -45,6 +45,7 @@ export default function SummaryAdmin() {
   const [pages, setPages] = useState<PageOpt[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Row | null>(null);
+  const [original, setOriginal] = useState<Row | null>(null);
   const [saving, setSaving] = useState(false);
   const quickUploadRef = useRef<HTMLInputElement>(null);
   const [quickTarget, setQuickTarget] = useState<Row | null>(null);
