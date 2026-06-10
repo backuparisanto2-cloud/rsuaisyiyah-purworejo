@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageUpload from "@/components/admin/ImageUpload";
 import { SortableList, persistOrder } from "@/components/admin/SortableList";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Save, Pencil, X, ImagePlus, Eye, Undo } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, Pencil, X, ImagePlus, Eye, Undo, Redo } from "lucide-react";
 import { BlockItem, CardGrid, type RingkasanRow } from "@/components/RingkasanSection";
 
 type SourceType = "custom_page" | "manual";
@@ -46,6 +46,7 @@ export default function SummaryAdmin() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Row | null>(null);
   const [original, setOriginal] = useState<Row | null>(null);
+  const [redo, setRedo] = useState<Row | null>(null);
   const [saving, setSaving] = useState(false);
   const quickUploadRef = useRef<HTMLInputElement>(null);
   const [quickTarget, setQuickTarget] = useState<Row | null>(null);
@@ -83,18 +84,27 @@ export default function SummaryAdmin() {
   }
 
   function openEditor(r: Row) {
+    setRedo(null);
     setOriginal({ ...r });
     setEditing({ ...r });
   }
   function openNew() {
     const b = blank();
+    setRedo(null);
     setOriginal(b);
     setEditing(b);
   }
   function undoChanges() {
     if (!original) return;
+    if (editing) setRedo({ ...editing });
     setEditing({ ...original });
     toast.info("Perubahan dikembalikan");
+  }
+  function redoChanges() {
+    if (!redo) return;
+    setEditing({ ...redo });
+    setRedo(null);
+    toast.success("Perubahan diulang");
   }
   function pickPage(pageId: string) {
     if (!editing) return;
@@ -136,6 +146,8 @@ export default function SummaryAdmin() {
     setSaving(false);
     if (res.error) { toast.error(res.error.message); return; }
     toast.success("Tersimpan");
+    setRedo(null);
+    setOriginal(null);
     setEditing(null);
     void load();
   }
