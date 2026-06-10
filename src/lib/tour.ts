@@ -628,15 +628,39 @@ export function startTour(pathname: string, navigate: NavigateFn = defaultNaviga
   const builder = REGISTRY[pathname] ?? genericTour;
   const tour = buildTour(builder(), navigate);
   activeTour = tour;
-  tour.on("complete", () => {
+
+  // Keep tooltip anchored to its target on viewport resize / scroll
+  const reposition = () => {
+    const step: any = tour.getCurrentStep();
+    if (!step) return;
+    try {
+      if (typeof step.setupElements === "function") step.setupElements();
+      else if (typeof step._updateStepTargetOnHide === "function") step._updateStepTargetOnHide();
+    } catch {
+      // ignore
+    }
+  };
+  const onResize = () => reposition();
+  const onScroll = () => reposition();
+  window.addEventListener("resize", onResize, { passive: true });
+  window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+
+  const cleanup = () => {
+    window.removeEventListener("resize", onResize);
+    window.removeEventListener("scroll", onScroll, true);
     if (activeTour === tour) activeTour = null;
-  });
-  tour.on("cancel", () => {
-    if (activeTour === tour) activeTour = null;
-  });
+  };
+  tour.on("complete", cleanup);
+  tour.on("cancel", cleanup);
   tour.start();
   return tour;
 }
+
+/** Restart the tour for the current admin pathname. */
+export function restartTour(pathname: string, navigate: NavigateFn = defaultNavigate) {
+  return startTour(pathname, navigate);
+}
+
 
 /** Re-target the active tour when the user navigates to a new admin route mid-tour. */
 export function syncTourWithRoute(pathname: string, navigate: NavigateFn = defaultNavigate) {
