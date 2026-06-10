@@ -51,7 +51,45 @@ function currentPathname() {
   return typeof window !== "undefined" ? window.location.pathname : "/";
 }
 
-function buildTour(steps: StepDef[], navigate: NavigateFn) {
+const STORAGE_KEY = "lov-shepherd-progress";
+
+type TourProgress = {
+  stepId: string;
+  completed: boolean;
+  lastAt: number;
+};
+
+function getAllTourProgress(): Record<string, TourProgress> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveTourProgress(pathname: string, partial: Partial<TourProgress>) {
+  const all = getAllTourProgress();
+  const existing = all[pathname];
+  all[pathname] = {
+    stepId: partial.stepId ?? existing?.stepId ?? "",
+    completed: partial.completed ?? existing?.completed ?? false,
+    lastAt: Date.now(),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+function loadTourProgress(pathname: string): TourProgress | null {
+  return getAllTourProgress()[pathname] ?? null;
+}
+
+function clearTourProgress(pathname: string) {
+  const all = getAllTourProgress();
+  delete all[pathname];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+function buildTour(steps: StepDef[], navigate: NavigateFn, pathname: string) {
   const tour = new Shepherd.Tour({
     useModalOverlay: true,
     defaultStepOptions: {
@@ -134,6 +172,12 @@ function buildTour(steps: StepDef[], navigate: NavigateFn) {
       ],
 
     });
+  });
+
+  // Persist active step so users can resume after refresh
+  tour.on("step:show", (evt: any) => {
+    const stepId = evt?.step?.id as string | undefined;
+    if (stepId) saveTourProgress(pathname, { stepId, completed: false });
   });
 
   return tour;
