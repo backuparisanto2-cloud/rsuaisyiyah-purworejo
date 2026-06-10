@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageUpload from "@/components/admin/ImageUpload";
 import { SortableList, persistOrder } from "@/components/admin/SortableList";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Save, Pencil, X, ImagePlus, Eye } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, Pencil, X, ImagePlus, Eye, Undo } from "lucide-react";
 import { BlockItem, CardGrid, type RingkasanRow } from "@/components/RingkasanSection";
 
 type SourceType = "custom_page" | "manual";
@@ -45,6 +45,7 @@ export default function SummaryAdmin() {
   const [pages, setPages] = useState<PageOpt[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Row | null>(null);
+  const [original, setOriginal] = useState<Row | null>(null);
   const [saving, setSaving] = useState(false);
   const quickUploadRef = useRef<HTMLInputElement>(null);
   const [quickTarget, setQuickTarget] = useState<Row | null>(null);
@@ -81,6 +82,20 @@ export default function SummaryAdmin() {
     void load();
   }
 
+  function openEditor(r: Row) {
+    setOriginal({ ...r });
+    setEditing({ ...r });
+  }
+  function openNew() {
+    const b = blank();
+    setOriginal(b);
+    setEditing(b);
+  }
+  function undoChanges() {
+    if (!original) return;
+    setEditing({ ...original });
+    toast.info("Perubahan dikembalikan");
+  }
   function pickPage(pageId: string) {
     if (!editing) return;
     const p = pages.find((x) => x.id === pageId);
@@ -266,7 +281,9 @@ export default function SummaryAdmin() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={() => setEditing(null)}>Batal</Button>
+              <Button variant="ghost" onClick={undoChanges}>
+                <Undo className="h-4 w-4 mr-2" />Batalkan Perubahan
+              </Button>
               <Button onClick={save} disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                 Simpan
@@ -316,7 +333,7 @@ export default function SummaryAdmin() {
             Tampil di beranda pada posisi section "Ringkasan Beranda" (atur urutannya di menu <span className="font-mono">Sections</span>).
           </p>
         </div>
-        <Button onClick={() => setEditing(blank())}><Plus className="h-4 w-4 mr-2" />Tambah</Button>
+        <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" />Tambah</Button>
       </div>
 
       {loading ? (
@@ -353,7 +370,7 @@ export default function SummaryAdmin() {
                     <X className="h-4 w-4" />
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => openEditor(r)}><Pencil className="h-4 w-4" /></Button>
                 <Button size="sm" variant="ghost" onClick={() => remove(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
             </CardContent>
