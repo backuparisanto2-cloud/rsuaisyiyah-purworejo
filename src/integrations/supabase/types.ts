@@ -670,6 +670,54 @@ export type Database = {
           },
         ]
       }
+      page_views: {
+        Row: {
+          browser: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          duration_ms: number
+          ended_at: string | null
+          id: string
+          ip_hash: string | null
+          is_bounce: boolean
+          os: string | null
+          path: string
+          referrer: string | null
+          session_id: string
+        }
+        Insert: {
+          browser?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          duration_ms?: number
+          ended_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          is_bounce?: boolean
+          os?: string | null
+          path: string
+          referrer?: string | null
+          session_id: string
+        }
+        Update: {
+          browser?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          duration_ms?: number
+          ended_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          is_bounce?: boolean
+          os?: string | null
+          path?: string
+          referrer?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           created_at: string
