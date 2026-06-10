@@ -12,6 +12,8 @@ type StepDef = {
   route?: string;
   /** If set, click this `[data-tour-tab="<id>"]` trigger before showing. */
   tab?: string;
+  /** If set, click this selector before showing the step (e.g. to open a form). */
+  click?: string;
 };
 
 type TourBuilder = () => StepDef[];
@@ -133,6 +135,12 @@ function buildTour(steps: StepDef[], navigate: NavigateFn, pathname: string) {
           const tab = await waitForSelector(`[data-tour-tab="${s.tab}"]`, 1500);
           (tab as HTMLElement | null)?.click();
           await new Promise((r) => setTimeout(r, 200));
+        }
+        // 3.5. Click trigger if specified (e.g. open a form)
+        if (s.click) {
+          const btn = await waitForSelector(s.click, 1500);
+          (btn as HTMLElement | null)?.click();
+          await new Promise((r) => setTimeout(r, 300));
         }
         // 4. Wait for target to appear (re-query each show so highlight is current)
         if (s.target) {
@@ -383,6 +391,68 @@ const pagesTour: TourBuilder = () => [
     on: "bottom",
     route: "/administrator/pages",
     tab: "summary",
+  },
+  {
+    id: "ringkasan-form-open",
+    title: "Form Ringkasan",
+    text:
+      "Form ini muncul saat menambah atau mengedit ringkasan. Bagian kiri adalah form pengisian, bagian kanan adalah pratinjau langsung.",
+    target: '[data-tour="ringkasan-form"]',
+    on: "right",
+    route: "/administrator/pages",
+    tab: "summary",
+    click: '[data-tour="ringkasan-add"]',
+  },
+  {
+    id: "ringkasan-source",
+    title: "Sumber Konten",
+    text:
+      "Pilih 'Manual' untuk mengisi sendiri, atau 'Dari Halaman Page Builder' untuk mengambil otomatis dari halaman yang sudah dibuat.",
+    target: '[data-tour="ringkasan-source"]',
+    on: "right",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-judul",
+    title: "Isi Judul & Ringkasan",
+    text:
+      "Ketik judul dan ringkasan yang akan tampil di beranda. Anda juga bisa mengatur layout, posisi gambar, label tombol, dan link tujuan.",
+    target: '[data-tour="ringkasan-judul"]',
+    on: "right",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-simpan",
+    title: "Simpan & Pratinjau",
+    text:
+      "Klik Simpan untuk menyimpan ke database. Pratinjau di sebelah kanan diperbarui real-time saat Anda mengetik.",
+    target: '[data-tour="ringkasan-simpan"]',
+    on: "top",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-preview",
+    title: "Pratinjau Langsung",
+    text:
+      "Tampilan ini menunjukkan bagaimana ringkasan akan terlihat di beranda pengunjung, termasuk layout dan gambar yang dipilih.",
+    target: '[data-tour="ringkasan-preview"]',
+    on: "left",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-list-item",
+    title: "Lihat Hasil di Daftar",
+    text:
+      "Setelah disimpan, item baru muncul di daftar ini. Anda bisa mengaktifkan/menonaktifkan, mengganti gambar, mengedit, atau menghapus dari sini.",
+    target: '[data-tour="ringkasan-item"]',
+    on: "top",
+    route: "/administrator/pages",
+    tab: "summary",
+    click: '[data-tour="ringkasan-batal"]',
   },
   {
     title: "Atur & Susun Ringkasan",

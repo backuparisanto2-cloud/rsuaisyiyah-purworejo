@@ -308,16 +308,16 @@ export default function SummaryAdmin() {
   if (editing) {
     const isCp = editing.source_type === "custom_page";
     return (
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6">
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6" data-tour="ringkasan-form">
         {/* Form */}
         <div className="space-y-4 min-w-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">{editing.id ? "Edit Ringkasan" : "Ringkasan Baru"}</h2>
-            <Button variant="ghost" onClick={closeEditor}><X className="h-4 w-4 mr-1" />Batal</Button>
+            <Button variant="ghost" onClick={closeEditor} data-tour="ringkasan-batal"><X className="h-4 w-4 mr-1" />Batal</Button>
           </div>
 
           <Card><CardContent className="pt-6 space-y-4">
-            <div>
+            <div data-tour="ringkasan-source">
               <Label>Sumber Konten</Label>
               <Select value={editing.source_type} onValueChange={(v: SourceType) =>
                 setEditing({ ...editing, source_type: v, custom_page_id: v === "manual" ? null : editing.custom_page_id })}>
@@ -344,7 +344,7 @@ export default function SummaryAdmin() {
               </div>
             )}
 
-            <div>
+            <div data-tour="ringkasan-judul">
               <Label>Judul</Label>
               <Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
             </div>
@@ -432,7 +432,7 @@ export default function SummaryAdmin() {
                 <Button variant="ghost" onClick={redoChanges} disabled={!redo}>
                   <Redo className="h-4 w-4 mr-2" />Ulangi Perubahan
                 </Button>
-                <Button onClick={save} disabled={saving}>
+                <Button onClick={save} disabled={saving} data-tour="ringkasan-simpan">
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                   Simpan
                 </Button>
@@ -443,7 +443,7 @@ export default function SummaryAdmin() {
 
         {/* Live preview */}
         <div className="min-w-0">
-          <div className="lg:sticky lg:top-4 space-y-2">
+          <div className="lg:sticky lg:top-4 space-y-2" data-tour="ringkasan-preview">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Eye className="h-4 w-4" /> Pratinjau langsung
             </div>
@@ -491,7 +491,7 @@ export default function SummaryAdmin() {
         <Card><CardContent className="py-12 text-center text-muted-foreground" data-tour="ringkasan-list">Belum ada item ringkasan.</CardContent></Card>
       ) : (
         <SortableList items={rows} onReorder={reorder} renderItem={(r, h) => (
-          <Card>
+          <Card data-tour={rows[0]?.id === r.id ? "ringkasan-item" : undefined}>
             <CardContent className="py-3 flex items-center gap-3">
               {h}
               {r.image_url && r.image_position !== "none" ? (
