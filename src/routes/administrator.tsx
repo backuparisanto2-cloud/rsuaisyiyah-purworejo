@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
   Bot, LogOut, Loader2, Type, FileText, Instagram, Menu as MenuIcon, Database,
-  UserCog,
+  UserCog, BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -41,6 +41,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
   { to: "/administrator/theme", label: "Tema Warna", icon: Palette, adminOnly: true },
   { to: "/administrator/chatbot", label: "Chatbot", icon: Bot },
+  { to: "/administrator/analytics", label: "Statistik Pengunjung", icon: BarChart3, adminOnly: true },
   { to: "/administrator/users", label: "Pengguna", icon: UserCog, adminOnly: true },
   { to: "/administrator/backup", label: "Backup Database", icon: Database, adminOnly: true },
 ];
