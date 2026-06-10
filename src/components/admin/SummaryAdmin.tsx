@@ -82,7 +82,20 @@ export default function SummaryAdmin() {
     void load();
   }
 
-  function pickPage(pageId: string) {
+  function openEditor(r: Row) {
+    setOriginal({ ...r });
+    setEditing({ ...r });
+  }
+  function openNew() {
+    const b = blank();
+    setOriginal(b);
+    setEditing(b);
+  }
+  function undoChanges() {
+    if (!original) return;
+    setEditing({ ...original });
+    toast.info("Perubahan dikembalikan");
+  }
     if (!editing) return;
     const p = pages.find((x) => x.id === pageId);
     if (!p) return;
