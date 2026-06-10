@@ -86,6 +86,6 @@ export const getVisitorStats = createServerFn({ method: "POST" })
       byCountry,
       byPath,
       byDay,
-      recent: rows.slice(0, 50),
+      recent: rows.slice(0, 500),
     };
   });
