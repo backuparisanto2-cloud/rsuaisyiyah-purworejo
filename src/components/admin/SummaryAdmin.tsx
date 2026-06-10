@@ -281,7 +281,9 @@ export default function SummaryAdmin() {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={() => setEditing(null)}>Batal</Button>
+              <Button variant="ghost" onClick={undoChanges}>
+                <Undo className="h-4 w-4 mr-2" />Batalkan Perubahan
+              </Button>
               <Button onClick={save} disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                 Simpan
