@@ -41,16 +41,18 @@ function SectionsAdmin() {
           Hero dan Footer selalu tampil dan tidak bisa diatur di sini.
         </p>
       </div>
-      <SortableList items={rows} onReorder={reorder} renderItem={(r, h) => (
-        <Card className="p-3 flex items-center gap-3">
-          {h}
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold truncate">{r.label}</div>
-            <div className="text-xs text-muted-foreground font-mono">{r.key}</div>
-          </div>
-          <Switch checked={r.is_active} onCheckedChange={() => toggle(r)} />
-        </Card>
-      )} />
+      <div data-tour="sections-list">
+        <SortableList items={rows} onReorder={reorder} renderItem={(r, h) => (
+          <Card className="p-3 flex items-center gap-3">
+            {h}
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold truncate">{r.label}</div>
+              <div className="text-xs text-muted-foreground font-mono">{r.key}</div>
+            </div>
+            <Switch checked={r.is_active} onCheckedChange={() => toggle(r)} />
+          </Card>
+        )} />
+      </div>
     </div>
   );
 }

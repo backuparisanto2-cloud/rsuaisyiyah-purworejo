@@ -49,7 +49,7 @@ function TentangAdmin() {
           <p className="text-xs text-muted-foreground mt-1">Gunakan #id-section untuk scroll dalam halaman, atau URL lengkap untuk link eksternal.</p>
         </div>
       </div>
-      <Button onClick={save}>Simpan</Button>
+      <Button onClick={save} data-tour="tentang-save">Simpan</Button>
     </div>
   );
 }
