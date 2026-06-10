@@ -136,6 +136,12 @@ function buildTour(steps: StepDef[], navigate: NavigateFn, pathname: string) {
           (tab as HTMLElement | null)?.click();
           await new Promise((r) => setTimeout(r, 200));
         }
+        // 3.5. Click trigger if specified (e.g. open a form)
+        if (s.click) {
+          const btn = await waitForSelector(s.click, 1500);
+          (btn as HTMLElement | null)?.click();
+          await new Promise((r) => setTimeout(r, 300));
+        }
         // 4. Wait for target to appear (re-query each show so highlight is current)
         if (s.target) {
           const found = await waitForSelector(s.target, 2500);
