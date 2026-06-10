@@ -344,7 +344,7 @@ export default function SummaryAdmin() {
               </div>
             )}
 
-            <div>
+            <div data-tour="ringkasan-judul">
               <Label>Judul</Label>
               <Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
             </div>
