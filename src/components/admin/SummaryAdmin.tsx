@@ -491,7 +491,7 @@ export default function SummaryAdmin() {
         <Card><CardContent className="py-12 text-center text-muted-foreground" data-tour="ringkasan-list">Belum ada item ringkasan.</CardContent></Card>
       ) : (
         <SortableList items={rows} onReorder={reorder} renderItem={(r, h) => (
-          <Card>
+          <Card data-tour={rows[0]?.id === r.id ? "ringkasan-item" : undefined}>
             <CardContent className="py-3 flex items-center gap-3">
               {h}
               {r.image_url && r.image_position !== "none" ? (
