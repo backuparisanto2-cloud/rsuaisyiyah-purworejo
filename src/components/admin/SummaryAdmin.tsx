@@ -370,7 +370,7 @@ export default function SummaryAdmin() {
                     <X className="h-4 w-4" />
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => openEditor(r)}><Pencil className="h-4 w-4" /></Button>
                 <Button size="sm" variant="ghost" onClick={() => remove(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
             </CardContent>
