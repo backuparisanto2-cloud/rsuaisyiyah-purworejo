@@ -7,6 +7,106 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import {
+  ResponsiveContainer, PieChart, Pie, Cell, Tooltip as ReTooltip, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+} from "recharts";
+
+const CHART_COLORS = [
+  "hsl(var(--primary))",
+  "#10b981", "#f59e0b", "#ef4444", "#6366f1",
+  "#06b6d4", "#ec4899", "#84cc16", "#a855f7", "#f97316",
+];
+
+function toChartData(data: Record<string, number>, limit = 8) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  const top = entries.slice(0, limit).map(([name, value]) => ({ name, value }));
+  const rest = entries.slice(limit).reduce((s, [, v]) => s + v, 0);
+  if (rest > 0) top.push({ name: "Lainnya", value: rest });
+  return top;
+}
+
+function PieBreakdown({ title, data }: { title: string; data: Record<string, number> }) {
+  const chartData = toChartData(data);
+  const total = chartData.reduce((s, d) => s + d.value, 0);
+  return (
+    <Card className="p-4 space-y-3">
+      <h3 className="font-semibold text-sm">{title}</h3>
+      {chartData.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Belum ada data</p>
+      ) : (
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={45}
+                outerRadius={80}
+                paddingAngle={2}
+              >
+                {chartData.map((_, i) => (
+                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                ))}
+              </Pie>
+              <ReTooltip
+                formatter={(v: number, n: string) =>
+                  [`${v.toLocaleString("id-ID")} (${((v / total) * 100).toFixed(1)}%)`, n]
+                }
+                contentStyle={{
+                  background: "hsl(var(--background))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: 11 }} iconType="circle" />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function BarBreakdown({ title, data }: { title: string; data: Record<string, number> }) {
+  const chartData = toChartData(data, 10);
+  return (
+    <Card className="p-4 space-y-3">
+      <h3 className="font-semibold text-sm">{title}</h3>
+      {chartData.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Belum ada data</p>
+      ) : (
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
+              <CartesianGrid horizontal={false} stroke="hsl(var(--border))" />
+              <XAxis type="number" tick={{ fontSize: 11 }} />
+              <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 11 }} />
+              <ReTooltip
+                contentStyle={{
+                  background: "hsl(var(--background))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                {chartData.map((_, i) => (
+                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 
 export const Route = createFileRoute("/administrator/analytics")({
   component: AnalyticsPage,
