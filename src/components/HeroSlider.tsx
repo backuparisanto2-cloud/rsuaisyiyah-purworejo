@@ -77,36 +77,20 @@ export default function HeroSlider() {
   const iRef = useRef(i);
   iRef.current = i;
   useEffect(() => {
-    if (light || !settings.autoplay || slides.length <= 1) return;
+    if (!settings.autoplay || slides.length <= 1) return;
     const ms = Math.max(2, Math.min(15, settings.autoplay_interval)) * 1000;
     const id = setInterval(() => {
       const next = iRef.current + 1;
       setI(settings.loop ? next % slides.length : Math.min(next, slides.length - 1));
     }, ms);
     return () => clearInterval(id);
-  }, [light, settings.autoplay, settings.autoplay_interval, settings.loop, slides.length]);
+  }, [settings.autoplay, settings.autoplay_interval, settings.loop, slides.length]);
 
   useEffect(() => {
     if (i >= slides.length) setI(0);
   }, [slides.length, i]);
 
-  // Light mode: render only the first slide as a static image. No fade, no dots, no autoplay.
-  if (light) {
-    const s = slides[0];
-    if (!s) return <div className="absolute inset-0 bg-primary-dark" />;
-    return (
-      <div className="absolute inset-0">
-        <img
-          src={s.image_url}
-          alt=""
-          aria-hidden="true"
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-      </div>
-    );
-  }
+  // Slider runs in both light (mobile) and normal mode.
 
   return (
     <div className="absolute inset-0">
