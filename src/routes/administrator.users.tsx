@@ -165,7 +165,7 @@ function UsersAdmin() {
         </div>
         <Dialog open={openNew} onOpenChange={setOpenNew}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Tambah Pengguna</Button>
+            <Button size="sm" data-tour="users-add"><Plus className="h-4 w-4 mr-1" /> Tambah Pengguna</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Tambah Pengguna</DialogTitle></DialogHeader>
@@ -204,7 +204,7 @@ function UsersAdmin() {
         </Dialog>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden" data-tour="users-table">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
