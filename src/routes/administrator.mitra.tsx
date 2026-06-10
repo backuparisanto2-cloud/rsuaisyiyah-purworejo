@@ -47,7 +47,7 @@ function MitraAdmin() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Mitra</h1>
-        <Button onClick={() => setEditing({ ...empty, display_order: rows.length + 1 })}><Plus className="h-4 w-4 mr-1" />Tambah</Button>
+        <Button onClick={() => setEditing({ ...empty, display_order: rows.length + 1 })} data-tour="mitra-add"><Plus className="h-4 w-4 mr-1" />Tambah</Button>
       </div>
       <SortableList items={rows} onReorder={reorder} renderItem={(r, h) => (
         <Card className="p-3 flex items-center gap-3">

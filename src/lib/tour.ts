@@ -399,6 +399,169 @@ const chatbotTour: TourBuilder = () => [
   },
 ];
 
+
+const heroContentTour: TourBuilder = () => [
+  {
+    title: "Hero Teks & Logo",
+    text:
+      "Atur teks utama hero beranda: judul, subjudul, badge, logo, dan tombol CTA. Preview tampil di kartu bawah.",
+    route: "/administrator/hero-content",
+  },
+  {
+    title: "Simpan Perubahan",
+    text: "Tekan Simpan untuk menerapkan perubahan ke beranda secara langsung.",
+    target: '[data-tour="hero-content-save"]',
+    on: "top",
+    route: "/administrator/hero-content",
+  },
+];
+
+const heroSettingsTour: TourBuilder = () => [
+  {
+    title: "Pengaturan Slider",
+    text:
+      "Atur perilaku Hero Slider: autoplay, kecepatan transisi, dan opsi tampilan lainnya.",
+    route: "/administrator/hero-settings",
+  },
+  {
+    title: "Simpan Pengaturan",
+    text: "Klik Simpan agar pengaturan diterapkan ke slider beranda.",
+    target: '[data-tour="hero-settings-save"]',
+    on: "top",
+    route: "/administrator/hero-settings",
+  },
+];
+
+const tentangTour: TourBuilder = () => [
+  {
+    title: "Tentang Kami",
+    text:
+      "Edit isi section Tentang Kami beranda: judul, paragraf, gambar, dan tombol CTA.",
+    route: "/administrator/tentang",
+  },
+  {
+    title: "Simpan",
+    text: "Klik Simpan untuk memperbarui section Tentang di beranda.",
+    target: '[data-tour="tentang-save"]',
+    on: "top",
+    route: "/administrator/tentang",
+  },
+];
+
+const jamBesukTour: TourBuilder = () => [
+  {
+    title: "Jam Besuk",
+    text:
+      "Kelola daftar jam besuk. Seret untuk reorder, gunakan toggle untuk menyembunyikan, atau pensil untuk edit.",
+    route: "/administrator/jam-besuk",
+  },
+  {
+    title: "Tambah Jam",
+    text: "Klik Tambah untuk menambahkan slot jam besuk baru.",
+    target: '[data-tour="jam-besuk-add"]',
+    on: "bottom",
+    route: "/administrator/jam-besuk",
+  },
+];
+
+const layananTour: TourBuilder = () => [
+  {
+    title: "Layanan",
+    text:
+      "Kelola daftar layanan rumah sakit. Seret untuk reorder, toggle untuk sembunyikan, pensil untuk edit.",
+    route: "/administrator/layanan",
+  },
+  {
+    title: "Tambah Layanan",
+    text: "Klik Tambah lalu isi nama, deskripsi, dan ikon layanan.",
+    target: '[data-tour="layanan-add"]',
+    on: "bottom",
+    route: "/administrator/layanan",
+  },
+];
+
+const faqTour: TourBuilder = () => [
+  {
+    title: "FAQ",
+    text:
+      "Kelola daftar Tanya-Jawab yang tampil di beranda. Reorder via drag, sembunyikan via toggle.",
+    route: "/administrator/faq",
+  },
+  {
+    title: "Tambah FAQ",
+    text: "Tekan Tambah untuk membuat pasangan pertanyaan & jawaban baru.",
+    target: '[data-tour="faq-add"]',
+    on: "bottom",
+    route: "/administrator/faq",
+  },
+];
+
+const kontakTour: TourBuilder = () => [
+  {
+    title: "Kontak & Footer",
+    text:
+      "Atur alamat, telepon, WhatsApp, email, Instagram, embed peta, dan teks footer situs.",
+    route: "/administrator/kontak",
+  },
+  {
+    title: "Simpan",
+    text: "Tekan Simpan untuk memperbarui informasi kontak & footer.",
+    target: '[data-tour="kontak-save"]',
+    on: "top",
+    route: "/administrator/kontak",
+  },
+];
+
+const mitraTour: TourBuilder = () => [
+  {
+    title: "Mitra",
+    text:
+      "Kelola logo mitra/asuransi yang tampil di slider mitra. Reorder via drag, sembunyikan via toggle.",
+    route: "/administrator/mitra",
+  },
+  {
+    title: "Tambah Mitra",
+    text: "Klik Tambah, unggah logo, isi nama mitra, lalu Simpan.",
+    target: '[data-tour="mitra-add"]',
+    on: "bottom",
+    route: "/administrator/mitra",
+  },
+];
+
+const sectionsTour: TourBuilder = () => [
+  {
+    title: "Urutan Section",
+    text:
+      "Atur urutan tampil section beranda dengan drag-and-drop, atau nonaktifkan toggle untuk menyembunyikan section.",
+    route: "/administrator/sections",
+  },
+  {
+    title: "Daftar Section",
+    text:
+      "Setiap baris mewakili satu section beranda. Hero dan Footer selalu tampil dan tidak diatur di sini.",
+    target: '[data-tour="sections-list"]',
+    on: "top",
+    route: "/administrator/sections",
+  },
+];
+
+const backupTour: TourBuilder = () => [
+  {
+    title: "Backup Database",
+    text:
+      "Khusus Admin. Unduh backup lengkap (data + file storage) atau pulihkan dari file backup.",
+    route: "/administrator/backup",
+  },
+  {
+    title: "Unduh Backup",
+    text:
+      "Pilih format (JSON+CSV disarankan), lalu klik Unduh. File berisi seluruh data CMS dan file storage.",
+    target: '[data-tour="backup-download"]',
+    on: "top",
+    route: "/administrator/backup",
+  },
+];
+
 const genericTour: TourBuilder = () => [
   {
     title: "Halaman ini",
@@ -413,14 +576,24 @@ const genericTour: TourBuilder = () => [
 
 const REGISTRY: Record<string, TourBuilder> = {
   "/administrator": globalTour,
-  "/administrator/menu": menuTour,
-  "/administrator/pages": pagesTour,
+  "/administrator/hero-content": heroContentTour,
   "/administrator/hero-slider": heroSliderTour,
-  "/administrator/instagram": instagramTour,
+  "/administrator/hero-settings": heroSettingsTour,
+  "/administrator/tentang": tentangTour,
+  "/administrator/jam-besuk": jamBesukTour,
+  "/administrator/layanan": layananTour,
   "/administrator/dokter": dokterTour,
+  "/administrator/mitra": mitraTour,
+  "/administrator/faq": faqTour,
+  "/administrator/kontak": kontakTour,
+  "/administrator/instagram": instagramTour,
+  "/administrator/pages": pagesTour,
+  "/administrator/menu": menuTour,
+  "/administrator/sections": sectionsTour,
   "/administrator/theme": themeTour,
   "/administrator/chatbot": chatbotTour,
   "/administrator/users": usersTour,
+  "/administrator/backup": backupTour,
 };
 
 let activeTour: InstanceType<typeof Shepherd.Tour> | null = null;

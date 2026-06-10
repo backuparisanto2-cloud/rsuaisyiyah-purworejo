@@ -82,7 +82,7 @@ function HeroSettingsPage() {
             <Switch checked={(s as any)[k]} onCheckedChange={(v) => setS({ ...s, [k]: v } as S)} />
           </div>
         ))}
-        <Button onClick={save} disabled={saving}>{saving ? "Menyimpan..." : "Simpan"}</Button>
+        <Button onClick={save} disabled={saving} data-tour="hero-settings-save">{saving ? "Menyimpan..." : "Simpan"}</Button>
       </Card>
     </div>
   );

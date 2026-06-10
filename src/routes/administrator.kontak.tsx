@@ -45,7 +45,7 @@ function KontakAdmin() {
       </div>
       <div><Label>Map Embed URL</Label><Input value={data.map_embed_url} onChange={(e) => setData({ ...data, map_embed_url: e.target.value })} /></div>
       <div><Label>Teks Footer</Label><Textarea rows={2} value={data.footer_text} onChange={(e) => setData({ ...data, footer_text: e.target.value })} /></div>
-      <Button onClick={save}>Simpan</Button>
+      <Button onClick={save} data-tour="kontak-save">Simpan</Button>
     </div>
   );
 }
