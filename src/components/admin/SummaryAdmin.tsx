@@ -96,6 +96,7 @@ export default function SummaryAdmin() {
     setEditing({ ...original });
     toast.info("Perubahan dikembalikan");
   }
+  function pickPage(pageId: string) {
     if (!editing) return;
     const p = pages.find((x) => x.id === pageId);
     if (!p) return;
