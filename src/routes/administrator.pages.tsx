@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import ImageUpload from "@/components/admin/ImageUpload";
+import SummaryAdmin from "@/components/admin/SummaryAdmin";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon, RotateCcw, Check, AlertCircle } from "lucide-react";
 
@@ -348,51 +350,63 @@ function PagesAdmin() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6 md:mb-10">
+    <Tabs defaultValue="pages" className="w-full">
+      <TabsList className="mb-6">
+        <TabsTrigger value="pages">Halaman</TabsTrigger>
+        <TabsTrigger value="summary">Ringkasan Beranda</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="pages">
         <div>
-          <h1 className="text-2xl font-bold">Page Builder</h1>
-          <p className="text-sm text-muted-foreground">Kelola halaman dinamis. Halaman yang dipublikasikan otomatis muncul di menu.</p>
-        </div>
-        <Button onClick={startNew} data-tour="pages-new"><Plus className="h-4 w-4 mr-2" />Halaman Baru</Button>
-      </div>
+          <div className="flex items-center justify-between mb-6 md:mb-10">
+            <div>
+              <h1 className="text-2xl font-bold">Page Builder</h1>
+              <p className="text-sm text-muted-foreground">Kelola halaman dinamis. Halaman yang dipublikasikan otomatis muncul di menu.</p>
+            </div>
+            <Button onClick={startNew} data-tour="pages-new"><Plus className="h-4 w-4 mr-2" />Halaman Baru</Button>
+          </div>
 
-      {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-      ) : pages.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">Belum ada halaman.</CardContent></Card>
-      ) : (
-        <div className="grid gap-2" data-tour="pages-list">
-
-          {pages.map((p) => (
-            <Card key={p.id}>
-              <CardContent className="py-4 flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1 flex items-center gap-3">
-                  {(p.images[0]?.url || p.image_url) && (
-                    <img src={p.images[0]?.url || p.image_url!} alt="" className="h-12 w-12 rounded object-cover shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold truncate">{p.title}</span>
-                      {!p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">Draft</span>}
-                      {p.show_in_menu && p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">Di Menu</span>}
+          {loading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+          ) : pages.length === 0 ? (
+            <Card><CardContent className="py-12 text-center text-muted-foreground">Belum ada halaman.</CardContent></Card>
+          ) : (
+            <div className="grid gap-2" data-tour="pages-list">
+              {pages.map((p) => (
+                <Card key={p.id}>
+                  <CardContent className="py-4 flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1 flex items-center gap-3">
+                      {(p.images[0]?.url || p.image_url) && (
+                        <img src={p.images[0]?.url || p.image_url!} alt="" className="h-12 w-12 rounded object-cover shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold truncate">{p.title}</span>
+                          {!p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">Draft</span>}
+                          {p.show_in_menu && p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">Di Menu</span>}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">/p/{p.slug}{p.menu_href ? ` · menu: ${p.menu_href}` : ""}</div>
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">/p/{p.slug}{p.menu_href ? ` · menu: ${p.menu_href}` : ""}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <a href={`/p/${p.slug}`} target="_blank" rel="noreferrer">
-                    <Button size="sm" variant="ghost"><ExternalLink className="h-4 w-4" /></Button>
-                  </a>
-                  <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                  <Button size="sm" variant="ghost" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <a href={`/p/${p.slug}`} target="_blank" rel="noreferrer">
+                        <Button size="sm" variant="ghost"><ExternalLink className="h-4 w-4" /></Button>
+                      </a>
+                      <Button size="sm" variant="ghost" onClick={() => startEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                      <Button size="sm" variant="ghost" onClick={() => remove(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </TabsContent>
+
+      <TabsContent value="summary">
+        <SummaryAdmin />
+      </TabsContent>
+    </Tabs>
   );
 }
 

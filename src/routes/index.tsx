@@ -19,6 +19,7 @@ import KontakSection from "@/components/KontakSection";
 import Footer from "@/components/Footer";
 import logo from "@/assets/logo-hero.png";
 import LazySection from "@/components/LazySection";
+import RingkasanSection from "@/components/RingkasanSection";
 import { useLightMode } from "@/hooks/use-light-mode";
 
 export const Route = createFileRoute("/")({
@@ -43,6 +44,7 @@ const DEFAULT_ORDER: SectionRow[] = [
   { key: "mitra", display_order: 7, is_active: true },
   { key: "faq", display_order: 8, is_active: true },
   { key: "kontak", display_order: 9, is_active: true },
+  { key: "ringkasan", display_order: 10, is_active: true },
 ];
 
 function renderSection(key: string, light: boolean) {
@@ -95,6 +97,7 @@ function renderSection(key: string, light: boolean) {
     case "mitra": return <MitraSlider key={key} />;
     case "faq": return <FaqSection key={key} />;
     case "kontak": return <KontakSection key={key} />;
+    case "ringkasan": return <RingkasanSection key={key} />;
     default: return null;
   }
 }
