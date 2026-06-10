@@ -40,7 +40,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.rpc("get_public_chatbot_settings");
+      const { data } = await (supabase.rpc as any)("get_public_chatbot_settings");
       const s = Array.isArray(data) ? data[0] : data;
       if (s) {
         if (s.name) setName(s.name);
