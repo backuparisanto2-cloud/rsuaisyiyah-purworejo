@@ -133,7 +133,7 @@ function AdminLayout() {
                   <div className="font-bold">RSU Aisyiyah</div>
                   <div className="text-xs text-muted-foreground">Admin CMS</div>
                 </div>
-                <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+                <NavList pathname={pathname} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
                 <div className="p-3 border-t text-xs text-muted-foreground truncate">{user?.email}</div>
               </SheetContent>
             </Sheet>
