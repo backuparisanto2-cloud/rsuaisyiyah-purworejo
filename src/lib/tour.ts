@@ -590,7 +590,7 @@ const genericTour: TourBuilder = () => [
 // =====================
 
 const REGISTRY: Record<string, TourBuilder> = {
-  "/administrator": dashboardTour,
+  "/administrator": globalTour,
   "/administrator/hero-content": heroContentTour,
   "/administrator/hero-slider": heroSliderTour,
   "/administrator/hero-settings": heroSettingsTour,
