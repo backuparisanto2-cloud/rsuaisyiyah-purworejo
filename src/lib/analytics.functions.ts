@@ -32,7 +32,7 @@ export const getVisitorStats = createServerFn({ method: "POST" })
     // Range query
     const { data: rangeRows, error: e1 } = await supabaseAdmin
       .from("page_views")
-      .select("id, session_id, path, device, browser, os, country, duration_ms, is_bounce, created_at, referrer")
+      .select("id, session_id, path, device, browser, os, country, ip, duration_ms, is_bounce, created_at, referrer")
       .gte("created_at", data.from)
       .lte("created_at", data.to)
       .order("created_at", { ascending: false })
@@ -86,6 +86,6 @@ export const getVisitorStats = createServerFn({ method: "POST" })
       byCountry,
       byPath,
       byDay,
-      recent: rows.slice(0, 50),
+      recent: rows.slice(0, 500),
     };
   });
