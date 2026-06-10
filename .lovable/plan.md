@@ -1,50 +1,34 @@
-## Ringkasan
-Tambahkan fitur "Section Ringkasan Beranda" yang dikelola dari Page Builder, mendukung sumber konten hybrid (tarik dari custom page atau isi manual), opsi gambar (atau tanpa gambar), pilihan layout per item (blok besar / kartu grid), dan tiap item jadi section independen yang bisa di-reorder di antara section beranda lain.
+## Tujuan
+Tambah simpan otomatis **draft lokal** (bukan publish ke database) di editor Ringkasan Beranda, sehingga perubahan tidak hilang saat refresh halaman.
 
-## Detail Teknis
+## Perilaku
+- Saat editor terbuka (`editing != null`), setiap perubahan field dipantau.
+- Draft disimpan ke `localStorage` setelah jeda **1,5 detik** sejak perubahan terakhir (debounce), agar tidak menulis di setiap ketikan.
+- Indikator kecil di footer editor: "Menyimpan draft…", "Draft tersimpan • HH:MM:SS", atau "Belum ada perubahan".
+- Saat editor dibuka:
+  - **Item baru** → jika ada draft `new`, tawarkan dialog: "Lanjutkan draft sebelumnya?" (Lanjutkan / Buang).
+  - **Edit item lama** → jika ada draft untuk `id` itu DAN berbeda dari data DB, tawarkan dialog yang sama.
+- Draft dihapus otomatis setelah **Simpan berhasil**, setelah tombol **Buang draft**, atau setelah pengguna menolak memulihkannya.
+- Tombol manual **"Buang draft"** muncul di footer saat ada draft aktif.
 
-### 1. Database — tabel baru `home_summary_sections`
-Migration membuat tabel dengan kolom domain:
-- `source_type` ('custom_page' | 'manual')
-- `custom_page_id` (FK opsional ke custom_pages)
-- `title`, `summary` (override / manual)
-- `image_url` (nullable), `image_position` ('left' | 'right' | 'top' | 'none')
-- `cta_label`, `cta_href`
-- `layout` ('block' | 'card')
-- `card_group_key` (opsional, untuk mengelompokkan beberapa kartu jadi satu grid berurutan)
-- `display_order`, `is_active`
+## Kunci penyimpanan
+- `ringkasan:draft:new` untuk item baru.
+- `ringkasan:draft:<row.id>` untuk edit item yang sudah ada.
+- Nilai: `{ data: Row, savedAt: number }`.
 
-Policies: public read; admin write (pakai `has_role`). GRANT untuk anon, authenticated, service_role sesuai pola tabel sejenis. Trigger `tg_set_updated_at`.
+## Integrasi dengan Undo/Redo yang sudah ada
+- Pemulihan draft mengisi `editing` saja; `original` tetap dari DB sehingga **Batalkan Perubahan** mengembalikan ke versi DB (perilaku undo tidak berubah).
+- `redo` direset saat draft dipulihkan (konsisten dengan `openEditor`).
 
-### 2. Integrasi urutan beranda
-- Tambah satu entry generik di `home_sections` dengan `key='ringkasan'` (label "Ringkasan").
-- Setiap baris `home_summary_sections` aktif dirender sebagai section independen di posisi `ringkasan` pada urutan beranda — tampil berurutan sesuai `display_order` masing-masing.
-- Bila perlu independen total per item di antara section lain, langkah berikutnya bisa diperluas; untuk iterasi pertama, satu slot `ringkasan` di home_sections berisi semua item ringkasan berurutan.
+## Perubahan file
+**`src/components/admin/SummaryAdmin.tsx`** (satu-satunya file yang disentuh)
+1. Helper `draftKey(editing)`, `loadDraft(key)`, `saveDraft(key, row)`, `clearDraft(key)`.
+2. State baru: `draftSavedAt: number | null`, `draftStatus: 'idle' | 'saving' | 'saved'`.
+3. `useEffect` debounce 1500 ms pada `editing` → tulis ke localStorage, update status.
+4. Di `openEditor(r)` dan `openNew()`: cek draft, jika ada tampilkan `confirm()` sederhana untuk memulihkan; jika dipulihkan, set `editing` dari draft.
+5. Di `save()` sukses dan saat unmount editor via tombol **Batal**: bersihkan draft terkait.
+6. Footer editor: tambahkan label status draft + tombol **Buang draft** (disabled jika tidak ada draft).
 
-### 3. UI Admin — tab baru di Page Builder
-`src/routes/administrator.pages.tsx`:
-- Tambahkan tab/section "Ringkasan Beranda" di halaman Page Builder.
-- Daftar item dengan drag-reorder (`SortableList`), toggle aktif, edit, hapus.
-- Form per item:
-  - Pilih sumber: custom page (dropdown) atau manual
-  - Bila custom page: auto-isi judul + meta_description, bisa di-override
-  - Field judul, ringkasan (textarea)
-  - `ImageUpload` untuk gambar + radio posisi (kiri/kanan/atas/tanpa gambar)
-  - CTA label + href (auto-isi `/p/<slug>` bila sumber custom page)
-  - Layout: block (full-width seperti TentangSection) / card (kartu grid)
-  - Toggle aktif
-
-### 4. Komponen beranda — `RingkasanSection`
-`src/components/RingkasanSection.tsx`:
-- Fetch semua row aktif dari `home_summary_sections` urut `display_order`.
-- Render dua mode:
-  - `block`: section full-width, gambar kiri/kanan/atas/tanpa gambar (mirip TentangSection)
-  - `card`: kelompokkan item `card` berurutan menjadi satu grid 2-3 kolom; setiap kartu menampilkan gambar (opsional), judul, ringkasan, tombol CTA
-- Tampilkan secara berurutan: blok dan kelompok grid sesuai urutan.
-
-### 5. Wire di `src/routes/index.tsx`
-- Tambah case `"ringkasan"` di `renderSection` → `<RingkasanSection />`.
-- Tambah ke `DEFAULT_ORDER`.
-
-### 6. Verifikasi
-Periksa preview beranda dan admin /administrator/pages, pastikan item baru bisa dibuat (dengan & tanpa gambar), reorder bekerja, dan tampil di beranda sesuai posisi `ringkasan` di Sections admin.
+## Yang TIDAK berubah
+- Skema database, RLS, server functions, dan komponen publik `RingkasanSection`.
+- Logika Simpan/Undo/Redo/upload gambar tetap sama; autosave hanya lapisan tambahan di sisi klien.
