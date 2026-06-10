@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
   Bot, LogOut, Loader2, Type, FileText, Instagram, Menu as MenuIcon, Database,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
