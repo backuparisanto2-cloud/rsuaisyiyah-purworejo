@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { startTour, syncTourWithRoute } from "@/lib/tour";
 import { AccessBanner, ForbiddenView } from "@/components/admin/AccessBanner";
+import { useForbiddenInterceptor } from "@/hooks/use-forbidden-interceptor";
 
 
 export const Route = createFileRoute("/administrator")({
@@ -68,6 +69,7 @@ function AdminLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+  useForbiddenInterceptor();
 
   useEffect(() => {
     if (loading) return;
