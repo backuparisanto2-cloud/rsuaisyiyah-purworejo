@@ -443,7 +443,7 @@ export default function SummaryAdmin() {
 
         {/* Live preview */}
         <div className="min-w-0">
-          <div className="lg:sticky lg:top-4 space-y-2">
+          <div className="lg:sticky lg:top-4 space-y-2" data-tour="ringkasan-preview">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Eye className="h-4 w-4" /> Pratinjau langsung
             </div>
