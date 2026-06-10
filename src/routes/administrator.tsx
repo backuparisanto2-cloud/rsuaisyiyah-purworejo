@@ -19,7 +19,7 @@ export const Route = createFileRoute("/administrator")({
   component: AdminLayout,
 });
 
-type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; disabled?: boolean };
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; disabled?: boolean; adminOnly?: boolean };
 
 const NAV: NavItem[] = [
   { to: "/administrator", label: "Dashboard", icon: LayoutDashboard },
@@ -37,15 +37,16 @@ const NAV: NavItem[] = [
   { to: "/administrator/pages", label: "Page Builder", icon: FileText },
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
-  { to: "/administrator/theme", label: "Tema Warna", icon: Palette },
+  { to: "/administrator/theme", label: "Tema Warna", icon: Palette, adminOnly: true },
   { to: "/administrator/chatbot", label: "Chatbot", icon: Bot },
-  { to: "/administrator/backup", label: "Backup Database", icon: Database },
+  { to: "/administrator/users", label: "Pengguna", icon: UserCog, adminOnly: true },
+  { to: "/administrator/backup", label: "Backup Database", icon: Database, adminOnly: true },
 ];
 
-function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function NavList({ pathname, onNavigate, isAdmin }: { pathname: string; onNavigate?: () => void; isAdmin: boolean }) {
   return (
     <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
-      {NAV.map((n) => {
+      {NAV.filter((n) => !n.adminOnly || isAdmin).map((n) => {
         const Icon = n.icon;
         const active = pathname === n.to;
         const cls = cn(
@@ -62,7 +63,7 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
 }
 
 function AdminLayout() {
-  const { session, isAdmin, loading, signOut, user } = useAuth();
+  const { session, role, isAdmin, loading, signOut, user } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -70,30 +71,49 @@ function AdminLayout() {
   useEffect(() => {
     if (loading) return;
     if (!session) navigate({ to: "/auth" });
-    else if (!isAdmin) {
-      toast.error("Akses ditolak: bukan admin");
+    else if (!role) {
+      toast.error("Akses ditolak: belum memiliki role");
       navigate({ to: "/" });
     }
-  }, [session, isAdmin, loading, navigate]);
+  }, [session, role, loading, navigate]);
+
+  // Block non-admin from admin-only pages
+  useEffect(() => {
+    if (!role) return;
+    const current = NAV.find((n) => n.to === pathname);
+    if (current?.adminOnly && !isAdmin) {
+      toast.error("Halaman ini khusus admin");
+      navigate({ to: "/administrator" });
+    }
+  }, [pathname, role, isAdmin, navigate]);
 
   // Keep the active tour highlight in sync when the admin route changes mid-tour
   useEffect(() => {
     syncTourWithRoute(pathname, (to) => navigate({ to: to as string }));
   }, [pathname, navigate]);
 
-  if (loading || !session || !isAdmin) {
+  if (loading || !session || !role) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
 
   const currentLabel = NAV.find((n) => n.to === pathname)?.label ?? "Panel Admin";
+  const roleLabel = role === "admin" ? "Admin" : role === "editor" ? "Editor" : "Reader";
+  const roleBadgeCls = role === "admin"
+    ? "bg-primary text-primary-foreground"
+    : role === "editor"
+    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+    : "bg-muted text-muted-foreground";
 
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 shrink-0 bg-card border-r flex-col" data-tour="sidebar">
         <div className="p-4 border-b"><div className="font-bold">RSU Aisyiyah</div><div className="text-xs text-muted-foreground">Admin CMS</div></div>
-        <NavList pathname={pathname} />
-        <div className="p-3 border-t text-xs text-muted-foreground truncate">{user?.email}</div>
+        <NavList pathname={pathname} isAdmin={isAdmin} />
+        <div className="p-3 border-t text-xs text-muted-foreground flex items-center justify-between gap-2">
+          <span className="truncate">{user?.email}</span>
+          <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-semibold shrink-0", roleBadgeCls)}>{roleLabel}</span>
+        </div>
       </aside>
 
 
