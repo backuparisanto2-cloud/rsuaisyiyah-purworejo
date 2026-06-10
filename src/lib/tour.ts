@@ -103,6 +103,14 @@ function buildTour(steps: StepDef[], navigate: NavigateFn) {
             toast.info("Elemen tour belum tersedia, lanjut ke langkah berikut.");
             // Defer to next tick then advance
             queueMicrotask(() => tour.next());
+          } else {
+            // Ensure target is in viewport (responsive layouts can hide it)
+            try {
+              (found as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+            } catch {
+              // ignore
+            }
+            await new Promise((r) => setTimeout(r, 150));
           }
         }
       },
@@ -110,12 +118,21 @@ function buildTour(steps: StepDef[], navigate: NavigateFn) {
         ...(!isFirst
           ? [{ text: "Kembali", action: () => tour.back(), secondary: true }]
           : []),
+        {
+          text: "Ulangi",
+          action: () => {
+            const first = tour.steps[0];
+            if (first) tour.show(first.id, true);
+          },
+          secondary: true,
+        },
         { text: "Lewati", action: () => tour.cancel(), secondary: true },
         {
           text: isLast ? "Selesai" : "Lanjut",
           action: () => (isLast ? tour.complete() : tour.next()),
         },
       ],
+
     });
   });
 
