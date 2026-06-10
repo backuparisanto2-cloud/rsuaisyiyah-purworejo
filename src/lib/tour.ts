@@ -51,7 +51,45 @@ function currentPathname() {
   return typeof window !== "undefined" ? window.location.pathname : "/";
 }
 
-function buildTour(steps: StepDef[], navigate: NavigateFn) {
+const STORAGE_KEY = "lov-shepherd-progress";
+
+type TourProgress = {
+  stepId: string;
+  completed: boolean;
+  lastAt: number;
+};
+
+function getAllTourProgress(): Record<string, TourProgress> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveTourProgress(pathname: string, partial: Partial<TourProgress>) {
+  const all = getAllTourProgress();
+  const existing = all[pathname];
+  all[pathname] = {
+    stepId: partial.stepId ?? existing?.stepId ?? "",
+    completed: partial.completed ?? existing?.completed ?? false,
+    lastAt: Date.now(),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+function loadTourProgress(pathname: string): TourProgress | null {
+  return getAllTourProgress()[pathname] ?? null;
+}
+
+function clearTourProgress(pathname: string) {
+  const all = getAllTourProgress();
+  delete all[pathname];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+function buildTour(steps: StepDef[], navigate: NavigateFn, pathname: string) {
   const tour = new Shepherd.Tour({
     useModalOverlay: true,
     defaultStepOptions: {
@@ -134,6 +172,12 @@ function buildTour(steps: StepDef[], navigate: NavigateFn) {
       ],
 
     });
+  });
+
+  // Persist active step so users can resume after refresh
+  tour.on("step:show", (evt: any) => {
+    const stepId = evt?.step?.id as string | undefined;
+    if (stepId) saveTourProgress(pathname, { stepId, completed: false });
   });
 
   return tour;
@@ -615,7 +659,7 @@ const REGISTRY: Record<string, TourBuilder> = {
 
 let activeTour: InstanceType<typeof Shepherd.Tour> | null = null;
 
-export function startTour(pathname: string, navigate: NavigateFn = defaultNavigate) {
+export function startTour(pathname: string, navigate: NavigateFn = defaultNavigate, forceRestart = false) {
   // Cancel any in-flight tour so highlight tracks the freshly chosen one
   if (activeTour) {
     try {
@@ -625,9 +669,19 @@ export function startTour(pathname: string, navigate: NavigateFn = defaultNaviga
     }
     activeTour = null;
   }
+
   const builder = REGISTRY[pathname] ?? genericTour;
-  const tour = buildTour(builder(), navigate);
+  const tour = buildTour(builder(), navigate, pathname);
   activeTour = tour;
+
+  // Resume from saved step unless forced restart
+  let resumeStepId: string | undefined;
+  if (!forceRestart) {
+    const progress = loadTourProgress(pathname);
+    if (progress && !progress.completed && progress.stepId) {
+      resumeStepId = progress.stepId;
+    }
+  }
 
   // Keep tooltip anchored to its target on viewport resize / scroll
   const reposition = () => {
@@ -650,15 +704,36 @@ export function startTour(pathname: string, navigate: NavigateFn = defaultNaviga
     window.removeEventListener("scroll", onScroll, true);
     if (activeTour === tour) activeTour = null;
   };
-  tour.on("complete", cleanup);
-  tour.on("cancel", cleanup);
+
+  tour.on("complete", () => {
+    saveTourProgress(pathname, { completed: true });
+    cleanup();
+  });
+  tour.on("cancel", () => {
+    saveTourProgress(pathname, { completed: false });
+    cleanup();
+  });
+
   tour.start();
+
+  if (resumeStepId) {
+    // Defer so Shepherd finishes init before jumping
+    queueMicrotask(() => {
+      try {
+        tour.show(resumeStepId, true);
+      } catch {
+        // If step no longer exists, continue from start
+      }
+    });
+  }
+
   return tour;
 }
 
-/** Restart the tour for the current admin pathname. */
+/** Restart the tour for the current admin pathname (always from step 1). */
 export function restartTour(pathname: string, navigate: NavigateFn = defaultNavigate) {
-  return startTour(pathname, navigate);
+  clearTourProgress(pathname);
+  return startTour(pathname, navigate, true);
 }
 
 
