@@ -882,6 +882,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_min_role: {
+        Args: {
+          _min: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -889,6 +896,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_protected_admin: { Args: { _user_id: string }; Returns: boolean }
       match_chatbot_knowledge: {
         Args: {
           match_count?: number
@@ -902,6 +910,10 @@ export type Database = {
           similarity: number
           title: string
         }[]
+      }
+      role_rank: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: number
       }
     }
     Enums: {
