@@ -393,6 +393,68 @@ const pagesTour: TourBuilder = () => [
     tab: "summary",
   },
   {
+    id: "ringkasan-form-open",
+    title: "Form Ringkasan",
+    text:
+      "Form ini muncul saat menambah atau mengedit ringkasan. Bagian kiri adalah form pengisian, bagian kanan adalah pratinjau langsung.",
+    target: '[data-tour="ringkasan-form"]',
+    on: "right",
+    route: "/administrator/pages",
+    tab: "summary",
+    click: '[data-tour="ringkasan-add"]',
+  },
+  {
+    id: "ringkasan-source",
+    title: "Sumber Konten",
+    text:
+      "Pilih 'Manual' untuk mengisi sendiri, atau 'Dari Halaman Page Builder' untuk mengambil otomatis dari halaman yang sudah dibuat.",
+    target: '[data-tour="ringkasan-source"]',
+    on: "right",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-judul",
+    title: "Isi Judul & Ringkasan",
+    text:
+      "Ketik judul dan ringkasan yang akan tampil di beranda. Anda juga bisa mengatur layout, posisi gambar, label tombol, dan link tujuan.",
+    target: '[data-tour="ringkasan-judul"]',
+    on: "right",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-simpan",
+    title: "Simpan & Pratinjau",
+    text:
+      "Klik Simpan untuk menyimpan ke database. Pratinjau di sebelah kanan diperbarui real-time saat Anda mengetik.",
+    target: '[data-tour="ringkasan-simpan"]',
+    on: "top",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-preview",
+    title: "Pratinjau Langsung",
+    text:
+      "Tampilan ini menunjukkan bagaimana ringkasan akan terlihat di beranda pengunjung, termasuk layout dan gambar yang dipilih.",
+    target: '[data-tour="ringkasan-preview"]',
+    on: "left",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    id: "ringkasan-list-item",
+    title: "Lihat Hasil di Daftar",
+    text:
+      "Setelah disimpan, item baru muncul di daftar ini. Anda bisa mengaktifkan/menonaktifkan, mengganti gambar, mengedit, atau menghapus dari sini.",
+    target: '[data-tour="ringkasan-item"]',
+    on: "top",
+    route: "/administrator/pages",
+    tab: "summary",
+    click: '[data-tour="ringkasan-batal"]',
+  },
+  {
     title: "Atur & Susun Ringkasan",
     text:
       "Setiap baris bisa diatur: toggle aktif, ganti gambar cepat, edit detail, atau hapus. Seret untuk mengubah urutan tampil di beranda.",
