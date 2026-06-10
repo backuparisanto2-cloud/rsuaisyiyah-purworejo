@@ -313,7 +313,7 @@ export default function SummaryAdmin() {
         <div className="space-y-4 min-w-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">{editing.id ? "Edit Ringkasan" : "Ringkasan Baru"}</h2>
-            <Button variant="ghost" onClick={() => setEditing(null)}><X className="h-4 w-4 mr-1" />Batal</Button>
+            <Button variant="ghost" onClick={closeEditor}><X className="h-4 w-4 mr-1" />Batal</Button>
           </div>
 
           <Card><CardContent className="pt-6 space-y-4">
