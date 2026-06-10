@@ -128,64 +128,118 @@ function buildTour(steps: StepDef[], navigate: NavigateFn) {
 
 const globalTour: TourBuilder = () => [
   {
-    title: "Selamat datang!",
+    title: "Selamat datang di Panel Admin",
     text:
-      "Tur singkat ini mengenalkan area utama panel admin. Anda bisa keluar kapan saja dengan tombol Lewati atau menekan Esc.",
+      "Tur singkat ini mengenalkan area utama panel admin RSU Aisyiyah. Anda bisa keluar kapan saja dengan tombol Lewati atau menekan Esc. Buka tombol Tutorial di header setiap halaman untuk panduan spesifik halaman tersebut.",
     route: "/administrator",
   },
   {
     title: "Sidebar Navigasi",
     text:
-      "Semua halaman admin diakses dari sini. Di layar kecil, sidebar tersembunyi dan dibuka via ikon menu di header.",
+      "Semua halaman admin diakses dari sini. Di layar kecil, sidebar tersembunyi dan dibuka via ikon menu di header. Daftar menu menyesuaikan role Anda — item khusus admin disembunyikan untuk Editor & Reader.",
+    target: '[data-tour="sidebar"]',
+    on: "right",
+  },
+  {
+    title: "Role & Akun Anda",
+    text:
+      "Email dan badge role Anda tampil di bawah sidebar (Admin, Editor, atau Reader). Admin: akses penuh. Editor: ubah semua konten kecuali Tema & Pengguna. Reader: hanya melihat.",
     target: '[data-tour="sidebar"]',
     on: "right",
   },
   {
     title: "Konten Hero",
     text:
-      "Hero Teks, Hero Slider, dan Pengaturan Slider mengatur bagian paling atas beranda.",
+      "Hero Teks, Hero Slider, dan Pengaturan Slider mengatur bagian paling atas beranda — teks utama, logo, dan slide gambar.",
     target: '[data-tour="nav-/administrator/hero-slider"]',
     on: "right",
   },
   {
-    title: "Konten Halaman",
+    title: "Konten Section Beranda",
     text:
-      "Tentang, Jam Besuk, Layanan, Jadwal Dokter, Mitra, FAQ, dan Kontak adalah section konten utama beranda.",
+      "Tentang, Jam Besuk, Layanan, Jadwal Dokter, Mitra, FAQ, dan Kontak adalah section utama beranda yang bisa Anda perbarui isinya.",
     target: '[data-tour="nav-/administrator/layanan"]',
     on: "right",
   },
   {
     title: "Berita & Instagram",
     text:
-      "Tempel kode embed atau URL post Instagram untuk menampilkan berita & info terkini.",
+      "Tempel kode embed atau URL post Instagram untuk menampilkan berita & info terkini di beranda.",
     target: '[data-tour="nav-/administrator/instagram"]',
     on: "right",
   },
   {
-    title: "Tata Letak & Halaman",
+    title: "Tata Letak & Halaman Custom",
     text:
-      "Page Builder untuk halaman custom (/p/slug), Menu Builder untuk navigasi header, dan Urutan Section untuk menyusun ulang beranda.",
+      "Page Builder untuk halaman custom (/p/slug), Menu Builder untuk navigasi header, dan Urutan Section untuk menyusun ulang beranda secara drag-and-drop.",
     target: '[data-tour="nav-/administrator/pages"]',
     on: "right",
   },
   {
-    title: "Tema & Chatbot",
+    title: "Tema Warna (Admin)",
     text:
-      "Ubah palet warna situs, atau atur asisten chatbot (system prompt + knowledge base).",
+      "Ubah palet warna situs secara global. Menu ini hanya muncul untuk Admin.",
     target: '[data-tour="nav-/administrator/theme"]',
     on: "right",
   },
   {
-    title: "Header Aksi",
+    title: "Chatbot",
     text:
-      "Tombol Tutorial selalu tersedia untuk mengulang panduan halaman ini. Tombol Logout di sebelahnya.",
+      "Atur asisten chatbot situs — system prompt, model AI, dan knowledge base.",
+    target: '[data-tour="nav-/administrator/chatbot"]',
+    on: "right",
+  },
+  {
+    title: "Pengguna (Admin)",
+    text:
+      "Admin bisa menambah, menghapus, mengubah role, dan mereset password user lain di menu Pengguna. Akun admin pertama terlindungi otomatis.",
+    target: '[data-tour="nav-/administrator/users"]',
+    on: "right",
+  },
+  {
+    title: "Header & Tutorial",
+    text:
+      "Tombol Tutorial selalu tersedia untuk mengulang panduan halaman aktif. Logout ada di sebelahnya.",
     target: '[data-tour="header-tutorial"]',
     on: "bottom",
   },
   {
     title: "Selesai",
     text:
-      "Buka halaman manapun lalu klik tombol Tutorial untuk panduan spesifik halaman tersebut.",
+      "Anda siap mengelola situs. Buka halaman manapun dan tekan Tutorial untuk panduan rinci halaman tersebut.",
+  },
+];
+
+const usersTour: TourBuilder = () => [
+  {
+    title: "Pengguna",
+    text:
+      "Halaman ini hanya untuk Admin. Kelola seluruh akun panel: Admin (akses penuh), Editor (ubah konten kecuali Tema & Pengguna), dan Reader (hanya lihat).",
+    route: "/administrator/users",
+  },
+  {
+    title: "Tambah Pengguna",
+    text:
+      "Klik Tambah Pengguna lalu isi email, password awal (≥8 karakter), nama, dan role. User langsung bisa login dengan kredensial tersebut.",
+    target: '[data-tour="users-add"]',
+    on: "bottom",
+    route: "/administrator/users",
+  },
+  {
+    title: "Ubah Role",
+    text:
+      "Pilih role dari dropdown di tiap baris untuk langsung mengubahnya. Sistem mempertahankan minimal 1 admin aktif.",
+    target: '[data-tour="users-table"]',
+    on: "top",
+    route: "/administrator/users",
+  },
+  {
+    title: "Reset Password & Hapus",
+    text:
+      "Ikon kunci mereset password user. Ikon tempat sampah menghapus akun. Akun admin pertama (berlencana perisai) dan akun Anda sendiri tidak bisa dihapus.",
+    target: '[data-tour="users-table"]',
+    on: "top",
+    route: "/administrator/users",
   },
 ];
 
@@ -366,6 +420,7 @@ const REGISTRY: Record<string, TourBuilder> = {
   "/administrator/dokter": dokterTour,
   "/administrator/theme": themeTour,
   "/administrator/chatbot": chatbotTour,
+  "/administrator/users": usersTour,
 };
 
 let activeTour: InstanceType<typeof Shepherd.Tour> | null = null;
