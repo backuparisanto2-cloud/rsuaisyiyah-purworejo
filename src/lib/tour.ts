@@ -399,21 +399,6 @@ const chatbotTour: TourBuilder = () => [
   },
 ];
 
-const dashboardTour: TourBuilder = () => [
-  {
-    title: "Dashboard Admin",
-    text:
-      "Halaman ringkasan. Pilih modul lewat sidebar kiri, atau gunakan shortcut di bawah untuk akses cepat ke Hero.",
-    route: "/administrator",
-  },
-  {
-    title: "Shortcut Cepat",
-    text: "Pintasan ke modul yang paling sering dibuka. Anda tetap bisa membuka modul lain via sidebar.",
-    target: '[data-tour="dashboard-shortcuts"]',
-    on: "top",
-    route: "/administrator",
-  },
-];
 
 const heroContentTour: TourBuilder = () => [
   {
