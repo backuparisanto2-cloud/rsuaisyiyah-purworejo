@@ -6,7 +6,8 @@ import { getVisitorStats } from "@/lib/analytics.functions";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, X } from "lucide-react";
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip as ReTooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -18,6 +19,16 @@ const CHART_COLORS = [
   "#06b6d4", "#ec4899", "#84cc16", "#a855f7", "#f97316",
 ];
 
+type FilterKey = "device" | "browser" | "os" | "country";
+type Filter = { key: FilterKey; value: string } | null;
+
+const FILTER_LABEL: Record<FilterKey, string> = {
+  device: "Perangkat",
+  browser: "Browser",
+  os: "OS",
+  country: "Negara",
+};
+
 function toChartData(data: Record<string, number>, limit = 8) {
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
   const top = entries.slice(0, limit).map(([name, value]) => ({ name, value }));
@@ -26,12 +37,28 @@ function toChartData(data: Record<string, number>, limit = 8) {
   return top;
 }
 
-function PieBreakdown({ title, data }: { title: string; data: Record<string, number> }) {
+function PieBreakdown({
+  title, data, filterKey, active, onSelect,
+}: {
+  title: string;
+  data: Record<string, number>;
+  filterKey: FilterKey;
+  active: Filter;
+  onSelect: (f: Filter) => void;
+}) {
   const chartData = toChartData(data);
   const total = chartData.reduce((s, d) => s + d.value, 0);
+  const isActive = active?.key === filterKey;
   return (
     <Card className="p-4 space-y-3">
-      <h3 className="font-semibold text-sm">{title}</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-sm">{title}</h3>
+        {isActive && (
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => onSelect(null)}>
+            <X className="h-3 w-3 mr-1" /> Reset
+          </Button>
+        )}
+      </div>
       {chartData.length === 0 ? (
         <p className="text-xs text-muted-foreground">Belum ada data</p>
       ) : (
@@ -47,9 +74,19 @@ function PieBreakdown({ title, data }: { title: string; data: Record<string, num
                 innerRadius={45}
                 outerRadius={80}
                 paddingAngle={2}
+                onClick={(d: any) => {
+                  if (!d?.name || d.name === "Lainnya") return;
+                  if (isActive && active?.value === d.name) onSelect(null);
+                  else onSelect({ key: filterKey, value: d.name });
+                }}
+                cursor="pointer"
               >
-                {chartData.map((_, i) => (
-                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                {chartData.map((d, i) => (
+                  <Cell
+                    key={i}
+                    fill={CHART_COLORS[i % CHART_COLORS.length]}
+                    opacity={isActive && active?.value !== d.name ? 0.35 : 1}
+                  />
                 ))}
               </Pie>
               <ReTooltip
@@ -72,11 +109,27 @@ function PieBreakdown({ title, data }: { title: string; data: Record<string, num
   );
 }
 
-function BarBreakdown({ title, data }: { title: string; data: Record<string, number> }) {
+function BarBreakdown({
+  title, data, filterKey, active, onSelect,
+}: {
+  title: string;
+  data: Record<string, number>;
+  filterKey: FilterKey;
+  active: Filter;
+  onSelect: (f: Filter) => void;
+}) {
   const chartData = toChartData(data, 10);
+  const isActive = active?.key === filterKey;
   return (
     <Card className="p-4 space-y-3">
-      <h3 className="font-semibold text-sm">{title}</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-sm">{title}</h3>
+        {isActive && (
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => onSelect(null)}>
+            <X className="h-3 w-3 mr-1" /> Reset
+          </Button>
+        )}
+      </div>
       {chartData.length === 0 ? (
         <p className="text-xs text-muted-foreground">Belum ada data</p>
       ) : (
@@ -94,9 +147,23 @@ function BarBreakdown({ title, data }: { title: string; data: Record<string, num
                   fontSize: 12,
                 }}
               />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                {chartData.map((_, i) => (
-                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+              <Bar
+                dataKey="value"
+                radius={[0, 4, 4, 0]}
+                cursor="pointer"
+                onClick={(d: any) => {
+                  const name = d?.name ?? d?.payload?.name;
+                  if (!name || name === "Lainnya") return;
+                  if (isActive && active?.value === name) onSelect(null);
+                  else onSelect({ key: filterKey, value: name });
+                }}
+              >
+                {chartData.map((d, i) => (
+                  <Cell
+                    key={i}
+                    fill={CHART_COLORS[i % CHART_COLORS.length]}
+                    opacity={isActive && active?.value !== d.name ? 0.35 : 1}
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -106,7 +173,6 @@ function BarBreakdown({ title, data }: { title: string; data: Record<string, num
     </Card>
   );
 }
-
 
 export const Route = createFileRoute("/administrator/analytics")({
   component: AnalyticsPage,
@@ -165,6 +231,7 @@ function AnalyticsPage() {
   const fn = useServerFn(getVisitorStats);
   const [from, setFrom] = useState(() => toLocalInput(new Date(Date.now() - 7 * 86400_000)));
   const [to, setTo] = useState(() => toLocalInput(new Date()));
+  const [filter, setFilter] = useState<Filter>(null);
 
   const range = useMemo(() => ({
     from: new Date(from).toISOString(),
@@ -181,12 +248,23 @@ function AnalyticsPage() {
     setTo(toLocalInput(new Date()));
   };
 
+  const filteredRecent = useMemo(() => {
+    const rows: any[] = q.data?.recent ?? [];
+    const list = filter
+      ? rows.filter((r) => {
+          const v = filter.key === "country" ? (r.country ?? "—") : (r[filter.key] ?? (filter.key === "device" ? "unknown" : "Other"));
+          return v === filter.value;
+        })
+      : rows;
+    return list.slice(0, 100);
+  }, [q.data, filter]);
+
   return (
     <div className="space-y-4" data-tour="analytics-root">
       <div>
         <h1 className="text-2xl font-bold">Statistik Pengunjung</h1>
         <p className="text-sm text-muted-foreground">
-          Data kunjungan halaman publik. Filter berdasarkan rentang tanggal.
+          Klik segmen grafik untuk memfilter daftar pengunjung di bawah.
         </p>
       </div>
 
@@ -230,10 +308,10 @@ function AnalyticsPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-3">
-            <PieBreakdown title="Perangkat (Mobile/Desktop)" data={q.data.byDevice} />
-            <PieBreakdown title="Browser" data={q.data.byBrowser} />
-            <BarBreakdown title="Sistem Operasi" data={q.data.byOs} />
-            <BarBreakdown title="Negara" data={q.data.byCountry} />
+            <PieBreakdown title="Perangkat (Mobile/Desktop)" data={q.data.byDevice} filterKey="device" active={filter} onSelect={setFilter} />
+            <PieBreakdown title="Browser" data={q.data.byBrowser} filterKey="browser" active={filter} onSelect={setFilter} />
+            <BarBreakdown title="Sistem Operasi" data={q.data.byOs} filterKey="os" active={filter} onSelect={setFilter} />
+            <BarBreakdown title="Negara" data={q.data.byCountry} filterKey="country" active={filter} onSelect={setFilter} />
           </div>
 
           <div className="grid md:grid-cols-2 gap-3">
@@ -242,7 +320,22 @@ function AnalyticsPage() {
           </div>
 
           <Card className="p-4">
-            <h3 className="font-semibold text-sm mb-3">50 kunjungan terbaru</h3>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h3 className="font-semibold text-sm">
+                Daftar pengunjung{" "}
+                <span className="text-muted-foreground font-normal">
+                  ({filteredRecent.length.toLocaleString("id-ID")})
+                </span>
+              </h3>
+              {filter && (
+                <Badge variant="secondary" className="gap-1">
+                  {FILTER_LABEL[filter.key]}: {filter.value}
+                  <button onClick={() => setFilter(null)} className="ml-1 hover:opacity-70" aria-label="Hapus filter">
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="text-left text-muted-foreground">
@@ -251,23 +344,35 @@ function AnalyticsPage() {
                     <th className="py-1 pr-3">Halaman</th>
                     <th className="py-1 pr-3">Device</th>
                     <th className="py-1 pr-3">Browser</th>
+                    <th className="py-1 pr-3">OS</th>
                     <th className="py-1 pr-3">Negara</th>
+                    <th className="py-1 pr-3">IP</th>
                     <th className="py-1 pr-3">Durasi</th>
                     <th className="py-1 pr-3">Bounce</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {q.data.recent.map((r: any) => (
-                    <tr key={r.id} className="border-t">
-                      <td className="py-1 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString("id-ID")}</td>
-                      <td className="py-1 pr-3 max-w-[240px] truncate" title={r.path}>{r.path}</td>
-                      <td className="py-1 pr-3">{r.device}</td>
-                      <td className="py-1 pr-3">{r.browser}</td>
-                      <td className="py-1 pr-3">{r.country ?? "—"}</td>
-                      <td className="py-1 pr-3">{fmtMs(r.duration_ms)}</td>
-                      <td className="py-1 pr-3">{r.is_bounce ? "Ya" : "Tidak"}</td>
+                  {filteredRecent.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="py-4 text-center text-muted-foreground">
+                        Tidak ada data untuk filter ini
+                      </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredRecent.map((r: any) => (
+                      <tr key={r.id} className="border-t">
+                        <td className="py-1 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString("id-ID")}</td>
+                        <td className="py-1 pr-3 max-w-[240px] truncate" title={r.path}>{r.path}</td>
+                        <td className="py-1 pr-3">{r.device}</td>
+                        <td className="py-1 pr-3">{r.browser}</td>
+                        <td className="py-1 pr-3">{r.os}</td>
+                        <td className="py-1 pr-3">{r.country ?? "—"}</td>
+                        <td className="py-1 pr-3 font-mono">{r.ip ?? "—"}</td>
+                        <td className="py-1 pr-3">{fmtMs(r.duration_ms)}</td>
+                        <td className="py-1 pr-3">{r.is_bounce ? "Ya" : "Tidak"}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
