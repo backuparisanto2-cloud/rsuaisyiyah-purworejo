@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,34 @@ const blank = (): Row => ({
   display_order: 0, is_active: true,
 });
 
+const DRAFT_PREFIX = "ringkasan:draft:";
+const draftKey = (r: Row) => `${DRAFT_PREFIX}${r.id || "new"}`;
+type Draft = { data: Row; savedAt: number };
+function loadDraft(key: string): Draft | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as Draft;
+    if (!p?.data) return null;
+    return p;
+  } catch { return null; }
+}
+function saveDraftLS(key: string, data: Row): number {
+  const savedAt = Date.now();
+  try { localStorage.setItem(key, JSON.stringify({ data, savedAt })); } catch { /* quota */ }
+  return savedAt;
+}
+function clearDraftLS(key: string) {
+  try { localStorage.removeItem(key); } catch { /* noop */ }
+}
+function rowsDiffer(a: Row, b: Row): boolean {
+  const keys: (keyof Row)[] = [
+    "source_type","custom_page_id","title","summary","image_url","image_position",
+    "cta_label","cta_href","layout","is_active",
+  ];
+  return keys.some((k) => (a[k] ?? null) !== (b[k] ?? null));
+}
+
 /** Render satu item ringkasan dalam mode preview (tidak dipakai untuk publik). */
 function ItemPreview({ row }: { row: Row }) {
   const safe: Row = {
@@ -50,6 +78,33 @@ export default function SummaryAdmin() {
   const [saving, setSaving] = useState(false);
   const quickUploadRef = useRef<HTMLInputElement>(null);
   const [quickTarget, setQuickTarget] = useState<Row | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
+  const [draftStatus, setDraftStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const skipNextAutosaveRef = useRef(false);
+
+  const currentDraftKey = useMemo(() => (editing ? draftKey(editing) : null), [editing]);
+
+  // Debounced autosave to localStorage
+  useEffect(() => {
+    if (!editing || !currentDraftKey) return;
+    if (skipNextAutosaveRef.current) { skipNextAutosaveRef.current = false; return; }
+    if (original && !rowsDiffer(editing, original)) {
+      // no diff vs original → don't create noise; clear any stale draft
+      if (loadDraft(currentDraftKey)) {
+        clearDraftLS(currentDraftKey);
+        setDraftSavedAt(null);
+        setDraftStatus("idle");
+      }
+      return;
+    }
+    setDraftStatus("saving");
+    const t = setTimeout(() => {
+      const at = saveDraftLS(currentDraftKey, editing);
+      setDraftSavedAt(at);
+      setDraftStatus("saved");
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [editing, currentDraftKey, original]);
 
   async function load() {
     setLoading(true);
@@ -86,13 +141,70 @@ export default function SummaryAdmin() {
   function openEditor(r: Row) {
     setRedo(null);
     setOriginal({ ...r });
-    setEditing({ ...r });
+    const key = draftKey(r);
+    const draft = loadDraft(key);
+    let start: Row = { ...r };
+    if (draft && rowsDiffer(draft.data, r)) {
+      if (confirm("Ada draft yang belum disimpan untuk item ini. Lanjutkan draft tersebut?")) {
+        start = { ...draft.data, id: r.id, display_order: r.display_order };
+        setDraftSavedAt(draft.savedAt);
+        setDraftStatus("saved");
+      } else {
+        clearDraftLS(key);
+        setDraftSavedAt(null);
+        setDraftStatus("idle");
+      }
+    } else {
+      setDraftSavedAt(null);
+      setDraftStatus("idle");
+    }
+    skipNextAutosaveRef.current = true;
+    setEditing(start);
   }
   function openNew() {
     const b = blank();
     setRedo(null);
     setOriginal(b);
-    setEditing(b);
+    const key = draftKey(b);
+    const draft = loadDraft(key);
+    let start: Row = b;
+    if (draft && rowsDiffer(draft.data, b)) {
+      if (confirm("Ada draft ringkasan baru yang belum disimpan. Lanjutkan draft tersebut?")) {
+        start = { ...draft.data, id: "" };
+        setDraftSavedAt(draft.savedAt);
+        setDraftStatus("saved");
+      } else {
+        clearDraftLS(key);
+        setDraftSavedAt(null);
+        setDraftStatus("idle");
+      }
+    } else {
+      setDraftSavedAt(null);
+      setDraftStatus("idle");
+    }
+    skipNextAutosaveRef.current = true;
+    setEditing(start);
+  }
+  function closeEditor() {
+    if (currentDraftKey && loadDraft(currentDraftKey)) {
+      if (!confirm("Tutup editor? Draft yang belum disimpan akan tetap dipertahankan untuk dibuka kembali nanti.")) return;
+    }
+    setEditing(null);
+    setOriginal(null);
+    setRedo(null);
+    setDraftSavedAt(null);
+    setDraftStatus("idle");
+  }
+  function discardDraft() {
+    if (!currentDraftKey) return;
+    clearDraftLS(currentDraftKey);
+    setDraftSavedAt(null);
+    setDraftStatus("idle");
+    if (original) {
+      skipNextAutosaveRef.current = true;
+      setEditing({ ...original });
+    }
+    toast.success("Draft dibuang");
   }
   function undoChanges() {
     if (!original) return;
@@ -146,6 +258,9 @@ export default function SummaryAdmin() {
     setSaving(false);
     if (res.error) { toast.error(res.error.message); return; }
     toast.success("Tersimpan");
+    if (currentDraftKey) clearDraftLS(currentDraftKey);
+    setDraftSavedAt(null);
+    setDraftStatus("idle");
     setRedo(null);
     setOriginal(null);
     setEditing(null);
@@ -198,7 +313,7 @@ export default function SummaryAdmin() {
         <div className="space-y-4 min-w-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">{editing.id ? "Edit Ringkasan" : "Ringkasan Baru"}</h2>
-            <Button variant="ghost" onClick={() => setEditing(null)}><X className="h-4 w-4 mr-1" />Batal</Button>
+            <Button variant="ghost" onClick={closeEditor}><X className="h-4 w-4 mr-1" />Batal</Button>
           </div>
 
           <Card><CardContent className="pt-6 space-y-4">
@@ -292,17 +407,36 @@ export default function SummaryAdmin() {
               <Label>Aktif</Label>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={undoChanges}>
-                <Undo className="h-4 w-4 mr-2" />Batalkan Perubahan
-              </Button>
-              <Button variant="ghost" onClick={redoChanges} disabled={!redo}>
-                <Redo className="h-4 w-4 mr-2" />Ulangi Perubahan
-              </Button>
-              <Button onClick={save} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                Simpan
-              </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                {draftStatus === "saving" && <span>Menyimpan draft…</span>}
+                {draftStatus === "saved" && draftSavedAt && (
+                  <span>Draft tersimpan • {new Date(draftSavedAt).toLocaleTimeString()}</span>
+                )}
+                {draftStatus === "idle" && <span>Belum ada perubahan</span>}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={discardDraft}
+                  disabled={!draftSavedAt}
+                >
+                  Buang draft
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={undoChanges}>
+                  <Undo className="h-4 w-4 mr-2" />Batalkan Perubahan
+                </Button>
+                <Button variant="ghost" onClick={redoChanges} disabled={!redo}>
+                  <Redo className="h-4 w-4 mr-2" />Ulangi Perubahan
+                </Button>
+                <Button onClick={save} disabled={saving}>
+                  {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  Simpan
+                </Button>
+              </div>
             </div>
           </CardContent></Card>
         </div>
