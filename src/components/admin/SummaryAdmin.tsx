@@ -28,6 +28,34 @@ const blank = (): Row => ({
   display_order: 0, is_active: true,
 });
 
+const DRAFT_PREFIX = "ringkasan:draft:";
+const draftKey = (r: Row) => `${DRAFT_PREFIX}${r.id || "new"}`;
+type Draft = { data: Row; savedAt: number };
+function loadDraft(key: string): Draft | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as Draft;
+    if (!p?.data) return null;
+    return p;
+  } catch { return null; }
+}
+function saveDraftLS(key: string, data: Row): number {
+  const savedAt = Date.now();
+  try { localStorage.setItem(key, JSON.stringify({ data, savedAt })); } catch { /* quota */ }
+  return savedAt;
+}
+function clearDraftLS(key: string) {
+  try { localStorage.removeItem(key); } catch { /* noop */ }
+}
+function rowsDiffer(a: Row, b: Row): boolean {
+  const keys: (keyof Row)[] = [
+    "source_type","custom_page_id","title","summary","image_url","image_position",
+    "cta_label","cta_href","layout","is_active",
+  ];
+  return keys.some((k) => (a[k] ?? null) !== (b[k] ?? null));
+}
+
 /** Render satu item ringkasan dalam mode preview (tidak dipakai untuk publik). */
 function ItemPreview({ row }: { row: Row }) {
   const safe: Row = {
