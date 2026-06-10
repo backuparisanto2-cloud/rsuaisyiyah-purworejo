@@ -141,13 +141,70 @@ export default function SummaryAdmin() {
   function openEditor(r: Row) {
     setRedo(null);
     setOriginal({ ...r });
-    setEditing({ ...r });
+    const key = draftKey(r);
+    const draft = loadDraft(key);
+    let start: Row = { ...r };
+    if (draft && rowsDiffer(draft.data, r)) {
+      if (confirm("Ada draft yang belum disimpan untuk item ini. Lanjutkan draft tersebut?")) {
+        start = { ...draft.data, id: r.id, display_order: r.display_order };
+        setDraftSavedAt(draft.savedAt);
+        setDraftStatus("saved");
+      } else {
+        clearDraftLS(key);
+        setDraftSavedAt(null);
+        setDraftStatus("idle");
+      }
+    } else {
+      setDraftSavedAt(null);
+      setDraftStatus("idle");
+    }
+    skipNextAutosaveRef.current = true;
+    setEditing(start);
   }
   function openNew() {
     const b = blank();
     setRedo(null);
     setOriginal(b);
-    setEditing(b);
+    const key = draftKey(b);
+    const draft = loadDraft(key);
+    let start: Row = b;
+    if (draft && rowsDiffer(draft.data, b)) {
+      if (confirm("Ada draft ringkasan baru yang belum disimpan. Lanjutkan draft tersebut?")) {
+        start = { ...draft.data, id: "" };
+        setDraftSavedAt(draft.savedAt);
+        setDraftStatus("saved");
+      } else {
+        clearDraftLS(key);
+        setDraftSavedAt(null);
+        setDraftStatus("idle");
+      }
+    } else {
+      setDraftSavedAt(null);
+      setDraftStatus("idle");
+    }
+    skipNextAutosaveRef.current = true;
+    setEditing(start);
+  }
+  function closeEditor() {
+    if (currentDraftKey && loadDraft(currentDraftKey)) {
+      if (!confirm("Tutup editor? Draft yang belum disimpan akan tetap dipertahankan untuk dibuka kembali nanti.")) return;
+    }
+    setEditing(null);
+    setOriginal(null);
+    setRedo(null);
+    setDraftSavedAt(null);
+    setDraftStatus("idle");
+  }
+  function discardDraft() {
+    if (!currentDraftKey) return;
+    clearDraftLS(currentDraftKey);
+    setDraftSavedAt(null);
+    setDraftStatus("idle");
+    if (original) {
+      skipNextAutosaveRef.current = true;
+      setEditing({ ...original });
+    }
+    toast.success("Draft dibuang");
   }
   function undoChanges() {
     if (!original) return;
