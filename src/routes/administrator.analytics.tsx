@@ -131,21 +131,6 @@ function pct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
 }
 
-function Bar({ label, value, max }: { label: string; value: number; max: number }) {
-  const w = max ? Math.max(2, Math.round((value / max) * 100)) : 0;
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs">
-        <span className="truncate pr-2" title={label}>{label}</span>
-        <span className="tabular-nums text-muted-foreground">{value}</span>
-      </div>
-      <div className="h-2 rounded bg-muted overflow-hidden">
-        <div className="h-full bg-primary" style={{ width: `${w}%` }} />
-      </div>
-    </div>
-  );
-}
-
 function Breakdown({ title, data }: { title: string; data: Record<string, number> }) {
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1]).slice(0, 10);
   const max = entries[0]?.[1] ?? 0;
@@ -156,7 +141,20 @@ function Breakdown({ title, data }: { title: string; data: Record<string, number
         <p className="text-xs text-muted-foreground">Belum ada data</p>
       ) : (
         <div className="space-y-2">
-          {entries.map(([k, v]) => <Bar key={k} label={k} value={v} max={max} />)}
+          {entries.map(([k, v]) => {
+            const w = max ? Math.max(2, Math.round((v / max) * 100)) : 0;
+            return (
+              <div key={k} className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="truncate pr-2" title={k}>{k}</span>
+                  <span className="tabular-nums text-muted-foreground">{v}</span>
+                </div>
+                <div className="h-2 rounded bg-muted overflow-hidden">
+                  <div className="h-full bg-primary" style={{ width: `${w}%` }} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </Card>
@@ -231,11 +229,14 @@ function AnalyticsPage() {
             <Stat label="Total sepanjang waktu" value={q.data.totals.allTimeViews.toLocaleString("id-ID")} />
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <Breakdown title="Perangkat" data={q.data.byDevice} />
-            <Breakdown title="Browser" data={q.data.byBrowser} />
-            <Breakdown title="Sistem Operasi" data={q.data.byOs} />
-            <Breakdown title="Negara" data={q.data.byCountry} />
+          <div className="grid md:grid-cols-2 gap-3">
+            <PieBreakdown title="Perangkat (Mobile/Desktop)" data={q.data.byDevice} />
+            <PieBreakdown title="Browser" data={q.data.byBrowser} />
+            <BarBreakdown title="Sistem Operasi" data={q.data.byOs} />
+            <BarBreakdown title="Negara" data={q.data.byCountry} />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-3">
             <Breakdown title="Halaman terpopuler" data={q.data.byPath} />
             <Breakdown title="Kunjungan per hari" data={q.data.byDay} />
           </div>
