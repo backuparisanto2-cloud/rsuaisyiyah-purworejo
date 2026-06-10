@@ -103,6 +103,14 @@ function buildTour(steps: StepDef[], navigate: NavigateFn) {
             toast.info("Elemen tour belum tersedia, lanjut ke langkah berikut.");
             // Defer to next tick then advance
             queueMicrotask(() => tour.next());
+          } else {
+            // Ensure target is in viewport (responsive layouts can hide it)
+            try {
+              (found as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+            } catch {
+              // ignore
+            }
+            await new Promise((r) => setTimeout(r, 150));
           }
         }
       },
@@ -110,12 +118,21 @@ function buildTour(steps: StepDef[], navigate: NavigateFn) {
         ...(!isFirst
           ? [{ text: "Kembali", action: () => tour.back(), secondary: true }]
           : []),
+        {
+          text: "Ulangi",
+          action: () => {
+            const first = tour.steps[0];
+            if (first) tour.show(first.id, true);
+          },
+          secondary: true,
+        },
         { text: "Lewati", action: () => tour.cancel(), secondary: true },
         {
           text: isLast ? "Selesai" : "Lanjut",
           action: () => (isLast ? tour.complete() : tour.next()),
         },
       ],
+
     });
   });
 
@@ -611,15 +628,39 @@ export function startTour(pathname: string, navigate: NavigateFn = defaultNaviga
   const builder = REGISTRY[pathname] ?? genericTour;
   const tour = buildTour(builder(), navigate);
   activeTour = tour;
-  tour.on("complete", () => {
+
+  // Keep tooltip anchored to its target on viewport resize / scroll
+  const reposition = () => {
+    const step: any = tour.getCurrentStep();
+    if (!step) return;
+    try {
+      if (typeof step.setupElements === "function") step.setupElements();
+      else if (typeof step._updateStepTargetOnHide === "function") step._updateStepTargetOnHide();
+    } catch {
+      // ignore
+    }
+  };
+  const onResize = () => reposition();
+  const onScroll = () => reposition();
+  window.addEventListener("resize", onResize, { passive: true });
+  window.addEventListener("scroll", onScroll, { passive: true, capture: true });
+
+  const cleanup = () => {
+    window.removeEventListener("resize", onResize);
+    window.removeEventListener("scroll", onScroll, true);
     if (activeTour === tour) activeTour = null;
-  });
-  tour.on("cancel", () => {
-    if (activeTour === tour) activeTour = null;
-  });
+  };
+  tour.on("complete", cleanup);
+  tour.on("cancel", cleanup);
   tour.start();
   return tour;
 }
+
+/** Restart the tour for the current admin pathname. */
+export function restartTour(pathname: string, navigate: NavigateFn = defaultNavigate) {
+  return startTour(pathname, navigate);
+}
+
 
 /** Re-target the active tour when the user navigates to a new admin route mid-tour. */
 export function syncTourWithRoute(pathname: string, navigate: NavigateFn = defaultNavigate) {
