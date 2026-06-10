@@ -679,6 +679,7 @@ export type Database = {
           duration_ms: number
           ended_at: string | null
           id: string
+          ip: string | null
           ip_hash: string | null
           is_bounce: boolean
           os: string | null
@@ -694,6 +695,7 @@ export type Database = {
           duration_ms?: number
           ended_at?: string | null
           id?: string
+          ip?: string | null
           ip_hash?: string | null
           is_bounce?: boolean
           os?: string | null
@@ -709,6 +711,7 @@ export type Database = {
           duration_ms?: number
           ended_at?: string | null
           id?: string
+          ip?: string | null
           ip_hash?: string | null
           is_bounce?: boolean
           os?: string | null
