@@ -40,10 +40,8 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     (async () => {
-      const { data: s } = await supabase
-        .from("chatbot_settings")
-        .select("name,avatar_url,greeting,quick_questions")
-        .maybeSingle();
+      const { data } = await supabase.rpc("get_public_chatbot_settings");
+      const s = Array.isArray(data) ? data[0] : data;
       if (s) {
         if (s.name) setName(s.name);
         if (s.avatar_url) setAvatar(s.avatar_url);
