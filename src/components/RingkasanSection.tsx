@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-type Row = {
+export type RingkasanRow = {
   id: string;
   source_type: "custom_page" | "manual";
   custom_page_id: string | null;
@@ -16,6 +16,8 @@ type Row = {
   display_order: number;
   is_active: boolean;
 };
+
+type Row = RingkasanRow;
 
 export default function RingkasanSection() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -89,7 +91,7 @@ function Paragraphs({ text }: { text: string }) {
   );
 }
 
-function BlockItem({ row, index }: { row: Row; index: number }) {
+export function BlockItem({ row, index }: { row: Row; index: number }) {
   const bg = index % 2 === 1 ? "bg-muted/30" : "";
   const pos = row.image_position;
   const hasImage = !!row.image_url && pos !== "none";
@@ -141,7 +143,7 @@ function BlockItem({ row, index }: { row: Row; index: number }) {
   );
 }
 
-function CardGrid({ rows }: { rows: Row[] }) {
+export function CardGrid({ rows }: { rows: Row[] }) {
   return (
     <section className="py-16 px-6 bg-muted/20">
       <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

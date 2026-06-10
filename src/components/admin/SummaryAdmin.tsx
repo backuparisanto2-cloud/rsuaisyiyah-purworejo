@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,26 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageUpload from "@/components/admin/ImageUpload";
 import { SortableList, persistOrder } from "@/components/admin/SortableList";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Save, Pencil, X } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, Pencil, X, ImagePlus, Eye } from "lucide-react";
+import { BlockItem, CardGrid, type RingkasanRow } from "@/components/RingkasanSection";
 
 type SourceType = "custom_page" | "manual";
 type ImgPos = "left" | "right" | "top" | "none";
 type LayoutType = "block" | "card";
 
-type Row = {
-  id: string;
-  source_type: SourceType;
-  custom_page_id: string | null;
-  title: string;
-  summary: string;
-  image_url: string | null;
-  image_position: ImgPos;
-  cta_label: string;
-  cta_href: string;
-  layout: LayoutType;
-  display_order: number;
-  is_active: boolean;
-};
+type Row = RingkasanRow;
 
 type PageOpt = { id: string; title: string; slug: string; meta_description: string };
 
@@ -40,12 +28,26 @@ const blank = (): Row => ({
   display_order: 0, is_active: true,
 });
 
+/** Render satu item ringkasan dalam mode preview (tidak dipakai untuk publik). */
+function ItemPreview({ row }: { row: Row }) {
+  const safe: Row = {
+    ...row,
+    title: row.title || "Judul Ringkasan",
+    summary: row.summary || "Pratinjau ringkasan akan muncul di sini saat Anda mengetik.",
+    cta_label: row.cta_label || "Selengkapnya",
+  };
+  if (safe.layout === "card") return <CardGrid rows={[safe]} />;
+  return <BlockItem row={safe} index={0} />;
+}
+
 export default function SummaryAdmin() {
   const [rows, setRows] = useState<Row[]>([]);
   const [pages, setPages] = useState<PageOpt[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Row | null>(null);
   const [saving, setSaving] = useState(false);
+  const quickUploadRef = useRef<HTMLInputElement>(null);
+  const [quickTarget, setQuickTarget] = useState<Row | null>(null);
 
   async function load() {
     setLoading(true);
@@ -123,121 +125,190 @@ export default function SummaryAdmin() {
     void load();
   }
 
+  // Quick image swap from list (upload langsung ke bucket media, lalu update row)
+  function openQuickUpload(r: Row) {
+    setQuickTarget(r);
+    quickUploadRef.current?.click();
+  }
+
+  async function handleQuickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !quickTarget) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
+    if (!allowed.includes(file.type)) return toast.error("Tipe file tidak didukung");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Ukuran maksimal 5 MB");
+    const path = `ringkasan/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const up = await supabase.storage.from("media").upload(path, file, { upsert: false });
+    if (up.error) return toast.error(up.error.message);
+    const { data: pub } = supabase.storage.from("media").getPublicUrl(path);
+    const newPos = quickTarget.image_position === "none" ? "right" : quickTarget.image_position;
+    const { error } = await supabase
+      .from("home_summary_sections")
+      .update({ image_url: pub.publicUrl, image_position: newPos })
+      .eq("id", quickTarget.id);
+    if (error) return toast.error(error.message);
+    toast.success("Gambar diperbarui");
+    setQuickTarget(null);
+    void load();
+  }
+
+  async function clearImage(r: Row) {
+    if (!confirm("Hapus gambar pada item ini?")) return;
+    const { error } = await supabase
+      .from("home_summary_sections")
+      .update({ image_url: null, image_position: "none" })
+      .eq("id", r.id);
+    if (error) toast.error(error.message);
+    else { toast.success("Gambar dihapus"); void load(); }
+  }
+
   if (editing) {
     const isCp = editing.source_type === "custom_page";
     return (
-      <div className="space-y-4 max-w-3xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">{editing.id ? "Edit Ringkasan" : "Ringkasan Baru"}</h2>
-          <Button variant="ghost" onClick={() => setEditing(null)}><X className="h-4 w-4 mr-1" />Batal</Button>
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6">
+        {/* Form */}
+        <div className="space-y-4 min-w-0">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold">{editing.id ? "Edit Ringkasan" : "Ringkasan Baru"}</h2>
+            <Button variant="ghost" onClick={() => setEditing(null)}><X className="h-4 w-4 mr-1" />Batal</Button>
+          </div>
+
+          <Card><CardContent className="pt-6 space-y-4">
+            <div>
+              <Label>Sumber Konten</Label>
+              <Select value={editing.source_type} onValueChange={(v: SourceType) =>
+                setEditing({ ...editing, source_type: v, custom_page_id: v === "manual" ? null : editing.custom_page_id })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">Manual (isi sendiri)</SelectItem>
+                  <SelectItem value="custom_page">Dari Halaman Page Builder</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {isCp && (
+              <div>
+                <Label>Pilih Halaman</Label>
+                <Select value={editing.custom_page_id ?? ""} onValueChange={pickPage}>
+                  <SelectTrigger><SelectValue placeholder="— pilih halaman —" /></SelectTrigger>
+                  <SelectContent>
+                    {pages.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">Judul, ringkasan, dan link tombol bisa di-override di bawah.</p>
+              </div>
+            )}
+
+            <div>
+              <Label>Judul</Label>
+              <Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
+            </div>
+
+            <div>
+              <Label>Ringkasan</Label>
+              <Textarea rows={4} value={editing.summary} onChange={(e) => setEditing({ ...editing, summary: e.target.value })} />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label>Layout</Label>
+                <Select value={editing.layout} onValueChange={(v: LayoutType) => setEditing({ ...editing, layout: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="block">Blok besar (full-width)</SelectItem>
+                    <SelectItem value="card">Kartu (grid)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Posisi Gambar</Label>
+                <Select value={editing.image_position} onValueChange={(v: ImgPos) => setEditing({ ...editing, image_position: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Tanpa gambar</SelectItem>
+                    <SelectItem value="left">Kiri</SelectItem>
+                    <SelectItem value="right">Kanan</SelectItem>
+                    <SelectItem value="top">Atas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {editing.image_position !== "none" && (
+              <div>
+                <Label>Gambar</Label>
+                <ImageUpload
+                  value={editing.image_url}
+                  onChange={(url) => setEditing({ ...editing, image_url: url })}
+                  folder="ringkasan"
+                />
+              </div>
+            )}
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label>Label Tombol</Label>
+                <Input value={editing.cta_label} onChange={(e) => setEditing({ ...editing, cta_label: e.target.value })} />
+              </div>
+              <div>
+                <Label>Link Tombol</Label>
+                <Input placeholder="/p/profil atau https://…" value={editing.cta_href}
+                  onChange={(e) => setEditing({ ...editing, cta_href: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Switch checked={editing.is_active} onCheckedChange={(v) => setEditing({ ...editing, is_active: v })} />
+              <Label>Aktif</Label>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setEditing(null)}>Batal</Button>
+              <Button onClick={save} disabled={saving}>
+                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                Simpan
+              </Button>
+            </div>
+          </CardContent></Card>
         </div>
 
-        <Card><CardContent className="pt-6 space-y-4">
-          <div>
-            <Label>Sumber Konten</Label>
-            <Select value={editing.source_type} onValueChange={(v: SourceType) =>
-              setEditing({ ...editing, source_type: v, custom_page_id: v === "manual" ? null : editing.custom_page_id })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="manual">Manual (isi sendiri)</SelectItem>
-                <SelectItem value="custom_page">Dari Halaman Page Builder</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {isCp && (
-            <div>
-              <Label>Pilih Halaman</Label>
-              <Select value={editing.custom_page_id ?? ""} onValueChange={pickPage}>
-                <SelectTrigger><SelectValue placeholder="— pilih halaman —" /></SelectTrigger>
-                <SelectContent>
-                  {pages.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">Judul, ringkasan, dan link tombol bisa di-override di bawah.</p>
+        {/* Live preview */}
+        <div className="min-w-0">
+          <div className="lg:sticky lg:top-4 space-y-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Eye className="h-4 w-4" /> Pratinjau langsung
             </div>
-          )}
-
-          <div>
-            <Label>Judul</Label>
-            <Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
-          </div>
-
-          <div>
-            <Label>Ringkasan</Label>
-            <Textarea rows={4} value={editing.summary} onChange={(e) => setEditing({ ...editing, summary: e.target.value })} />
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Layout</Label>
-              <Select value={editing.layout} onValueChange={(v: LayoutType) => setEditing({ ...editing, layout: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="block">Blok besar (full-width)</SelectItem>
-                  <SelectItem value="card">Kartu (grid)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">Beberapa kartu berurutan otomatis tergabung menjadi satu grid.</p>
+            <div className="rounded-xl border border-border bg-background overflow-hidden">
+              <div className="bg-muted/50 px-3 py-2 text-xs text-muted-foreground border-b border-border">
+                Tampilan di beranda
+              </div>
+              <div className="overflow-x-auto">
+                <div className="origin-top-left scale-[0.85] lg:scale-90 -mb-12">
+                  <ItemPreview row={editing} />
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Posisi Gambar</Label>
-              <Select value={editing.image_position} onValueChange={(v: ImgPos) => setEditing({ ...editing, image_position: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Tanpa gambar</SelectItem>
-                  <SelectItem value="left">Kiri</SelectItem>
-                  <SelectItem value="right">Kanan</SelectItem>
-                  <SelectItem value="top">Atas</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Pratinjau diperbarui real-time. Tata letak final mengikuti lebar layar pengunjung.
+            </p>
           </div>
-
-          {editing.image_position !== "none" && (
-            <div>
-              <Label>Gambar</Label>
-              <ImageUpload
-                value={editing.image_url}
-                onChange={(url) => setEditing({ ...editing, image_url: url })}
-                folder="ringkasan"
-              />
-            </div>
-          )}
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Label Tombol</Label>
-              <Input value={editing.cta_label} onChange={(e) => setEditing({ ...editing, cta_label: e.target.value })} />
-            </div>
-            <div>
-              <Label>Link Tombol</Label>
-              <Input placeholder="/p/profil atau https://…" value={editing.cta_href}
-                onChange={(e) => setEditing({ ...editing, cta_href: e.target.value })} />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Switch checked={editing.is_active} onCheckedChange={(v) => setEditing({ ...editing, is_active: v })} />
-            <Label>Aktif</Label>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setEditing(null)}>Batal</Button>
-            <Button onClick={save} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-              Simpan
-            </Button>
-          </div>
-        </CardContent></Card>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4 max-w-3xl">
+      <input
+        ref={quickUploadRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+        className="hidden"
+        onChange={handleQuickFile}
+      />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Ringkasan Beranda</h2>
@@ -274,6 +345,14 @@ export default function SummaryAdmin() {
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <Switch checked={r.is_active} onCheckedChange={() => toggleActive(r)} />
+                <Button size="sm" variant="ghost" title="Ganti gambar" onClick={() => openQuickUpload(r)}>
+                  <ImagePlus className="h-4 w-4" />
+                </Button>
+                {r.image_url && (
+                  <Button size="sm" variant="ghost" title="Hapus gambar" onClick={() => clearImage(r)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button size="sm" variant="ghost" onClick={() => setEditing(r)}><Pencil className="h-4 w-4" /></Button>
                 <Button size="sm" variant="ghost" onClick={() => remove(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
