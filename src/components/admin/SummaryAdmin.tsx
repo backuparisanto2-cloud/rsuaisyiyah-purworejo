@@ -432,7 +432,7 @@ export default function SummaryAdmin() {
                 <Button variant="ghost" onClick={redoChanges} disabled={!redo}>
                   <Redo className="h-4 w-4 mr-2" />Ulangi Perubahan
                 </Button>
-                <Button onClick={save} disabled={saving}>
+                <Button onClick={save} disabled={saving} data-tour="ringkasan-simpan">
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                   Simpan
                 </Button>
