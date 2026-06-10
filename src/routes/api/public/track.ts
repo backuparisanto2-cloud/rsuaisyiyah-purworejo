@@ -76,6 +76,7 @@ export const Route = createFileRoute("/api/public/track")({
               os,
               country,
               ip_hash: ipHash,
+              ip: ip ? ip.slice(0, 64) : null,
               duration_ms: 0,
               is_bounce: true,
             })
