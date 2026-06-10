@@ -317,7 +317,7 @@ export default function SummaryAdmin() {
           </div>
 
           <Card><CardContent className="pt-6 space-y-4">
-            <div>
+            <div data-tour="ringkasan-source">
               <Label>Sumber Konten</Label>
               <Select value={editing.source_type} onValueChange={(v: SourceType) =>
                 setEditing({ ...editing, source_type: v, custom_page_id: v === "manual" ? null : editing.custom_page_id })}>
