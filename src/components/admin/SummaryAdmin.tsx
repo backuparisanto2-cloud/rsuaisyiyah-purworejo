@@ -78,6 +78,33 @@ export default function SummaryAdmin() {
   const [saving, setSaving] = useState(false);
   const quickUploadRef = useRef<HTMLInputElement>(null);
   const [quickTarget, setQuickTarget] = useState<Row | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<number | null>(null);
+  const [draftStatus, setDraftStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const skipNextAutosaveRef = useRef(false);
+
+  const currentDraftKey = useMemo(() => (editing ? draftKey(editing) : null), [editing]);
+
+  // Debounced autosave to localStorage
+  useEffect(() => {
+    if (!editing || !currentDraftKey) return;
+    if (skipNextAutosaveRef.current) { skipNextAutosaveRef.current = false; return; }
+    if (original && !rowsDiffer(editing, original)) {
+      // no diff vs original → don't create noise; clear any stale draft
+      if (loadDraft(currentDraftKey)) {
+        clearDraftLS(currentDraftKey);
+        setDraftSavedAt(null);
+        setDraftStatus("idle");
+      }
+      return;
+    }
+    setDraftStatus("saving");
+    const t = setTimeout(() => {
+      const at = saveDraftLS(currentDraftKey, editing);
+      setDraftSavedAt(at);
+      setDraftStatus("saved");
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [editing, currentDraftKey, original]);
 
   async function load() {
     setLoading(true);
