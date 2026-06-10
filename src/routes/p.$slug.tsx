@@ -2,8 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import PageLayout from "@/components/PageLayout";
 import { PagePreview } from "./administrator.pages";
 
 export const Route = createFileRoute("/p/$slug")({
@@ -94,16 +93,10 @@ function CustomPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Header pageId={page.id} />
-      <main className="flex-1">
-        <div className="max-w-4xl mx-auto px-4 pt-36 md:pt-40 pb-12">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Beranda</Link>
-          <h1 className="text-4xl font-bold mt-4 mb-6">{page.title}</h1>
-          <PagePreview content={page.content} images={imgs} />
-        </div>
-      </main>
-      <Footer />
-    </div>
+    <PageLayout pageId={page.id}>
+      <Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Beranda</Link>
+      <h1 className="text-4xl font-bold mt-4 mb-6">{page.title}</h1>
+      <PagePreview content={page.content} images={imgs} />
+    </PageLayout>
   );
 }
