@@ -493,6 +493,65 @@ export type Database = {
         }
         Relationships: []
       }
+      home_summary_sections: {
+        Row: {
+          created_at: string
+          cta_href: string
+          cta_label: string
+          custom_page_id: string | null
+          display_order: number
+          id: string
+          image_position: string
+          image_url: string | null
+          is_active: boolean
+          layout: string
+          source_type: string
+          summary: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cta_href?: string
+          cta_label?: string
+          custom_page_id?: string | null
+          display_order?: number
+          id?: string
+          image_position?: string
+          image_url?: string | null
+          is_active?: boolean
+          layout?: string
+          source_type?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cta_href?: string
+          cta_label?: string
+          custom_page_id?: string | null
+          display_order?: number
+          id?: string
+          image_position?: string
+          image_url?: string | null
+          is_active?: boolean
+          layout?: string
+          source_type?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "home_summary_sections_custom_page_id_fkey"
+            columns: ["custom_page_id"]
+            isOneToOne: false
+            referencedRelation: "custom_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instagram_posts: {
         Row: {
           caption: string
