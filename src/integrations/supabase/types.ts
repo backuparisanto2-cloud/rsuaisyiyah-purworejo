@@ -933,6 +933,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_chatbot_settings: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          greeting: string
+          name: string
+          quick_questions: Json
+        }[]
+      }
       has_min_role: {
         Args: {
           _min: Database["public"]["Enums"]["app_role"]

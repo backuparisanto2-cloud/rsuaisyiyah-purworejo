@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireSupabaseAdmin } from "@/integrations/supabase/admin-middleware";
 import { z } from "zod";
 
 const scheduleItemSchema = z.object({
@@ -41,7 +41,7 @@ Aturan:
 - Hanya kembalikan JSON, tanpa teks lain.`;
 
 export const extractScheduleFromImage = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAdmin])
   .inputValidator((input) =>
     z.object({
       imageBase64: z.string().min(50),
