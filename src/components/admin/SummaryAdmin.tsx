@@ -258,6 +258,9 @@ export default function SummaryAdmin() {
     setSaving(false);
     if (res.error) { toast.error(res.error.message); return; }
     toast.success("Tersimpan");
+    if (currentDraftKey) clearDraftLS(currentDraftKey);
+    setDraftSavedAt(null);
+    setDraftStatus("idle");
     setRedo(null);
     setOriginal(null);
     setEditing(null);
