@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageUpload from "@/components/admin/ImageUpload";
 import { SortableList, persistOrder } from "@/components/admin/SortableList";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Save, Pencil, X, ImagePlus, Eye } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, Pencil, X, ImagePlus, Eye, Undo } from "lucide-react";
 import { BlockItem, CardGrid, type RingkasanRow } from "@/components/RingkasanSection";
 
 type SourceType = "custom_page" | "manual";
