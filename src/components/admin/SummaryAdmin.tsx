@@ -333,7 +333,7 @@ export default function SummaryAdmin() {
             Tampil di beranda pada posisi section "Ringkasan Beranda" (atur urutannya di menu <span className="font-mono">Sections</span>).
           </p>
         </div>
-        <Button onClick={() => setEditing(blank())}><Plus className="h-4 w-4 mr-2" />Tambah</Button>
+        <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" />Tambah</Button>
       </div>
 
       {loading ? (
