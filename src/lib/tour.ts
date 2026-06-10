@@ -12,6 +12,8 @@ type StepDef = {
   route?: string;
   /** If set, click this `[data-tour-tab="<id>"]` trigger before showing. */
   tab?: string;
+  /** If set, click this selector before showing the step (e.g. to open a form). */
+  click?: string;
 };
 
 type TourBuilder = () => StepDef[];
