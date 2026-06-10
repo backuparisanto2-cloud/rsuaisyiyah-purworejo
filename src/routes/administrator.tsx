@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { startTour, syncTourWithRoute } from "@/lib/tour";
+import { AccessBanner, ForbiddenView } from "@/components/admin/AccessBanner";
 
 
 export const Route = createFileRoute("/administrator")({
@@ -77,15 +78,8 @@ function AdminLayout() {
     }
   }, [session, role, loading, navigate]);
 
-  // Block non-admin from admin-only pages
-  useEffect(() => {
-    if (!role) return;
-    const current = NAV.find((n) => n.to === pathname);
-    if (current?.adminOnly && !isAdmin) {
-      toast.error("Halaman ini khusus admin");
-      navigate({ to: "/administrator" });
-    }
-  }, [pathname, role, isAdmin, navigate]);
+  const currentNav = NAV.find((n) => n.to === pathname);
+  const blockedAdminOnly = !!currentNav?.adminOnly && !!role && !isAdmin;
 
   // Keep the active tour highlight in sync when the admin route changes mid-tour
   useEffect(() => {
@@ -156,7 +150,10 @@ function AdminLayout() {
           </div>
 
         </header>
-        <main className="flex-1 p-3 sm:p-6 overflow-x-hidden"><Outlet /></main>
+        <main className="flex-1 p-3 sm:p-6 overflow-x-hidden">
+          <AccessBanner />
+          {blockedAdminOnly ? <ForbiddenView title={`${currentNav?.label ?? "Halaman ini"} khusus admin`} /> : <Outlet />}
+        </main>
       </div>
     </div>
   );
