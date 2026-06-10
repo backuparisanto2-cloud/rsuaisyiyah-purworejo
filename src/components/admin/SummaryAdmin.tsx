@@ -407,17 +407,36 @@ export default function SummaryAdmin() {
               <Label>Aktif</Label>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={undoChanges}>
-                <Undo className="h-4 w-4 mr-2" />Batalkan Perubahan
-              </Button>
-              <Button variant="ghost" onClick={redoChanges} disabled={!redo}>
-                <Redo className="h-4 w-4 mr-2" />Ulangi Perubahan
-              </Button>
-              <Button onClick={save} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                Simpan
-              </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                {draftStatus === "saving" && <span>Menyimpan draft…</span>}
+                {draftStatus === "saved" && draftSavedAt && (
+                  <span>Draft tersimpan • {new Date(draftSavedAt).toLocaleTimeString()}</span>
+                )}
+                {draftStatus === "idle" && <span>Belum ada perubahan</span>}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={discardDraft}
+                  disabled={!draftSavedAt}
+                >
+                  Buang draft
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={undoChanges}>
+                  <Undo className="h-4 w-4 mr-2" />Batalkan Perubahan
+                </Button>
+                <Button variant="ghost" onClick={redoChanges} disabled={!redo}>
+                  <Redo className="h-4 w-4 mr-2" />Ulangi Perubahan
+                </Button>
+                <Button onClick={save} disabled={saving}>
+                  {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  Simpan
+                </Button>
+              </div>
             </div>
           </CardContent></Card>
         </div>
