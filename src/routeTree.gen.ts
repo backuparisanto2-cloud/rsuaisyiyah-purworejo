@@ -14,6 +14,7 @@ import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
+import { Route as AdministratorUsersRouteImport } from './routes/administrator.users'
 import { Route as AdministratorThemeRouteImport } from './routes/administrator.theme'
 import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
 import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
@@ -58,6 +59,11 @@ const PSlugRoute = PSlugRouteImport.update({
   id: '/p/$slug',
   path: '/p/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdministratorUsersRoute = AdministratorUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdministratorRoute,
 } as any)
 const AdministratorThemeRoute = AdministratorThemeRouteImport.update({
   id: '/theme',
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
+  '/administrator/users': typeof AdministratorUsersRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
+  '/administrator/users': typeof AdministratorUsersRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
+  '/administrator/users': typeof AdministratorUsersRoute
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/administrator/sections'
     | '/administrator/tentang'
     | '/administrator/theme'
+    | '/administrator/users'
     | '/p/$slug'
     | '/administrator/'
     | '/api/public/chatbot-chat'
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/administrator/sections'
     | '/administrator/tentang'
     | '/administrator/theme'
+    | '/administrator/users'
     | '/p/$slug'
     | '/administrator'
     | '/api/public/chatbot-chat'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/administrator/sections'
     | '/administrator/tentang'
     | '/administrator/theme'
+    | '/administrator/users'
     | '/p/$slug'
     | '/administrator/'
     | '/api/public/chatbot-chat'
@@ -360,6 +372,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/p/$slug'
       preLoaderRoute: typeof PSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/administrator/users': {
+      id: '/administrator/users'
+      path: '/users'
+      fullPath: '/administrator/users'
+      preLoaderRoute: typeof AdministratorUsersRouteImport
+      parentRoute: typeof AdministratorRoute
     }
     '/administrator/theme': {
       id: '/administrator/theme'
@@ -515,6 +534,7 @@ interface AdministratorRouteChildren {
   AdministratorSectionsRoute: typeof AdministratorSectionsRoute
   AdministratorTentangRoute: typeof AdministratorTentangRoute
   AdministratorThemeRoute: typeof AdministratorThemeRoute
+  AdministratorUsersRoute: typeof AdministratorUsersRoute
   AdministratorIndexRoute: typeof AdministratorIndexRoute
 }
 
@@ -536,6 +556,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorSectionsRoute: AdministratorSectionsRoute,
   AdministratorTentangRoute: AdministratorTentangRoute,
   AdministratorThemeRoute: AdministratorThemeRoute,
+  AdministratorUsersRoute: AdministratorUsersRoute,
   AdministratorIndexRoute: AdministratorIndexRoute,
 }
 
