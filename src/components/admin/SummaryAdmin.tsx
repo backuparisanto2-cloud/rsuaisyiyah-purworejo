@@ -467,7 +467,7 @@ export default function SummaryAdmin() {
   }
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-4 max-w-3xl" data-tour="ringkasan-root">
       <input
         ref={quickUploadRef}
         type="file"
@@ -482,13 +482,13 @@ export default function SummaryAdmin() {
             Tampil di beranda pada posisi section "Ringkasan Beranda" (atur urutannya di menu <span className="font-mono">Sections</span>).
           </p>
         </div>
-        <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" />Tambah</Button>
+        <Button onClick={openNew} data-tour="ringkasan-add"><Plus className="h-4 w-4 mr-2" />Tambah</Button>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
       ) : rows.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">Belum ada item ringkasan.</CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-muted-foreground" data-tour="ringkasan-list">Belum ada item ringkasan.</CardContent></Card>
       ) : (
         <SortableList items={rows} onReorder={reorder} renderItem={(r, h) => (
           <Card>

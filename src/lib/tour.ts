@@ -356,6 +356,7 @@ const pagesTour: TourBuilder = () => [
     target: '[data-tour="pages-new"]',
     on: "bottom",
     route: "/administrator/pages",
+    tab: "pages",
   },
   {
     title: "Daftar Halaman",
@@ -364,6 +365,33 @@ const pagesTour: TourBuilder = () => [
     target: '[data-tour="pages-list"]',
     on: "top",
     route: "/administrator/pages",
+    tab: "pages",
+  },
+  {
+    title: "Tab Ringkasan Beranda",
+    text:
+      "Selain halaman custom, ada tab Ringkasan Beranda untuk mengatur kartu/blok ringkas yang tampil di section Ringkasan beranda.",
+    target: '[data-tour-tab="summary"]',
+    on: "bottom",
+    route: "/administrator/pages",
+  },
+  {
+    title: "Tambah Ringkasan",
+    text:
+      "Klik Tambah untuk membuat item ringkasan baru — sumber bisa manual atau diambil dari halaman Page Builder.",
+    target: '[data-tour="ringkasan-add"]',
+    on: "bottom",
+    route: "/administrator/pages",
+    tab: "summary",
+  },
+  {
+    title: "Atur & Susun Ringkasan",
+    text:
+      "Setiap baris bisa diatur: toggle aktif, ganti gambar cepat, edit detail, atau hapus. Seret untuk mengubah urutan tampil di beranda.",
+    target: '[data-tour="ringkasan-root"]',
+    on: "top",
+    route: "/administrator/pages",
+    tab: "summary",
   },
 ];
 

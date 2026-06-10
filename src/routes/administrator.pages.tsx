@@ -352,8 +352,8 @@ function PagesAdmin() {
   return (
     <Tabs defaultValue="pages" className="w-full">
       <TabsList className="mb-6">
-        <TabsTrigger value="pages">Halaman</TabsTrigger>
-        <TabsTrigger value="summary">Ringkasan Beranda</TabsTrigger>
+        <TabsTrigger value="pages" data-tour-tab="pages">Halaman</TabsTrigger>
+        <TabsTrigger value="summary" data-tour-tab="summary">Ringkasan Beranda</TabsTrigger>
       </TabsList>
 
       <TabsContent value="pages">
