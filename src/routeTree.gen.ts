@@ -32,7 +32,6 @@ import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq
 import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
 import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
 import { Route as AdministratorBackupRouteImport } from './routes/administrator.backup'
-import { Route as AdministratorAuditLogRouteImport } from './routes/administrator.audit-log'
 import { Route as AdministratorAnalyticsRouteImport } from './routes/administrator.analytics'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
@@ -155,11 +154,6 @@ const AdministratorBackupRoute = AdministratorBackupRouteImport.update({
   path: '/backup',
   getParentRoute: () => AdministratorRoute,
 } as any)
-const AdministratorAuditLogRoute = AdministratorAuditLogRouteImport.update({
-  id: '/audit-log',
-  path: '/audit-log',
-  getParentRoute: () => AdministratorRoute,
-} as any)
 const AdministratorAnalyticsRoute = AdministratorAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -186,7 +180,6 @@ export interface FileRoutesByFullPath {
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
   '/administrator/analytics': typeof AdministratorAnalyticsRoute
-  '/administrator/audit-log': typeof AdministratorAuditLogRoute
   '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
@@ -215,7 +208,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/administrator/analytics': typeof AdministratorAnalyticsRoute
-  '/administrator/audit-log': typeof AdministratorAuditLogRoute
   '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
@@ -246,7 +238,6 @@ export interface FileRoutesById {
   '/administrator': typeof AdministratorRouteWithChildren
   '/auth': typeof AuthRoute
   '/administrator/analytics': typeof AdministratorAnalyticsRoute
-  '/administrator/audit-log': typeof AdministratorAuditLogRoute
   '/administrator/backup': typeof AdministratorBackupRoute
   '/administrator/chatbot': typeof AdministratorChatbotRoute
   '/administrator/dokter': typeof AdministratorDokterRoute
@@ -278,7 +269,6 @@ export interface FileRouteTypes {
     | '/administrator'
     | '/auth'
     | '/administrator/analytics'
-    | '/administrator/audit-log'
     | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
@@ -307,7 +297,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/administrator/analytics'
-    | '/administrator/audit-log'
     | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
@@ -337,7 +326,6 @@ export interface FileRouteTypes {
     | '/administrator'
     | '/auth'
     | '/administrator/analytics'
-    | '/administrator/audit-log'
     | '/administrator/backup'
     | '/administrator/chatbot'
     | '/administrator/dokter'
@@ -536,13 +524,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorBackupRouteImport
       parentRoute: typeof AdministratorRoute
     }
-    '/administrator/audit-log': {
-      id: '/administrator/audit-log'
-      path: '/audit-log'
-      fullPath: '/administrator/audit-log'
-      preLoaderRoute: typeof AdministratorAuditLogRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
     '/administrator/analytics': {
       id: '/administrator/analytics'
       path: '/analytics'
@@ -576,7 +557,6 @@ declare module '@tanstack/react-router' {
 
 interface AdministratorRouteChildren {
   AdministratorAnalyticsRoute: typeof AdministratorAnalyticsRoute
-  AdministratorAuditLogRoute: typeof AdministratorAuditLogRoute
   AdministratorBackupRoute: typeof AdministratorBackupRoute
   AdministratorChatbotRoute: typeof AdministratorChatbotRoute
   AdministratorDokterRoute: typeof AdministratorDokterRoute
@@ -600,7 +580,6 @@ interface AdministratorRouteChildren {
 
 const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorAnalyticsRoute: AdministratorAnalyticsRoute,
-  AdministratorAuditLogRoute: AdministratorAuditLogRoute,
   AdministratorBackupRoute: AdministratorBackupRoute,
   AdministratorChatbotRoute: AdministratorChatbotRoute,
   AdministratorDokterRoute: AdministratorDokterRoute,

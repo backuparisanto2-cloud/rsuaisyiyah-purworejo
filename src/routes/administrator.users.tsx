@@ -180,7 +180,7 @@ function UsersAdmin() {
               </div>
               <div className="space-y-1">
                 <Label>Password Awal (≥ 8 karakter)</Label>
-                <Input type="password" autoComplete="new-password" value={nPwd} onChange={(e) => setNPwd(e.target.value)} />
+                <Input type="text" value={nPwd} onChange={(e) => setNPwd(e.target.value)} />
               </div>
               <div className="space-y-1">
                 <Label>Role</Label>
@@ -285,7 +285,7 @@ function UsersAdmin() {
           <p className="text-sm text-muted-foreground">{pwdTarget?.email}</p>
           <div className="space-y-1">
             <Label>Password Baru (≥ 8 karakter)</Label>
-            <Input type="password" autoComplete="new-password" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} autoFocus />
+            <Input type="text" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} autoFocus />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPwdTarget(null)}>Batal</Button>

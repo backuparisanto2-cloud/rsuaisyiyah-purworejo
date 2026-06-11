@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Images, Settings as SettingsIcon, Info, Clock, Stethoscope,
   Users, Handshake, HelpCircle, Phone, ListTree, LayoutTemplate, Palette,
   Bot, LogOut, Loader2, Type, FileText, Instagram, Menu as MenuIcon, Database,
-  UserCog, BarChart3, ScrollText,
+  UserCog, BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -44,7 +44,6 @@ const NAV: NavItem[] = [
   { to: "/administrator/analytics", label: "Statistik Pengunjung", icon: BarChart3, adminOnly: true },
   { to: "/administrator/users", label: "Pengguna", icon: UserCog, adminOnly: true },
   { to: "/administrator/backup", label: "Backup Database", icon: Database, adminOnly: true },
-  { to: "/administrator/audit-log", label: "Audit Log", icon: ScrollText, adminOnly: true },
 ];
 
 function NavList({ pathname, onNavigate, isAdmin }: { pathname: string; onNavigate?: () => void; isAdmin: boolean }) {
