@@ -438,7 +438,7 @@ export function PagePreview({ content, images }: { content: string; images: Page
             {img.caption && <figcaption className="text-xs text-muted-foreground mt-1">{img.caption}</figcaption>}
           </figure>
         ))}
-        <div dangerouslySetInnerHTML={{ __html: content || "<p class='text-muted-foreground'>Konten akan tampil di sini...</p>" }} />
+        <div dangerouslySetInnerHTML={{ __html: content ? sanitizeHtml(content) : "<p class='text-muted-foreground'>Konten akan tampil di sini...</p>" }} />
         <div className="clear-both" />
         {inline.length > 0 && (
           <div className="not-prose space-y-4 mt-4">
