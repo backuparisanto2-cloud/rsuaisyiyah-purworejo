@@ -14,6 +14,7 @@ import SummaryAdmin from "@/components/admin/SummaryAdmin";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon, RotateCcw, Check, AlertCircle } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 export const Route = createFileRoute("/administrator/pages")({
   head: () => ({ meta: [{ title: "Page Builder · Admin" }] }),
