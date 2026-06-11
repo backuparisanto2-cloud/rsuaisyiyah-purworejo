@@ -26,6 +26,7 @@ import {
   extractCaptionFromEmbed,
   normalizeCaption,
 } from "@/lib/instagram-utils";
+import { recordAdminAction } from "@/lib/audit.functions";
 
 export const Route = createFileRoute("/administrator/instagram")({
   component: InstagramAdmin,
@@ -113,6 +114,14 @@ function InstagramAdmin() {
     setCaption("");
     setCaptionTouched(false);
     toast.success("Post ditambahkan");
+    void recordAdminAction({
+      data: {
+        action: "instagram.create",
+        entity: "instagram_posts",
+        entityId: previewShortcode!,
+        metadata: { caption: normalizeCaption(caption) },
+      },
+    }).catch(() => {});
     void load();
   }
 
@@ -121,15 +130,31 @@ function InstagramAdmin() {
       .from("instagram_posts")
       .update(patch)
       .eq("id", r.id);
-    if (error) toast.error(error.message);
-    else void load();
+    if (error) { toast.error(error.message); return; }
+    void recordAdminAction({
+      data: {
+        action: "instagram.update",
+        entity: "instagram_posts",
+        entityId: r.id,
+        metadata: { shortcode: r.shortcode, patch: patch as Record<string, unknown> },
+      },
+    }).catch(() => {});
+    void load();
   }
 
   async function remove(r: Row) {
     if (!confirm("Hapus post ini?")) return;
     const { error } = await supabase.from("instagram_posts").delete().eq("id", r.id);
-    if (error) toast.error(error.message);
-    else void load();
+    if (error) { toast.error(error.message); return; }
+    void recordAdminAction({
+      data: {
+        action: "instagram.delete",
+        entity: "instagram_posts",
+        entityId: r.id,
+        metadata: { shortcode: r.shortcode },
+      },
+    }).catch(() => {});
+    void load();
   }
 
   async function move(r: Row, dir: -1 | 1) {
@@ -147,6 +172,14 @@ function InstagramAdmin() {
         .update({ display_order: r.display_order })
         .eq("id", other.id),
     ]);
+    void recordAdminAction({
+      data: {
+        action: "instagram.reorder",
+        entity: "instagram_posts",
+        entityId: r.id,
+        metadata: { from: r.display_order, to: other.display_order, swappedWith: other.id },
+      },
+    }).catch(() => {});
     void load();
   }
 
