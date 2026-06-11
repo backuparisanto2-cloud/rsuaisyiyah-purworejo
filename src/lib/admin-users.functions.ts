@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { writeAuditEntry } from "@/lib/audit.functions";
+
+async function actorEmail(supabase: any, userId: string): Promise<string | null> {
+  const { data } = await supabase.from("profiles").select("email").eq("id", userId).maybeSingle();
+  return (data as any)?.email ?? null;
+}
 
 const PROTECTED_EMAIL = "rsaisyiyahpurworejo@gmail.com";
 
@@ -102,6 +108,14 @@ export const createAdminUser = createServerFn({ method: "POST" })
       await supabaseAdmin.auth.admin.deleteUser(userId);
       throw new Error(roleErr.message);
     }
+    await writeAuditEntry({
+      actorId: context.userId,
+      actorEmail: await actorEmail(context.supabase, context.userId),
+      action: "user.create",
+      entity: "user",
+      entityId: userId,
+      metadata: { email: data.email, role: data.role, displayName: data.displayName ?? null },
+    });
     return { id: userId };
   });
 
@@ -141,6 +155,14 @@ export const updateAdminUserRole = createServerFn({ method: "POST" })
       .from("user_roles")
       .insert({ user_id: data.userId, role: data.role });
     if (error) throw new Error(error.message);
+    await writeAuditEntry({
+      actorId: context.userId,
+      actorEmail: await actorEmail(context.supabase, context.userId),
+      action: "user.role.update",
+      entity: "user",
+      entityId: data.userId,
+      metadata: { email: target.user.email ?? null, newRole: data.role, hadAdmin },
+    });
     return { ok: true };
   });
 
@@ -156,6 +178,13 @@ export const resetAdminUserPassword = createServerFn({ method: "POST" })
       password: data.password,
     });
     if (error) throw new Error(error.message);
+    await writeAuditEntry({
+      actorId: context.userId,
+      actorEmail: await actorEmail(context.supabase, context.userId),
+      action: "user.password.reset",
+      entity: "user",
+      entityId: data.userId,
+    });
     return { ok: true };
   });
 
@@ -175,5 +204,13 @@ export const deleteAdminUser = createServerFn({ method: "POST" })
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
     if (error) throw new Error(error.message);
+    await writeAuditEntry({
+      actorId: context.userId,
+      actorEmail: await actorEmail(context.supabase, context.userId),
+      action: "user.delete",
+      entity: "user",
+      entityId: data.userId,
+      metadata: { email: target?.user?.email ?? null },
+    });
     return { ok: true };
   });
