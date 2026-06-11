@@ -132,7 +132,7 @@ function PagesAdmin() {
     const payload = {
       slug,
       title: editing.title,
-      content: editing.content,
+      content: sanitizeHtml(editing.content),
       meta_description: editing.meta_description,
       is_published: editing.is_published,
       image_url: editing.image_url,
