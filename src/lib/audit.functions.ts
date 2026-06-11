@@ -81,7 +81,7 @@ const RecordInput = z.object({
   action: ClientActions,
   entity: z.string().trim().max(60).optional(),
   entityId: z.string().trim().max(200).optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
 
 /**
