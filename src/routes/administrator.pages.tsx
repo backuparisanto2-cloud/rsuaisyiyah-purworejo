@@ -15,7 +15,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon, RotateCcw, Check, AlertCircle } from "lucide-react";
 import { sanitizeHtml } from "@/lib/sanitize-html";
-import { recordAdminAction } from "@/lib/audit.functions";
 
 export const Route = createFileRoute("/administrator/pages")({
   head: () => ({ meta: [{ title: "Page Builder · Admin" }] }),
@@ -143,8 +142,8 @@ function PagesAdmin() {
       images: editing.images,
     };
     const res = editing.id
-      ? await supabase.from("custom_pages").update(payload).eq("id", editing.id).select("id").maybeSingle()
-      : await supabase.from("custom_pages").insert(payload).select("id").maybeSingle();
+      ? await supabase.from("custom_pages").update(payload).eq("id", editing.id)
+      : await supabase.from("custom_pages").insert(payload);
     if (res.error) { setSaving(false); toast.error(res.error.message); return; }
     await syncMenuItem({
       oldHref: originalHref || undefined,
@@ -155,20 +154,6 @@ function PagesAdmin() {
     });
     setSaving(false);
     toast.success("Halaman tersimpan");
-    void recordAdminAction({
-      data: {
-        action: editing.id ? "page.update" : "page.create",
-        entity: "custom_pages",
-        entityId: editing.id || (res.data as any)?.id || slug,
-        metadata: {
-          slug,
-          title: editing.title,
-          isPublished: editing.is_published,
-          showInMenu: editing.show_in_menu,
-          menuHref: finalHref,
-        },
-      },
-    }).catch(() => {});
     setEditing(null);
     setOriginalHref("");
     load();
@@ -180,14 +165,6 @@ function PagesAdmin() {
     if (error) return toast.error(error.message);
     await supabase.from("menu_items").delete().eq("href", p.menu_href || `/p/${p.slug}`);
     toast.success("Halaman dihapus");
-    void recordAdminAction({
-      data: {
-        action: "page.delete",
-        entity: "custom_pages",
-        entityId: p.id,
-        metadata: { slug: p.slug, title: p.title },
-      },
-    }).catch(() => {});
     load();
   }
 

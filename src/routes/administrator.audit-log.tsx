@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, Eye, Search, X } from "lucide-react";
+import { Loader2, RefreshCw, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/administrator/audit-log")({
   component: AuditLogPage,
@@ -34,58 +34,39 @@ type Row = {
 
 const PAGE = 50;
 
-// "datetime-local" input value <-> ISO string
-const toIso = (v: string) => (v ? new Date(v).toISOString() : undefined);
-const toLocalInput = (iso?: string) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const off = d.getTimezoneOffset();
-  return new Date(d.getTime() - off * 60_000).toISOString().slice(0, 16);
-};
-
 function AuditLogPage() {
   const list = useServerFn(listAuditLogs);
   const facets = useServerFn(listAuditFacets);
 
-  const [q, setQ] = useState("");
-  const [action, setAction] = useState("");
-  const [entity, setEntity] = useState("");
-  const [entityId, setEntityId] = useState("");
-  const [actorEmail, setActorEmail] = useState("");
-  const [from, setFrom] = useState<string>(""); // datetime-local
-  const [to, setTo] = useState<string>("");
+  const [action, setAction] = useState<string>("");
+  const [entity, setEntity] = useState<string>("");
+  const [actorEmail, setActorEmail] = useState<string>("");
   const [offset, setOffset] = useState(0);
   const [detail, setDetail] = useState<Row | null>(null);
 
-  useEffect(() => { setOffset(0); }, [q, action, entity, entityId, actorEmail, from, to]);
+  useEffect(() => { setOffset(0); }, [action, entity, actorEmail]);
 
   const facetsQ = useQuery({
     queryKey: ["audit-facets"],
     queryFn: () => facets(),
   });
 
-  const params = useMemo(
-    () => ({
-      limit: PAGE,
-      offset,
-      q: q.trim() || undefined,
-      action: action || undefined,
-      entity: entity || undefined,
-      entityId: entityId.trim() || undefined,
-      actorEmail: actorEmail.trim() || undefined,
-      from: toIso(from),
-      to: toIso(to),
-    }),
-    [q, action, entity, entityId, actorEmail, from, to, offset],
-  );
-
-  const qy = useQuery({
-    queryKey: ["audit-logs", params],
-    queryFn: () => list({ data: params }),
+  const q = useQuery({
+    queryKey: ["audit-logs", { action, entity, actorEmail, offset }],
+    queryFn: () =>
+      list({
+        data: {
+          limit: PAGE,
+          offset,
+          action: action || undefined,
+          entity: entity || undefined,
+          actorEmail: actorEmail.trim() || undefined,
+        },
+      }),
   });
 
-  const total = qy.data?.total ?? 0;
-  const rows = (qy.data?.rows ?? []) as Row[];
+  const total = q.data?.total ?? 0;
+  const rows = (q.data?.rows ?? []) as Row[];
   const pageNum = Math.floor(offset / PAGE) + 1;
   const lastPage = Math.max(1, Math.ceil(total / PAGE));
 
@@ -94,156 +75,60 @@ function AuditLogPage() {
     [],
   );
 
-  const hasFilter = !!(q || action || entity || entityId || actorEmail || from || to);
-
-  function reset() {
-    setQ(""); setAction(""); setEntity(""); setEntityId(""); setActorEmail(""); setFrom(""); setTo("");
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      <div className="flex items-center justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold">Audit Log</h1>
           <p className="text-sm text-muted-foreground">Riwayat tindakan admin pada sistem.</p>
         </div>
-        <div className="flex gap-2">
-          {hasFilter && (
-            <Button variant="ghost" size="sm" onClick={reset}>
-              <X className="h-4 w-4 mr-1" /> Reset filter
-            </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={() => { void qy.refetch(); void facetsQ.refetch(); }}>
-            <RefreshCw className="h-4 w-4 mr-1" /> Muat ulang
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" onClick={() => { void q.refetch(); void facetsQ.refetch(); }}>
+          <RefreshCw className="h-4 w-4 mr-1" /> Muat ulang
+        </Button>
       </div>
 
-      <Card className="p-3 space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Cari di aksi, pelaku, entitas, atau ID target…"
-            className="pl-9"
-          />
+      <Card className="p-3 grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div>
+          <Label className="text-xs">Aksi</Label>
+          <Select value={action || "__all"} onValueChange={(v) => setAction(v === "__all" ? "" : v)}>
+            <SelectTrigger><SelectValue placeholder="Semua" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all">Semua</SelectItem>
+              {(facetsQ.data?.actions ?? []).map((a) => (
+                <SelectItem key={a} value={a}>{a}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div>
-            <Label className="text-xs">Aksi</Label>
-            <Select value={action || "__all"} onValueChange={(v) => setAction(v === "__all" ? "" : v)}>
-              <SelectTrigger><SelectValue placeholder="Semua" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all">Semua aksi</SelectItem>
-                {(facetsQ.data?.actions ?? []).map((a) => (
-                  <SelectItem key={a} value={a}>{a}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-xs">Entitas (target type)</Label>
-            <Select value={entity || "__all"} onValueChange={(v) => setEntity(v === "__all" ? "" : v)}>
-              <SelectTrigger><SelectValue placeholder="Semua" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all">Semua entitas</SelectItem>
-                {(facetsQ.data?.entities ?? []).map((e) => (
-                  <SelectItem key={e} value={e}>{e}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-xs">Actor (email)</Label>
-            <Select value={actorEmail || "__all"} onValueChange={(v) => setActorEmail(v === "__all" ? "" : v)}>
-              <SelectTrigger><SelectValue placeholder="Semua" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all">Semua actor</SelectItem>
-                {(facetsQ.data?.actors ?? []).map((a) => (
-                  <SelectItem key={a} value={a}>{a}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-xs">Target ID</Label>
-            <Input
-              value={entityId}
-              onChange={(e) => setEntityId(e.target.value)}
-              placeholder="ID atau bagiannya"
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Dari</Label>
-            <Input
-              type="datetime-local"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              max={to || undefined}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">Sampai</Label>
-            <Input
-              type="datetime-local"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              min={from || undefined}
-            />
-          </div>
-          <div className="flex items-end gap-2 sm:col-span-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const now = new Date();
-                const start = new Date(now);
-                start.setHours(0, 0, 0, 0);
-                setFrom(toLocalInput(start.toISOString()));
-                setTo(toLocalInput(now.toISOString()));
-              }}
-            >
-              Hari ini
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const now = new Date();
-                const start = new Date(now.getTime() - 7 * 24 * 3600_000);
-                setFrom(toLocalInput(start.toISOString()));
-                setTo(toLocalInput(now.toISOString()));
-              }}
-            >
-              7 hari
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const now = new Date();
-                const start = new Date(now.getTime() - 30 * 24 * 3600_000);
-                setFrom(toLocalInput(start.toISOString()));
-                setTo(toLocalInput(now.toISOString()));
-              }}
-            >
-              30 hari
-            </Button>
-          </div>
+        <div>
+          <Label className="text-xs">Entitas</Label>
+          <Select value={entity || "__all"} onValueChange={(v) => setEntity(v === "__all" ? "" : v)}>
+            <SelectTrigger><SelectValue placeholder="Semua" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all">Semua</SelectItem>
+              {(facetsQ.data?.entities ?? []).map((e) => (
+                <SelectItem key={e} value={e}>{e}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="sm:col-span-2">
+          <Label className="text-xs">Email pelaku</Label>
+          <Input
+            value={actorEmail}
+            onChange={(e) => setActorEmail(e.target.value)}
+            placeholder="cari email…"
+          />
         </div>
       </Card>
 
       <Card className="overflow-x-auto">
-        {qy.isLoading ? (
+        {q.isLoading ? (
           <div className="p-8 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-        ) : qy.error ? (
-          <div className="p-6 text-sm text-destructive">{(qy.error as Error).message}</div>
+        ) : q.error ? (
+          <div className="p-6 text-sm text-destructive">{(q.error as Error).message}</div>
         ) : rows.length === 0 ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">
-            {hasFilter ? "Tidak ada catatan yang cocok dengan filter." : "Belum ada catatan."}
-          </div>
+          <div className="p-8 text-sm text-muted-foreground text-center">Belum ada catatan.</div>
         ) : (
           <Table>
             <TableHeader>
@@ -252,7 +137,7 @@ function AuditLogPage() {
                 <TableHead>Pelaku</TableHead>
                 <TableHead>Aksi</TableHead>
                 <TableHead>Entitas</TableHead>
-                <TableHead>Target ID</TableHead>
+                <TableHead>ID</TableHead>
                 <TableHead className="text-right">Detail</TableHead>
               </TableRow>
             </TableHeader>

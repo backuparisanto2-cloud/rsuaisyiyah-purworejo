@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { recordAdminAction } from "@/lib/audit.functions";
 
 export const Route = createFileRoute("/administrator/kontak")({ component: KontakAdmin });
 
@@ -29,21 +28,7 @@ function KontakAdmin() {
       address: data.address, phone: data.phone, whatsapp: data.whatsapp, email: data.email,
       instagram: data.instagram, map_embed_url: data.map_embed_url, footer_text: data.footer_text,
     }).eq("id", data.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Tersimpan");
-    void recordAdminAction({
-      data: {
-        action: "contact.update",
-        entity: "contact_settings",
-        entityId: data.id,
-        metadata: {
-          phone: data.phone,
-          whatsapp: data.whatsapp,
-          email: data.email,
-          instagram: data.instagram,
-        },
-      },
-    }).catch(() => {});
+    if (error) toast.error(error.message); else toast.success("Tersimpan");
   }
 
   if (!data) return <p className="text-muted-foreground">Memuat...</p>;
