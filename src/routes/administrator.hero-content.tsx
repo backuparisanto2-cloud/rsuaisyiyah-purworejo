@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
 import { Save, Loader2, RotateCcw } from "lucide-react";
+import { recordAdminAction } from "@/lib/audit.functions";
 
 const DEFAULT_OVERLAY_COLOR = "#0b2545";
 const DEFAULT_OVERLAY_OPACITY = 30;
@@ -30,12 +31,14 @@ type HeroContent = {
 function HeroContentAdmin() {
   const [data, setData] = useState<HeroContent | null>(null);
   const [saving, setSaving] = useState(false);
+  const [originalLogo, setOriginalLogo] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.from("hero_content").select("*").eq("singleton", true).maybeSingle()
       .then(({ data, error }) => {
         if (error) toast.error(error.message);
         setData(data as HeroContent);
+        setOriginalLogo((data as HeroContent | null)?.logo_url ?? null);
       });
   }, []);
 
@@ -54,7 +57,26 @@ function HeroContentAdmin() {
       overlay_opacity: data.overlay_opacity,
     }).eq("id", data.id);
     setSaving(false);
-    if (error) toast.error(error.message); else toast.success("Hero section tersimpan");
+    if (error) { toast.error(error.message); return; }
+    toast.success("Hero section tersimpan");
+    const logoChanged = originalLogo !== data.logo_url;
+    void recordAdminAction({
+      data: {
+        action: logoChanged ? "hero.logo.update" : "hero.update",
+        entity: "hero_content",
+        entityId: data.id,
+        metadata: {
+          logoChanged,
+          newLogo: data.logo_url,
+          previousLogo: originalLogo,
+          title_line1: data.title_line1,
+          title_line2: data.title_line2,
+          tagline: data.tagline,
+          cta_text: data.cta_text,
+        },
+      },
+    }).catch(() => {});
+    setOriginalLogo(data.logo_url);
   }
 
   if (!data) return <p className="text-muted-foreground">Memuat...</p>;
