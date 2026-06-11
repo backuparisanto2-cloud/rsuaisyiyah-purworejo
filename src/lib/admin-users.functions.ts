@@ -155,6 +155,14 @@ export const updateAdminUserRole = createServerFn({ method: "POST" })
       .from("user_roles")
       .insert({ user_id: data.userId, role: data.role });
     if (error) throw new Error(error.message);
+    await writeAuditEntry({
+      actorId: context.userId,
+      actorEmail: await actorEmail(context.supabase, context.userId),
+      action: "user.role.update",
+      entity: "user",
+      entityId: data.userId,
+      metadata: { email: target.user.email ?? null, newRole: data.role, hadAdmin },
+    });
     return { ok: true };
   });
 
@@ -173,10 +181,9 @@ export const resetAdminUserPassword = createServerFn({ method: "POST" })
     await writeAuditEntry({
       actorId: context.userId,
       actorEmail: await actorEmail(context.supabase, context.userId),
-      action: "user.role.update",
+      action: "user.password.reset",
       entity: "user",
       entityId: data.userId,
-      metadata: { email: target.user.email ?? null, newRole: data.role, hadAdmin },
     });
     return { ok: true };
   });
@@ -200,9 +207,10 @@ export const deleteAdminUser = createServerFn({ method: "POST" })
     await writeAuditEntry({
       actorId: context.userId,
       actorEmail: await actorEmail(context.supabase, context.userId),
-      action: "user.password.reset",
+      action: "user.delete",
       entity: "user",
       entityId: data.userId,
+      metadata: { email: target?.user?.email ?? null },
     });
     return { ok: true };
   });
