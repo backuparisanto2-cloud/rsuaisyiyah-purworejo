@@ -3,32 +3,99 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { embedTexts } from "@/lib/chatbot.functions";
 import { z } from "zod";
 
-// Naive in-worker rate limiter (resets on cold start).
-const rl = new Map<string, { count: number; reset: number }>();
-function rateLimit(key: string, limit: number, windowMs: number) {
-  const now = Date.now();
-  const cur = rl.get(key);
-  if (!cur || cur.reset < now) {
-    rl.set(key, { count: 1, reset: now + windowMs });
-    return true;
-  }
-  if (cur.count >= limit) return false;
-  cur.count += 1;
-  return true;
+// ---------------------------------------------------------------------------
+// Strict allowlisted request schema
+// ---------------------------------------------------------------------------
+const MAX_MSG_CHARS = 2000;
+const MAX_TOTAL_CHARS = 8000;
+const MAX_MESSAGES = 20;
+
+// Reject control chars (except \n, \r, \t) — they have no place in chat input
+// and are sometimes used to smuggle prompt-injection payloads.
+const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+
+const MessageSchema = z
+  .object({
+    role: z.enum(["user", "assistant"]),
+    content: z
+      .string()
+      .min(1)
+      .max(MAX_MSG_CHARS)
+      .refine((s) => !CONTROL_CHARS.test(s), "invalid characters"),
+  })
+  .strict();
+
+const BodySchema = z
+  .object({
+    messages: z.array(MessageSchema).min(1).max(MAX_MESSAGES),
+  })
+  .strict()
+  .superRefine((val, ctx) => {
+    const total = val.messages.reduce((n, m) => n + m.content.length, 0);
+    if (total > MAX_TOTAL_CHARS) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "messages too long" });
+    }
+    const last = val.messages[val.messages.length - 1];
+    if (last.role !== "user") {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "last message must be user" });
+    }
+  });
+
+type Body = z.infer<typeof BodySchema>;
+
+function jsonError(message: string, status: number, extraHeaders: Record<string, string> = {}) {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { "Content-Type": "application/json", ...extraHeaders },
+  });
 }
 
-const BodySchema = z.object({
-  messages: z
-    .array(
-      z.object({
-        role: z.enum(["user", "assistant"]),
-        content: z.string().min(1).max(2000),
-      })
-    )
-    .min(1)
-    .max(20),
-});
+// ---------------------------------------------------------------------------
+// Origin allowlist — block requests that don't originate from our own site.
+// `null` Origin is allowed (some browsers strip it on same-origin POST), but
+// when a header IS sent it must match. This blocks the most common
+// cross-site abuse vectors at the edge.
+// ---------------------------------------------------------------------------
+const ORIGIN_ALLOWLIST = new Set<string>([
+  "https://rsuaisyiyah-purworejo.lovable.app",
+  "https://project--rsuaisyiyah-purworejo.lovable.app",
+  "https://project--rsuaisyiyah-purworejo-dev.lovable.app",
+  "https://id-preview--8951ae56-14f2-4055-9663-0bd10d8dcdcd.lovable.app",
+]);
+const ALLOWED_HOST_RE = /\.lovable\.app$|\.lovableproject\.com$|^localhost(:\d+)?$/i;
 
+function isAllowedOrigin(raw: string | null): boolean {
+  if (!raw) return true; // header not present → allow (same-origin fetch)
+  try {
+    const u = new URL(raw);
+    if (ORIGIN_ALLOWLIST.has(u.origin)) return true;
+    return ALLOWED_HOST_RE.test(u.host);
+  } catch {
+    return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Durable rate limit via Supabase RPC. Two windows per IP:
+//   - 30 requests / 60 s   (burst)
+//   - 300 requests / 24 h  (daily cap)
+// ---------------------------------------------------------------------------
+async function consume(key: string, limit: number, windowSeconds: number) {
+  const { data, error } = await supabaseAdmin.rpc("consume_rate_limit", {
+    _key: key,
+    _limit: limit,
+    _window_seconds: windowSeconds,
+  });
+  if (error) {
+    console.error("rate_limit rpc failed:", error.message);
+    return true; // fail-open so RPC outages don't take the chatbot offline
+  }
+  return data !== false;
+}
+
+// ---------------------------------------------------------------------------
+// Knowledge retrieval
+// ---------------------------------------------------------------------------
 const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 function scoreKnowledge(query: string, items: { title: string; content: string }[], topN = 6) {
@@ -38,14 +105,11 @@ function scoreKnowledge(query: string, items: { title: string; content: string }
   const scored = items.map((it) => {
     const hay = `${it.title}\n${it.content}`.toLowerCase();
     let score = 0;
-    for (const t of tokens) {
-      if (hay.includes(t)) score += 2;
-    }
+    for (const t of tokens) if (hay.includes(t)) score += 2;
     return { it, score };
   });
   scored.sort((a, b) => b.score - a.score);
   const top = scored.filter((s) => s.score > 0).slice(0, topN).map((s) => s.it);
-  // If nothing matched, fall back to the first few entries so the model still has context.
   return top.length ? top : items.slice(0, Math.min(3, items.length));
 }
 
@@ -60,7 +124,6 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
       supabaseAdmin.from("doctor_schedules").select("doctor_id,day_of_week,time_start,time_end,poli"),
     ]);
 
-  // Try semantic match first; fall back to keyword scoring if it fails or returns nothing.
   let top: { title: string; content: string; category?: string | null }[] = [];
   if (userQuery.trim().length > 1) {
     try {
@@ -122,61 +185,81 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
     for (const k of top) lines.push(`• ${k.title}\n  ${k.content}`);
   }
 
-  return {
-    settings,
-    contextText: lines.join("\n"),
-  };
+  return { settings, contextText: lines.join("\n") };
 }
+
+// ---------------------------------------------------------------------------
+// Route
+// ---------------------------------------------------------------------------
+const MAX_BODY_BYTES = 32 * 1024; // 32 KB hard cap before JSON parse
 
 export const Route = createFileRoute("/api/public/chatbot-chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // Rate limit per IP
+        // 1. Origin allowlist
+        const origin = request.headers.get("origin");
+        if (!isAllowedOrigin(origin)) {
+          return jsonError("Forbidden origin.", 403);
+        }
+
+        // 2. Content-Type guard
+        const contentType = request.headers.get("content-type") || "";
+        if (!contentType.toLowerCase().includes("application/json")) {
+          return jsonError("Unsupported content type.", 415);
+        }
+
+        // 3. Size guard (don't even parse oversized payloads)
+        const declaredLen = Number(request.headers.get("content-length") || "0");
+        if (declaredLen > MAX_BODY_BYTES) {
+          return jsonError("Payload too large.", 413);
+        }
+
+        // 4. Rate limits (durable, atomic via Postgres RPC)
         const ip =
           request.headers.get("cf-connecting-ip") ||
           request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
           "anon";
-        if (!rateLimit(`ip:${ip}`, 30, 60_000)) {
-          return new Response(JSON.stringify({ error: "Terlalu banyak permintaan. Coba lagi sebentar." }), {
-            status: 429,
-            headers: { "Content-Type": "application/json" },
-          });
+        const ipKey = `chatbot:ip:${ip}`;
+        const burstOk = await consume(ipKey + ":m", 30, 60);
+        if (!burstOk) {
+          return jsonError("Terlalu banyak permintaan. Coba lagi sebentar.", 429, { "Retry-After": "60" });
+        }
+        const dayOk = await consume(ipKey + ":d", 300, 24 * 60 * 60);
+        if (!dayOk) {
+          return jsonError("Kuota chatbot harian tercapai. Silakan coba besok.", 429, { "Retry-After": "3600" });
+        }
+
+        // 5. Read + size-check raw body, then strict-validate
+        const raw = await request.text();
+        if (raw.length > MAX_BODY_BYTES) {
+          return jsonError("Payload too large.", 413);
+        }
+
+        let body: Body;
+        try {
+          const json = JSON.parse(raw);
+          body = BodySchema.parse(json);
+        } catch {
+          return jsonError("Permintaan tidak valid.", 400);
         }
 
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) {
-          return new Response(JSON.stringify({ error: "AI belum dikonfigurasi." }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
+          return jsonError("AI belum dikonfigurasi.", 500);
         }
 
-        let body: z.infer<typeof BodySchema>;
-        try {
-          body = BodySchema.parse(await request.json());
-        } catch (e) {
-          return new Response(JSON.stringify({ error: "Permintaan tidak valid." }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
-        const lastUser = [...body.messages].reverse().find((m) => m.role === "user");
-        const { settings, contextText } = await buildSystemContext(lastUser?.content ?? "", apiKey);
+        const lastUser = body.messages[body.messages.length - 1];
+        const { settings, contextText } = await buildSystemContext(lastUser.content, apiKey);
 
         if (settings && settings.ai_enabled === false) {
-          return new Response(JSON.stringify({ error: "Mode AI sedang dinonaktifkan." }), {
-            status: 503,
-            headers: { "Content-Type": "application/json" },
-          });
+          return jsonError("Mode AI sedang dinonaktifkan.", 503);
         }
 
         const persona = settings?.system_prompt ?? "Anda adalah Arini, asisten virtual RSU Aisyiyah Purworejo. Jawab ringkas dan ramah dalam Bahasa Indonesia.";
         const model = settings?.model ?? "google/gemini-3-flash-preview";
         const temperature = typeof settings?.temperature === "number" ? settings.temperature : 0.4;
 
-        // Keep only the last 12 turns to keep prompts small.
         const trimmed = body.messages.slice(-12);
 
         const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -198,24 +281,15 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
         });
 
         if (upstream.status === 429) {
-          return new Response(JSON.stringify({ error: "Permintaan AI sedang ramai. Coba lagi sebentar." }), {
-            status: 429,
-            headers: { "Content-Type": "application/json" },
-          });
+          return jsonError("Permintaan AI sedang ramai. Coba lagi sebentar.", 429);
         }
         if (upstream.status === 402) {
-          return new Response(JSON.stringify({ error: "Kuota AI rumah sakit habis. Silakan hubungi admin." }), {
-            status: 402,
-            headers: { "Content-Type": "application/json" },
-          });
+          return jsonError("Kuota AI rumah sakit habis. Silakan hubungi admin.", 402);
         }
         if (!upstream.ok || !upstream.body) {
           const t = await upstream.text().catch(() => "");
           console.error("AI gateway error:", upstream.status, t);
-          return new Response(JSON.stringify({ error: "AI gagal merespons." }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-          });
+          return jsonError("AI gagal merespons.", 500);
         }
 
         return new Response(upstream.body, {
