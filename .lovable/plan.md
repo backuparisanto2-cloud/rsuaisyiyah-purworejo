@@ -1,54 +1,46 @@
-## Multiuser Admin Panel (admin / editor / reader)
+## Goal
+Address the highest-risk findings that are still open in the scanner, instead of leaving them ignored.
 
-### 1. Database (1 migrasi)
-- Tambah nilai `'reader'` ke enum `app_role` (sudah ada: admin, editor, user — nilai `user` dibiarkan untuk backward-compat tapi tidak dipakai UI).
-- Fungsi baru `public.is_protected_admin(_user_id uuid)` → `true` jika email user = `rsaisyiyahpurworejo@gmail.com` (akun admin pertama).
-- Fungsi `public.has_min_role(_user_id uuid, _min app_role)` (admin > editor > reader) — security definer.
-- Trigger pada `user_roles`:
-  - cegah `DELETE` / `UPDATE` baris admin milik akun terproteksi
-  - cegah penghapusan admin terakhir (selalu sisakan ≥ 1)
-- Perbarui RLS pada tabel konten (hero_*, about_page, services, doctors, doctor_schedules, faqs, partners, contact_settings, visiting_hours, menu_items, page_menu_items, custom_pages, home_sections, home_summary_sections, instagram_posts, chatbot_*) → policy write: `has_min_role(auth.uid(), 'editor')`; read tetap publik atau seperti sekarang.
-- RLS yang tetap admin-only (write & read sensitif): `user_roles`, `profiles` (untuk admin list), `theme_settings`.
-- `profiles`: tambah policy "admin can select all" agar list user bisa baca display_name.
+## Findings to fix
 
-### 2. Server functions (`src/lib/admin-users.functions.ts`)
-Semua memakai `requireSupabaseAuth` + cek `has_role(uid, 'admin')`; mutasi pakai `supabaseAdmin` (di-import dalam handler).
-- `listUsers()` → gabung `auth.admin.listUsers()` + `user_roles` + `profiles` → `{id, email, displayName, role, isProtected, createdAt}[]`.
-- `createUser({email, password, displayName, role})` → `auth.admin.createUser({email_confirm:true})`, insert role.
-- `updateUserRole({userId, role})` → blok jika target terproteksi; pastikan masih ada ≥1 admin.
-- `resetUserPassword({userId, password})` → `auth.admin.updateUserById`.
-- `deleteUser({userId})` → blok jika terproteksi; hapus role + auth user.
+### 1. Stored XSS on public CMS pages (severity: error)
+`custom_pages.content` is editor-writable and rendered with `dangerouslySetInnerHTML` on the public `/p/$slug` route. A compromised or malicious editor can execute scripts in every visitor's browser.
 
-Validasi input dengan zod (email, password ≥ 8, role enum).
+Fix:
+- Add `isomorphic-dompurify` (works in browser + SSR worker).
+- Sanitize `content` at render time inside `PagePreview` with a strict allowlist (formatting tags, links with `http/https/mailto`, images). Strip `<script>`, `<iframe>`, event handlers, `javascript:` URLs, `style`/`on*` attributes.
+- Also sanitize on save in the admin pages editor as defense-in-depth so stored content is clean going forward.
 
-### 3. Frontend
-**`src/hooks/use-auth.tsx`**
-- Ganti `isAdmin: boolean` menjadi `role: 'admin'|'editor'|'reader'|null` + helper terhitung `isAdmin`, `canEdit` (admin/editor), `canManageUsers` (admin).
-- Query satu role tertinggi dari `user_roles` (urutkan admin>editor>reader).
+### 2. Raw visitor IP stored and shown in admin (severity: warn, PII/GDPR)
+`page_views.ip` keeps the plaintext IP alongside `ip_hash`, and the analytics table renders it.
 
-**`src/routes/administrator.tsx`**
-- Izinkan masuk jika `role !== null` (bukan hanya admin).
-- Filter `NAV`: item "Tema Warna" & "Pengguna" hanya untuk admin; sisanya tampil untuk editor & reader.
-- Tampilkan badge role di sidebar di samping email.
+Fix:
+- Stop inserting `ip` in `src/routes/api/public/track.ts` (keep only `ip_hash` + country from CDN header).
+- Drop the `ip` column in a migration.
+- Remove `ip` from the `getVisitorStats` projection and from the admin analytics table column.
 
-**`src/routes/administrator.users.tsx` (baru, admin only)**
-- Tabel user: email, nama, role (select inline), tombol Reset Password, Hapus.
-- Tombol "+ Tambah Pengguna" → dialog form (email, password, nama, role).
-- Akun terproteksi: kontrol role/hapus dinonaktifkan dengan tooltip.
+### 3. Admin password reset field uses `type="text"` (severity: warn)
+`src/routes/administrator.users.tsx` exposes new passwords on screen and to browser history.
 
-**Komponen guard `src/components/admin/RoleGate.tsx`**
-- `<RoleGate min="editor">` membungkus tombol Simpan/Hapus/Upload di semua halaman admin sehingga reader hanya bisa melihat (tombol di-`disabled` + tooltip "Hanya untuk Editor/Admin"). Diterapkan di form-form yang paling banyak dipakai dulu (Hero, Dokter, FAQ, Layanan, Kontak, Pages, Sections, Summary). Reader tetap bisa menjelajah seluruh panel.
+Fix:
+- Change both the create-user and reset-password inputs to `type="password"`.
+- Add a small show/hide eye toggle so admins can still verify what they typed.
 
-### 4. Detail teknis singkat
-- Pastikan `attachSupabaseAuth` sudah terdaftar di `src/start.ts` (cek dulu; tambahkan jika belum).
-- Tidak ada perubahan pada `auth.tsx`; redirect setelah login: admin/editor/reader → `/administrator`, lainnya → `/`.
-- Trigger admin-terakhir hanya menghitung baris dengan `role='admin'`.
+## Out of scope (kept ignored, documented in security memory)
+- The 3 `SECURITY DEFINER` linter warnings cover `has_role`, `has_min_role`, and `get_public_chatbot_settings`. The first two are required to avoid RLS recursion; the third is the intentional public surface for chatbot branding. `EXECUTE` is already revoked from `anon`/`public` where appropriate.
+- `Extension in public` is a Supabase-managed pgvector install — not actionable from app code.
+- Storage `media` SELECT policy is intentionally service-role only (public URLs still work; listing is blocked by design).
+- Chatbot in-memory rate limiter — flagged for a follow-up (needs a durable store). Will be left noted, not fixed in this pass unless you want it included.
 
-### 5. Berkas yang akan dibuat/diubah
-- `supabase/migrations/<ts>_multiuser_roles.sql`
-- `src/lib/admin-users.functions.ts` (baru)
-- `src/hooks/use-auth.tsx` (refactor)
-- `src/routes/administrator.tsx` (gate role + filter nav)
-- `src/routes/administrator.users.tsx` (baru)
-- `src/components/admin/RoleGate.tsx` (baru) + integrasi di beberapa halaman admin utama
-- `src/start.ts` (jika perlu menambah `attachSupabaseAuth`)
+## Files touched
+- `src/routes/administrator.pages.tsx` — sanitize in `PagePreview` + on save
+- `src/routes/p.$slug.tsx` — relies on sanitized `PagePreview` (no change needed beyond #1)
+- `src/routes/api/public/track.ts` — drop raw IP insert
+- `src/lib/analytics.functions.ts` — drop `ip` from select
+- `src/routes/administrator.analytics.tsx` — remove IP column
+- `src/routes/administrator.users.tsx` — password input type + toggle
+- New migration: `ALTER TABLE public.page_views DROP COLUMN ip;`
+- `package.json` — add `isomorphic-dompurify`
+- Update `@security-memory` and mark the three findings fixed.
+
+Want me to also include a fix for the in-memory chatbot rate limiter (move to a Supabase-backed counter) in this same pass?

@@ -346,7 +346,7 @@ function AnalyticsPage() {
                     <th className="py-1 pr-3">Browser</th>
                     <th className="py-1 pr-3">OS</th>
                     <th className="py-1 pr-3">Negara</th>
-                    <th className="py-1 pr-3">IP</th>
+                    
                     <th className="py-1 pr-3">Durasi</th>
                     <th className="py-1 pr-3">Bounce</th>
                   </tr>
@@ -354,7 +354,7 @@ function AnalyticsPage() {
                 <tbody>
                   {filteredRecent.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="py-4 text-center text-muted-foreground">
+                      <td colSpan={8} className="py-4 text-center text-muted-foreground">
                         Tidak ada data untuk filter ini
                       </td>
                     </tr>
@@ -367,7 +367,7 @@ function AnalyticsPage() {
                         <td className="py-1 pr-3">{r.browser}</td>
                         <td className="py-1 pr-3">{r.os}</td>
                         <td className="py-1 pr-3">{r.country ?? "—"}</td>
-                        <td className="py-1 pr-3 font-mono">{r.ip ?? "—"}</td>
+                        
                         <td className="py-1 pr-3">{fmtMs(r.duration_ms)}</td>
                         <td className="py-1 pr-3">{r.is_bounce ? "Ya" : "Tidak"}</td>
                       </tr>

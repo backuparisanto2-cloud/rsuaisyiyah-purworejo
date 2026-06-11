@@ -1,0 +1,1 @@
+ALTER TABLE public.page_views DROP COLUMN IF EXISTS ip;

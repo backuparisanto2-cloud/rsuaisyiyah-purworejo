@@ -14,6 +14,7 @@ import SummaryAdmin from "@/components/admin/SummaryAdmin";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Save, ExternalLink, Pencil, X, ImagePlus, ArrowUp, ArrowDown, ChevronUp, ChevronDown, CornerDownRight, Menu as MenuIcon, RotateCcw, Check, AlertCircle } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 export const Route = createFileRoute("/administrator/pages")({
   head: () => ({ meta: [{ title: "Page Builder · Admin" }] }),
@@ -131,7 +132,7 @@ function PagesAdmin() {
     const payload = {
       slug,
       title: editing.title,
-      content: editing.content,
+      content: sanitizeHtml(editing.content),
       meta_description: editing.meta_description,
       is_published: editing.is_published,
       image_url: editing.image_url,
@@ -438,7 +439,7 @@ export function PagePreview({ content, images }: { content: string; images: Page
             {img.caption && <figcaption className="text-xs text-muted-foreground mt-1">{img.caption}</figcaption>}
           </figure>
         ))}
-        <div dangerouslySetInnerHTML={{ __html: content || "<p class='text-muted-foreground'>Konten akan tampil di sini...</p>" }} />
+        <div dangerouslySetInnerHTML={{ __html: content ? sanitizeHtml(content) : "<p class='text-muted-foreground'>Konten akan tampil di sini...</p>" }} />
         <div className="clear-both" />
         {inline.length > 0 && (
           <div className="not-prose space-y-4 mt-4">
