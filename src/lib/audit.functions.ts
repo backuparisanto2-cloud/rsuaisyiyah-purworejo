@@ -45,7 +45,7 @@ export async function writeAuditEntry(params: {
       action: params.action,
       entity: params.entity ?? null,
       entity_id: params.entityId ?? null,
-      metadata: params.metadata ?? {},
+      metadata: (params.metadata ?? {}) as any,
       ip_hash: ipHash,
     });
   } catch (e) {
