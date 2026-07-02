@@ -112,6 +112,14 @@ type HeroContent = {
   badge2: string;
   overlay_color: string;
   overlay_opacity: number;
+  smart_word: string;
+  smart_desc: string;
+  smart_color: string;
+  smart_desc_color: string;
+  smart_font_family: string;
+  smart_font_size: number;
+  pendaftaran_wa_number: string;
+  pendaftaran_wa_prolog: string;
 };
 
 const DEFAULT_HERO: HeroContent = {
@@ -124,6 +132,22 @@ const DEFAULT_HERO: HeroContent = {
   badge2: "Akreditasi LARSI",
   overlay_color: "#0b2545",
   overlay_opacity: 30,
+  smart_word: "SMART",
+  smart_desc: "— Sehat · Mutu · Amanah · Ramah · Terampil",
+  smart_color: "#D4AF37",
+  smart_desc_color: "#FFFFFF",
+  smart_font_family: "sans",
+  smart_font_size: 20,
+  pendaftaran_wa_number: "6289646710859",
+  pendaftaran_wa_prolog: "Hi RSU AISYIYAH Purworejo, saya ingin mendaftar.",
+};
+
+export const SMART_FONT_MAP: Record<string, string> = {
+  sans: "'Inter', ui-sans-serif, system-ui, sans-serif",
+  serif: "'Playfair Display', Georgia, serif",
+  script: "'Great Vibes', 'Dancing Script', cursive",
+  mono: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  display: "'Bebas Neue', Impact, sans-serif",
 };
 
 function HomePage() {
