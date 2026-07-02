@@ -112,6 +112,14 @@ type HeroContent = {
   badge2: string;
   overlay_color: string;
   overlay_opacity: number;
+  smart_word: string;
+  smart_desc: string;
+  smart_color: string;
+  smart_desc_color: string;
+  smart_font_family: string;
+  smart_font_size: number;
+  pendaftaran_wa_number: string;
+  pendaftaran_wa_prolog: string;
 };
 
 const DEFAULT_HERO: HeroContent = {
@@ -124,6 +132,22 @@ const DEFAULT_HERO: HeroContent = {
   badge2: "Akreditasi LARSI",
   overlay_color: "#0b2545",
   overlay_opacity: 30,
+  smart_word: "SMART",
+  smart_desc: "— Sehat · Mutu · Amanah · Ramah · Terampil",
+  smart_color: "#D4AF37",
+  smart_desc_color: "#FFFFFF",
+  smart_font_family: "sans",
+  smart_font_size: 20,
+  pendaftaran_wa_number: "6289646710859",
+  pendaftaran_wa_prolog: "Hi RSU AISYIYAH Purworejo, saya ingin mendaftar.",
+};
+
+export const SMART_FONT_MAP: Record<string, string> = {
+  sans: "'Inter', ui-sans-serif, system-ui, sans-serif",
+  serif: "'Playfair Display', Georgia, serif",
+  script: "'Great Vibes', 'Dancing Script', cursive",
+  mono: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  display: "'Bebas Neue', Impact, sans-serif",
 };
 
 function HomePage() {
@@ -161,7 +185,12 @@ function HomePage() {
       <SideButtons />
       <ChatbotArini />
       <AccessibilityWidget showTrigger={false} />
-      <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
+      <PendaftaranModal
+        open={pendaftaranOpen}
+        onClose={() => setPendaftaranOpen(false)}
+        waNumber={hero.pendaftaran_wa_number}
+        waProlog={hero.pendaftaran_wa_prolog}
+      />
 
       {/* HERO (fixed) */}
       <section id="beranda" className="relative pt-20 sm:pt-24 min-h-[72vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-primary-dark">
@@ -178,9 +207,16 @@ function HomePage() {
           
 
           <div className="mt-4 flex justify-center">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/35 backdrop-blur-sm border border-white/25 text-white text-xs sm:text-sm font-bold tracking-wide [text-shadow:0_1px_3px_rgba(0,0,0,0.9)] [-webkit-text-stroke:0.5px_rgba(0,0,0,0.6)]">
-              <span className="text-gold">SMART</span>
-              <span className="opacity-90">— Sehat · Mutu · Amanah · Ramah · Terampil</span>
+            <span
+              className="inline-flex items-center flex-wrap justify-center gap-2 px-5 py-2.5 sm:px-7 sm:py-3 rounded-full bg-black/40 backdrop-blur-sm border border-white/25 font-bold tracking-wide [text-shadow:0_1px_3px_rgba(0,0,0,0.9)] [-webkit-text-stroke:0.5px_rgba(0,0,0,0.6)]"
+              style={{
+                fontFamily: SMART_FONT_MAP[hero.smart_font_family] || SMART_FONT_MAP.sans,
+                fontSize: `${hero.smart_font_size}px`,
+                lineHeight: 1.2,
+              }}
+            >
+              <span style={{ color: hero.smart_color }}>{hero.smart_word}</span>
+              <span style={{ color: hero.smart_desc_color, opacity: 0.95 }}>{hero.smart_desc}</span>
             </span>
           </div>
 

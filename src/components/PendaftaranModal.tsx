@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { X, Calendar, User, Phone, Stethoscope, FileText, Send } from "lucide-react";
 
-const WA_NUMBER = "6289646710859";
+const DEFAULT_WA_NUMBER = "6289646710859";
+const DEFAULT_WA_PROLOG = "Hi RSU AISYIYAH Purworejo, saya ingin mendaftar.";
 
 const CLINICS = [
   "Klinik Umum", "Klinik Anak", "Klinik Penyakit Dalam", "Klinik Kandungan/Obgyn",
@@ -10,7 +11,14 @@ const CLINICS = [
   "Fisioterapi", "Laboratorium",
 ];
 
-export default function PendaftaranModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  waNumber?: string;
+  waProlog?: string;
+};
+
+export default function PendaftaranModal({ open, onClose, waNumber, waProlog }: Props) {
   const [form, setForm] = useState({
     nama: "", nik: "", phone: "", tglLahir: "", klinik: "", tglPeriksa: "",
     jenisPasien: "Umum", keluhan: "",
@@ -23,14 +31,16 @@ export default function PendaftaranModal({ open, onClose }: { open: boolean; onC
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    const prolog = (waProlog ?? DEFAULT_WA_PROLOG).trim();
+    const number = (waNumber || DEFAULT_WA_NUMBER).replace(/[^0-9]/g, "");
     const msg = encodeURIComponent(
-      `*PENDAFTARAN ONLINE*\nRSU Aisyiyah Purworejo\n\n` +
+      `${prolog ? prolog + "\n\n" : ""}*PENDAFTARAN ONLINE*\nRSU Aisyiyah Purworejo\n\n` +
       `Nama: ${form.nama}\nNIK: ${form.nik}\nNo. HP: ${form.phone}\n` +
       `Tgl Lahir: ${form.tglLahir}\nJenis Pasien: ${form.jenisPasien}\n` +
       `Klinik: ${form.klinik}\nTgl Periksa: ${form.tglPeriksa}\n` +
       `Keluhan: ${form.keluhan}\n\nMohon konfirmasinya, terima kasih.`
     );
-    window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, "_blank");
+    window.open(`https://wa.me/${number}?text=${msg}`, "_blank");
     setSent(true);
   };
 
