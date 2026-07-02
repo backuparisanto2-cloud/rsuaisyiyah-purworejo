@@ -383,7 +383,15 @@ export type Database = {
           logo_url: string | null
           overlay_color: string
           overlay_opacity: number
+          pendaftaran_wa_number: string
+          pendaftaran_wa_prolog: string
           singleton: boolean
+          smart_color: string
+          smart_desc: string
+          smart_desc_color: string
+          smart_font_family: string
+          smart_font_size: number
+          smart_word: string
           tagline: string
           title_line1: string
           title_line2: string
@@ -398,7 +406,15 @@ export type Database = {
           logo_url?: string | null
           overlay_color?: string
           overlay_opacity?: number
+          pendaftaran_wa_number?: string
+          pendaftaran_wa_prolog?: string
           singleton?: boolean
+          smart_color?: string
+          smart_desc?: string
+          smart_desc_color?: string
+          smart_font_family?: string
+          smart_font_size?: number
+          smart_word?: string
           tagline?: string
           title_line1?: string
           title_line2?: string
@@ -413,7 +429,15 @@ export type Database = {
           logo_url?: string | null
           overlay_color?: string
           overlay_opacity?: number
+          pendaftaran_wa_number?: string
+          pendaftaran_wa_prolog?: string
           singleton?: boolean
+          smart_color?: string
+          smart_desc?: string
+          smart_desc_color?: string
+          smart_font_family?: string
+          smart_font_size?: number
+          smart_word?: string
           tagline?: string
           title_line1?: string
           title_line2?: string
