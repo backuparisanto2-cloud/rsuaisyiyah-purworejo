@@ -175,7 +175,7 @@ function HomePage() {
           <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.65)]">
             {hero.title_line1}<br/><span className="text-gold [-webkit-text-stroke:1px_rgba(0,0,0,0.35)]">{hero.title_line2}</span>
           </h1>
-          <p className="mt-3 sm:mt-4 text-xl sm:text-3xl md:text-4xl font-script text-gold [-webkit-text-stroke:1px_rgba(0,0,0,0.45)] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{hero.tagline}</p>
+          
 
           <div className="mt-4 flex justify-center">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/35 backdrop-blur-sm border border-white/25 text-white text-xs sm:text-sm font-bold tracking-wide [text-shadow:0_1px_3px_rgba(0,0,0,0.9)] [-webkit-text-stroke:0.5px_rgba(0,0,0,0.6)]">
