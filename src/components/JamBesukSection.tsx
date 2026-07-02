@@ -50,7 +50,7 @@ export default function JamBesukSection() {
                   <Clock className={`h-8 w-8 ${isSiangSore ? "text-white" : "text-gold"}`} />
                 </div>
                 <div className={`mt-3 text-xl font-bold ${isSiangSore ? "text-white" : "text-primary-dark"}`}>{it.label}</div>
-                <div className={`mt-1 text-2xl font-script ${isSiangSore ? "text-white/95" : "text-primary"}`}>{it.time_range}</div>
+                <div className={`mt-1 text-2xl font-serif font-semibold tracking-wide ${isSiangSore ? "text-white/95" : "text-primary"}`}>{it.time_range}</div>
               </div>
             );
           })}
