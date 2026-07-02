@@ -118,6 +118,7 @@ type HeroContent = {
   smart_desc_color: string;
   smart_font_family: string;
   smart_font_size: number;
+  smart_bg_opacity: number;
   pendaftaran_wa_number: string;
   pendaftaran_wa_prolog: string;
 };
@@ -138,6 +139,7 @@ const DEFAULT_HERO: HeroContent = {
   smart_desc_color: "#FFFFFF",
   smart_font_family: "sans",
   smart_font_size: 20,
+  smart_bg_opacity: 0.4,
   pendaftaran_wa_number: "6289646710859",
   pendaftaran_wa_prolog: "Hi RSU AISYIYAH Purworejo, saya ingin mendaftar.",
 };
