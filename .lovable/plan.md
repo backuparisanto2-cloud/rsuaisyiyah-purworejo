@@ -1,48 +1,26 @@
+## Perubahan
 
-## Perubahan Tampilan (Hero Section)
+### 1. Tombol WhatsApp di Side Buttons (kanan layar)
+Ganti style tombol WhatsApp di `src/components/SideButtons.tsx` agar sesuai gambar referensi:
+- Lingkaran hijau khas WhatsApp (`#25D366`)
+- Logo WhatsApp putih di tengah
+- Shadow lembut + hover scale
+- Ukuran sedikit lebih besar / menonjol dibanding tombol lain agar jadi CTA utama
 
-Perbesar badge "SMART — Sehat · Mutu · Amanah · Ramah · Terampil" di `src/routes/index.tsx`:
-- Ukuran teks default dinaikkan (dari `text-xs sm:text-sm` menjadi konfigurasi via admin, default `text-base sm:text-xl`)
-- Padding pill diperbesar mengikuti ukuran font
-- Warna, jenis font, dan ukuran dibuat dinamis mengikuti setting admin (inline style dari kolom database)
+Tombol lain (Instagram, YouTube, TikTok, FB, Aksesibilitas) tetap seperti sekarang.
 
-## Editor Baru di Admin Hero (`/administrator/hero-content`)
+### 2. Editor Opacity Background SMART di Admin Hero
+Di `src/routes/administrator.hero-content.tsx` bagian card **"Teks SMART"**, tambahkan kontrol baru:
+- **Slider "Opasitas Background" (0–100%)** — mengatur transparansi pill/badge di belakang teks SMART
+- Preview live persentase
 
-Tambah satu Card baru "Teks SMART" berisi:
-- **Teks SMART** (kata utama, mis. "SMART")
-- **Deskripsi SMART** (mis. "Sehat · Mutu · Amanah · Ramah · Terampil")
-- **Warna teks SMART** (color picker)
-- **Warna teks deskripsi** (color picker)
-- **Jenis font** (dropdown: Default/Sans, Serif, Script, Mono, Display)
-- **Ukuran font** (slider 12–48 px, terapkan responsif otomatis)
+Skema database `hero_content`:
+- Tambah kolom `smart_bg_opacity` (numeric, default `0.4`) via migrasi
 
-Tambah Card baru "Tombol Pendaftaran Online":
-- **Nomor WhatsApp tujuan** (contoh: `6289646710859`)
-- **Prolog pesan WhatsApp** (opsional, default: "Hi RSU AISYIYAH ...")
+Frontend `src/routes/index.tsx`:
+- Terapkan opacity ke background badge SMART menggunakan `rgba` / `color-mix` berdasarkan nilai `smart_bg_opacity` dari DB (fallback 0.4 bila null).
 
-Pratinjau di halaman admin ikut memperlihatkan hasil styling SMART secara real-time.
-
-## Data Model
-
-Migrasi menambah kolom di tabel `hero_content`:
-- `smart_word` TEXT (default "SMART")
-- `smart_desc` TEXT (default "— Sehat · Mutu · Amanah · Ramah · Terampil")
-- `smart_color` TEXT (default "#D4AF37" / gold)
-- `smart_desc_color` TEXT (default "#FFFFFF")
-- `smart_font_family` TEXT (default "sans")
-- `smart_font_size` INTEGER (default 18)
-- `pendaftaran_wa_number` TEXT (default "6289646710859")
-- `pendaftaran_wa_prolog` TEXT (default "Hi RSU AISYIYAH Purworejo, saya ingin mendaftar.")
-
-## Integrasi Frontend
-
-- `src/routes/index.tsx`: render badge SMART pakai kolom baru + style inline (color, fontFamily, fontSize).
-- `src/components/PendaftaranModal.tsx`: terima prop `waNumber` dan `waProlog` (atau ambil dari `hero_content`), gunakan pada URL WhatsApp dan awali pesan dengan prolog.
-- Realtime channel sudah mendengarkan `hero_content`, jadi perubahan otomatis muncul.
-
-## Files
-
-- Migration: kolom baru di `hero_content`
-- Edit `src/routes/administrator.hero-content.tsx` (form + preview)
-- Edit `src/routes/index.tsx` (render dinamis SMART + oper WA ke modal)
-- Edit `src/components/PendaftaranModal.tsx` (pakai WA number & prolog dari props)
+### Detail teknis
+- Migrasi: `ALTER TABLE public.hero_content ADD COLUMN smart_bg_opacity numeric NOT NULL DEFAULT 0.4;`
+- Admin form: `<Slider min={0} max={100} step={5}>` dengan label persentase; simpan sebagai `value/100`.
+- Badge SMART: `style={{ backgroundColor: \`rgba(0,0,0,${opacity})\` }}` (atau warna badge existing dengan alpha yang diatur).

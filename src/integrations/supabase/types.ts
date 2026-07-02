@@ -386,6 +386,7 @@ export type Database = {
           pendaftaran_wa_number: string
           pendaftaran_wa_prolog: string
           singleton: boolean
+          smart_bg_opacity: number
           smart_color: string
           smart_desc: string
           smart_desc_color: string
@@ -409,6 +410,7 @@ export type Database = {
           pendaftaran_wa_number?: string
           pendaftaran_wa_prolog?: string
           singleton?: boolean
+          smart_bg_opacity?: number
           smart_color?: string
           smart_desc?: string
           smart_desc_color?: string
@@ -432,6 +434,7 @@ export type Database = {
           pendaftaran_wa_number?: string
           pendaftaran_wa_prolog?: string
           singleton?: boolean
+          smart_bg_opacity?: number
           smart_color?: string
           smart_desc?: string
           smart_desc_color?: string
