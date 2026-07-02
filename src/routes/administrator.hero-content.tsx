@@ -68,6 +68,14 @@ function HeroContentAdmin() {
       badge2: data.badge2,
       overlay_color: data.overlay_color,
       overlay_opacity: data.overlay_opacity,
+      smart_word: data.smart_word,
+      smart_desc: data.smart_desc,
+      smart_color: data.smart_color,
+      smart_desc_color: data.smart_desc_color,
+      smart_font_family: data.smart_font_family,
+      smart_font_size: data.smart_font_size,
+      pendaftaran_wa_number: (data.pendaftaran_wa_number || "").replace(/[^0-9]/g, ""),
+      pendaftaran_wa_prolog: data.pendaftaran_wa_prolog,
     }).eq("id", data.id);
     setSaving(false);
     if (error) toast.error(error.message); else toast.success("Hero section tersimpan");
