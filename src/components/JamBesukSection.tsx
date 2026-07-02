@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 type Item = { id: string; label: string; time_range: string };
 
 const FALLBACK: Item[] = [
-  { id: "f1", label: "SIANG", time_range: "11.00 – 13.30 WIB" },
-  { id: "f2", label: "SORE", time_range: "17.00 – 19.00 WIB" },
+  { id: "f1", label: "SIANG", time_range: "10.00 – 13.00 WIB" },
+  { id: "f2", label: "SORE", time_range: "16.00 – 18.00 WIB" },
 ];
 
 export default function JamBesukSection() {
@@ -50,7 +50,7 @@ export default function JamBesukSection() {
                   <Clock className={`h-8 w-8 ${isSiangSore ? "text-white" : "text-gold"}`} />
                 </div>
                 <div className={`mt-3 text-xl font-bold ${isSiangSore ? "text-white" : "text-primary-dark"}`}>{it.label}</div>
-                <div className={`mt-1 text-2xl font-script ${isSiangSore ? "text-white/95" : "text-primary"}`}>{it.time_range}</div>
+                <div className={`mt-1 text-2xl font-serif font-semibold tracking-wide ${isSiangSore ? "text-white/95" : "text-primary"}`}>{it.time_range}</div>
               </div>
             );
           })}
