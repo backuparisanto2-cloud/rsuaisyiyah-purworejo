@@ -4,7 +4,7 @@ import { CalendarCheck, Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import MitraSlider from "@/components/MitraSlider";
 import Header from "@/components/Header";
-import SideSocial from "@/components/SideSocial";
+import SideButtons from "@/components/SideButtons";
 import JadwalDokter from "@/components/JadwalDokter";
 import ChatbotArini from "@/components/ChatbotArini";
 import HeroSlider from "@/components/HeroSlider";
