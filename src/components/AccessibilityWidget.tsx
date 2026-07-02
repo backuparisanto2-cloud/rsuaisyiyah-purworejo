@@ -17,7 +17,9 @@ const DEFAULT: Settings = {
   bigCursor: false,
 };
 
-export default function AccessibilityWidget() {
+export const A11Y_OPEN_EVENT = "a11y:open";
+
+export default function AccessibilityWidget({ showTrigger = true }: { showTrigger?: boolean }) {
   const [open, setOpen] = useState(false);
   const [s, setS] = useState<Settings>(() => {
     if (typeof window === "undefined") return DEFAULT;
@@ -38,17 +40,25 @@ export default function AccessibilityWidget() {
     localStorage.setItem("a11y", JSON.stringify(s));
   }, [s]);
 
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener(A11Y_OPEN_EVENT, handler);
+    return () => window.removeEventListener(A11Y_OPEN_EVENT, handler);
+  }, []);
+
   const set = (k: keyof Settings, v: Settings[keyof Settings]) => setS((p) => ({ ...p, [k]: v }));
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Buka menu aksesibilitas difabel"
-        className="fixed right-3 top-1/2 z-40 mt-[60px] h-10 w-10 rounded-xl bg-secondary text-secondary-foreground shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform flex items-center justify-center"
-      >
-        <Accessibility className="h-5 w-5" />
-      </button>
+      {showTrigger && (
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Buka menu aksesibilitas difabel"
+          className="fixed right-3 top-1/2 z-40 mt-[60px] h-10 w-10 rounded-xl bg-secondary text-secondary-foreground shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform flex items-center justify-center"
+        >
+          <Accessibility className="h-5 w-5" />
+        </button>
+      )}
 
       {open && (
         <div className="fixed right-3 top-1/2 mt-[110px] z-50 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card border shadow-2xl overflow-hidden">
