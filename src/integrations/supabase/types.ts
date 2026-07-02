@@ -865,6 +865,42 @@ export type Database = {
         }
         Relationships: []
       }
+      side_buttons: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          key: string
+          label: string
+          updated_at: string
+          url: string | null
+          wa_prolog: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          key: string
+          label: string
+          updated_at?: string
+          url?: string | null
+          wa_prolog?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          key?: string
+          label?: string
+          updated_at?: string
+          url?: string | null
+          wa_prolog?: string | null
+        }
+        Relationships: []
+      }
       theme_settings: {
         Row: {
           accent_color: string
