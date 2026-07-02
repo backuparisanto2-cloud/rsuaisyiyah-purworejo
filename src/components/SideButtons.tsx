@@ -98,9 +98,12 @@ export default function SideButtons() {
   }, []);
 
   return (
-    <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
+    <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2.5 items-center">
       {rows.map((r) => {
-        const common = `${bgFor(r.key)} h-10 w-10 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform`;
+        const isWA = r.key === "whatsapp";
+        const common = isWA
+          ? "relative h-14 w-14 rounded-full flex items-center justify-center bg-gradient-to-b from-[#4ade80] to-[#25D366] shadow-[0_6px_18px_rgba(37,211,102,0.55)] ring-2 ring-white hover:scale-110 transition-transform before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/40 before:to-transparent before:opacity-60 before:pointer-events-none animate-[pulse_2.5s_ease-in-out_infinite]"
+          : `${bgFor(r.key)} h-10 w-10 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform`;
         if (r.key === "accessibility") {
           return (
             <button
@@ -131,3 +134,4 @@ export default function SideButtons() {
     </div>
   );
 }
+
