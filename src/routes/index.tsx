@@ -170,12 +170,13 @@ function HomePage() {
           className="absolute inset-0 pointer-events-none"
           style={{ backgroundColor: hero.overlay_color, opacity: hero.overlay_opacity / 100 }}
         />
-        <div className="relative z-10 text-center px-4 sm:px-6 text-primary-foreground max-w-3xl">
+        <div className="relative z-10 text-center px-4 sm:px-6 text-primary-foreground max-w-3xl [text-shadow:0_2px_10px_rgba(0,0,0,0.55),0_1px_2px_rgba(0,0,0,0.7)]">
           <img src={hero.logo_url || logo} alt="Logo RSU Aisyiyah Purworejo" loading="eager" decoding="async" className={`h-16 w-16 sm:h-[5.6rem] sm:w-[5.6rem] mx-auto rounded-full object-contain aspect-square drop-shadow-2xl ${light ? "" : "animate-float"}`} />
-          <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-            {hero.title_line1}<br/><span className="text-gold">{hero.title_line2}</span>
+          <h1 className="mt-5 sm:mt-6 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.65)]">
+            {hero.title_line1}<br/><span className="text-gold [-webkit-text-stroke:1px_rgba(0,0,0,0.35)]">{hero.title_line2}</span>
           </h1>
-          <p className="mt-3 sm:mt-4 text-xl sm:text-3xl md:text-4xl font-script text-gold">{hero.tagline}</p>
+          <p className="mt-3 sm:mt-4 text-xl sm:text-3xl md:text-4xl font-script text-gold [-webkit-text-stroke:1px_rgba(0,0,0,0.45)] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{hero.tagline}</p>
+
           <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <button onClick={() => setPendaftaranOpen(true)} className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-gold text-primary-dark font-bold hover:scale-105 transition-transform shadow-lg text-sm sm:text-base">
               <CalendarCheck className="h-5 w-5" /> {hero.cta_text}
