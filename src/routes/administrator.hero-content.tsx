@@ -313,11 +313,12 @@ function HeroContentAdmin() {
         <h3 className="text-2xl font-bold">{data.title_line1}<br /><span className="text-gold">{data.title_line2}</span></h3>
         <div className="flex justify-center">
           <span
-            className="inline-flex items-center flex-wrap justify-center gap-2 px-5 py-2.5 rounded-full bg-black/40 border border-white/25 font-bold [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
+            className="inline-flex items-center flex-wrap justify-center gap-2 px-5 py-2.5 rounded-full border border-white/25 font-bold [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
             style={{
               fontFamily: SMART_FONT_MAP[data.smart_font_family] || SMART_FONT_MAP.sans,
               fontSize: `${data.smart_font_size}px`,
               lineHeight: 1.2,
+              backgroundColor: `rgba(0,0,0,${data.smart_bg_opacity ?? 0.4})`,
             }}
           >
             <span style={{ color: data.smart_color }}>{data.smart_word}</span>
