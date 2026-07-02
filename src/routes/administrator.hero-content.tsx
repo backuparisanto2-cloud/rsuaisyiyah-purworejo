@@ -14,6 +14,14 @@ const DEFAULT_OVERLAY_OPACITY = 30;
 
 export const Route = createFileRoute("/administrator/hero-content")({ component: HeroContentAdmin });
 
+const SMART_FONT_MAP: Record<string, string> = {
+  sans: "'Inter', ui-sans-serif, system-ui, sans-serif",
+  serif: "'Playfair Display', Georgia, serif",
+  script: "'Great Vibes', 'Dancing Script', cursive",
+  mono: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  display: "'Bebas Neue', Impact, sans-serif",
+};
+
 type HeroContent = {
   id: string;
   logo_url: string | null;
@@ -25,6 +33,14 @@ type HeroContent = {
   badge2: string;
   overlay_color: string;
   overlay_opacity: number;
+  smart_word: string;
+  smart_desc: string;
+  smart_color: string;
+  smart_desc_color: string;
+  smart_font_family: string;
+  smart_font_size: number;
+  pendaftaran_wa_number: string;
+  pendaftaran_wa_prolog: string;
 };
 
 function HeroContentAdmin() {
