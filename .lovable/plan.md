@@ -1,54 +1,45 @@
-## Multiuser Admin Panel (admin / editor / reader)
+## Perubahan
 
-### 1. Database (1 migrasi)
-- Tambah nilai `'reader'` ke enum `app_role` (sudah ada: admin, editor, user — nilai `user` dibiarkan untuk backward-compat tapi tidak dipakai UI).
-- Fungsi baru `public.is_protected_admin(_user_id uuid)` → `true` jika email user = `rsaisyiyahpurworejo@gmail.com` (akun admin pertama).
-- Fungsi `public.has_min_role(_user_id uuid, _min app_role)` (admin > editor > reader) — security definer.
-- Trigger pada `user_roles`:
-  - cegah `DELETE` / `UPDATE` baris admin milik akun terproteksi
-  - cegah penghapusan admin terakhir (selalu sisakan ≥ 1)
-- Perbarui RLS pada tabel konten (hero_*, about_page, services, doctors, doctor_schedules, faqs, partners, contact_settings, visiting_hours, menu_items, page_menu_items, custom_pages, home_sections, home_summary_sections, instagram_posts, chatbot_*) → policy write: `has_min_role(auth.uid(), 'editor')`; read tetap publik atau seperti sekarang.
-- RLS yang tetap admin-only (write & read sensitif): `user_roles`, `profiles` (untuk admin list), `theme_settings`.
-- `profiles`: tambah policy "admin can select all" agar list user bisa baca display_name.
+### 1. Section "Jam Besuk" — kontras putih
+File: `src/components/JamBesukSection.tsx`
+- Ubah background dari `bg-primary text-primary-foreground` menjadi background putih (`bg-white`) dengan teks gelap (`text-primary-dark`/`text-foreground`).
+- Kartu jam besuk pakai border tipis + shadow lembut, ikon jam warna gold, angka rentang jam tetap `text-primary` bold agar tetap menonjol.
+- Judul "JAM BESUK RESMI" pakai warna primary, subteks abu-abu.
 
-### 2. Server functions (`src/lib/admin-users.functions.ts`)
-Semua memakai `requireSupabaseAuth` + cek `has_role(uid, 'admin')`; mutasi pakai `supabaseAdmin` (di-import dalam handler).
-- `listUsers()` → gabung `auth.admin.listUsers()` + `user_roles` + `profiles` → `{id, email, displayName, role, isProtected, createdAt}[]`.
-- `createUser({email, password, displayName, role})` → `auth.admin.createUser({email_confirm:true})`, insert role.
-- `updateUserRole({userId, role})` → blok jika target terproteksi; pastikan masih ada ≥1 admin.
-- `resetUserPassword({userId, password})` → `auth.admin.updateUserById`.
-- `deleteUser({userId})` → blok jika terproteksi; hapus role + auth user.
+### 2. Hero — teks SMART lebih kontras
+Cek dulu di mana "SMART (Sehat Mutu Amanah Ramah Terampil)" ditampilkan (kemungkinan di `HeroSlider` atau overlay hero). Tambahkan:
+- `text-white` + `[-webkit-text-stroke:1px_rgba(0,0,0,0.55)]`
+- `drop-shadow-[0_3px_10px_rgba(0,0,0,0.75)]`
+- Optional badge/pill semi-transparan gelap di belakang teks agar terbaca di semua warna gambar.
 
-Validasi input dengan zod (email, password ≥ 8, role enum).
+### 3. Tombol samping kanan-tengah (Beranda)
+Ganti `SideSocial.tsx` dan pindahkan `AccessibilityWidget` menjadi satu kolom tombol vertikal di kanan-tengah dengan urutan:
+WhatsApp, Instagram, YouTube, TikTok, Facebook, Aksesibilitas.
 
-### 3. Frontend
-**`src/hooks/use-auth.tsx`**
-- Ganti `isAdmin: boolean` menjadi `role: 'admin'|'editor'|'reader'|null` + helper terhitung `isAdmin`, `canEdit` (admin/editor), `canManageUsers` (admin).
-- Query satu role tertinggi dari `user_roles` (urutkan admin>editor>reader).
+Detail:
+- Ambil konfigurasi dari tabel baru `side_buttons` (lihat DB).
+- Setiap tombol: warna brand masing-masing, ikon SVG/lucide, ring putih, animasi hover.
+- WhatsApp: `https://wa.me/{digits}?text={prolog}` dengan prolog dari DB (default `Hi RSU AISYIYAH ...`).
+- Tombol Aksesibilitas tetap membuka panel `AccessibilityWidget` (refactor: pisah trigger dari panel, atau expose lewat context / custom event).
+- Jika tombol `is_active=false` → tidak dirender.
+- `WhatsAppButton.tsx` kiri-bawah dihapus (opsional) atau tetap — default: **hapus** karena sudah tergabung di kolom kanan. (Konfirmasi jika ingin dipertahankan.)
 
-**`src/routes/administrator.tsx`**
-- Izinkan masuk jika `role !== null` (bukan hanya admin).
-- Filter `NAV`: item "Tema Warna" & "Pengguna" hanya untuk admin; sisanya tampil untuk editor & reader.
-- Tampilkan badge role di sidebar di samping email.
+### 4. Database (migration baru)
+Tabel `public.side_buttons`:
+- `key` (text unique: `whatsapp|instagram|youtube|tiktok|facebook|accessibility`)
+- `label`, `url`, `wa_prolog` (nullable, khusus whatsapp), `is_active` (bool), `display_order` (int)
+- RLS: SELECT publik, ALL untuk admin (`has_role(auth.uid(),'admin')`)
+- GRANT sesuai konvensi + trigger `updated_at`.
+- Seed 6 baris default.
 
-**`src/routes/administrator.users.tsx` (baru, admin only)**
-- Tabel user: email, nama, role (select inline), tombol Reset Password, Hapus.
-- Tombol "+ Tambah Pengguna" → dialog form (email, password, nama, role).
-- Akun terproteksi: kontrol role/hapus dinonaktifkan dengan tooltip.
+### 5. Halaman admin baru: "Tombol Samping"
+File baru: `src/routes/administrator.side-buttons.tsx`
+- List draggable (pakai `SortableList`) dengan toggle aktif, edit URL, edit label, dan (khusus WhatsApp) input `wa_prolog`.
+- Tambahkan entry menu di sidebar admin (`src/routes/administrator.tsx`).
 
-**Komponen guard `src/components/admin/RoleGate.tsx`**
-- `<RoleGate min="editor">` membungkus tombol Simpan/Hapus/Upload di semua halaman admin sehingga reader hanya bisa melihat (tombol di-`disabled` + tooltip "Hanya untuk Editor/Admin"). Diterapkan di form-form yang paling banyak dipakai dulu (Hero, Dokter, FAQ, Layanan, Kontak, Pages, Sections, Summary). Reader tetap bisa menjelajah seluruh panel.
+### Teknis
+- Aksesibilitas: refactor `AccessibilityWidget` menjadi `AccessibilityPanel` yang dibuka via prop `open` + state global sederhana (window event `open-a11y`) supaya tombol di `SideButtons` bisa memicunya. `AccessibilityWidget` lama (tombol floating) dihapus dari `index.tsx`.
+- Types Supabase akan di-regenerate setelah migration disetujui.
 
-### 4. Detail teknis singkat
-- Pastikan `attachSupabaseAuth` sudah terdaftar di `src/start.ts` (cek dulu; tambahkan jika belum).
-- Tidak ada perubahan pada `auth.tsx`; redirect setelah login: admin/editor/reader → `/administrator`, lainnya → `/`.
-- Trigger admin-terakhir hanya menghitung baris dengan `role='admin'`.
-
-### 5. Berkas yang akan dibuat/diubah
-- `supabase/migrations/<ts>_multiuser_roles.sql`
-- `src/lib/admin-users.functions.ts` (baru)
-- `src/hooks/use-auth.tsx` (refactor)
-- `src/routes/administrator.tsx` (gate role + filter nav)
-- `src/routes/administrator.users.tsx` (baru)
-- `src/components/admin/RoleGate.tsx` (baru) + integrasi di beberapa halaman admin utama
-- `src/start.ts` (jika perlu menambah `attachSupabaseAuth`)
+## Pertanyaan
+1. `WhatsAppButton` kiri-bawah dihapus atau dipertahankan?
