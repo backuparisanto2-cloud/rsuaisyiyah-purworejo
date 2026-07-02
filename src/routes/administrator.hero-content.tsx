@@ -75,6 +75,7 @@ function HeroContentAdmin() {
       smart_desc_color: data.smart_desc_color,
       smart_font_family: data.smart_font_family,
       smart_font_size: data.smart_font_size,
+      smart_bg_opacity: data.smart_bg_opacity,
       pendaftaran_wa_number: (data.pendaftaran_wa_number || "").replace(/[^0-9]/g, ""),
       pendaftaran_wa_prolog: data.pendaftaran_wa_prolog,
     }).eq("id", data.id);
