@@ -79,7 +79,7 @@ export const Route = createFileRoute("/api/public/track")({
               ip: ip ? ip.slice(0, 64) : null,
               duration_ms: 0,
               is_bounce: true,
-            })
+            } as never)
             .select("id")
             .single();
           if (error) return new Response(error.message, { status: 500 });
