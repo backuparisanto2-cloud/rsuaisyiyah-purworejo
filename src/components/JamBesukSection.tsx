@@ -35,15 +35,25 @@ export default function JamBesukSection() {
         <h2 className="text-2xl md:text-3xl font-bold text-primary">JAM BESUK RESMI</h2>
         <p className="mt-1 text-sm text-muted-foreground">RSU Aisyiyah Purworejo</p>
         <div className={`mt-8 grid gap-6 ${items.length > 1 ? "sm:grid-cols-2" : ""}`}>
-          {items.map((it) => (
-            <div key={it.id} className="rounded-2xl bg-white p-8 border border-primary/15 shadow-[0_10px_30px_-15px_rgba(11,37,69,0.25)] hover:shadow-[0_15px_40px_-15px_rgba(11,37,69,0.35)] transition-shadow">
-              <div className="mx-auto h-14 w-14 rounded-full bg-gold/15 flex items-center justify-center">
-                <Clock className="h-8 w-8 text-gold" />
+          {items.map((it) => {
+            const isSiangSore = /siang|sore/i.test(it.label);
+            return (
+              <div
+                key={it.id}
+                className={`rounded-2xl p-8 border shadow-[0_10px_30px_-15px_rgba(11,37,69,0.25)] hover:shadow-[0_15px_40px_-15px_rgba(11,37,69,0.35)] transition-shadow ${
+                  isSiangSore
+                    ? "bg-secondary border-secondary/30 text-secondary-foreground"
+                    : "bg-white border-primary/15"
+                }`}
+              >
+                <div className={`mx-auto h-14 w-14 rounded-full flex items-center justify-center ${isSiangSore ? "bg-white/20" : "bg-gold/15"}`}>
+                  <Clock className={`h-8 w-8 ${isSiangSore ? "text-white" : "text-gold"}`} />
+                </div>
+                <div className={`mt-3 text-xl font-bold ${isSiangSore ? "text-white" : "text-primary-dark"}`}>{it.label}</div>
+                <div className={`mt-1 text-2xl font-script ${isSiangSore ? "text-white/95" : "text-primary"}`}>{it.time_range}</div>
               </div>
-              <div className="mt-3 text-xl font-bold text-primary-dark">{it.label}</div>
-              <div className="mt-1 text-2xl font-script text-primary">{it.time_range}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <p className="mt-6 text-sm text-muted-foreground max-w-xl mx-auto">
           Demi kenyamanan dan kesembuhan pasien, mohon pengunjung mematuhi peraturan jam besuk resmi yang berlaku.
