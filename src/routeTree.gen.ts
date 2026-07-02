@@ -17,6 +17,7 @@ import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as AdministratorUsersRouteImport } from './routes/administrator.users'
 import { Route as AdministratorThemeRouteImport } from './routes/administrator.theme'
 import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
+import { Route as AdministratorSideButtonsRouteImport } from './routes/administrator.side-buttons'
 import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
 import { Route as AdministratorPagesRouteImport } from './routes/administrator.pages'
 import { Route as AdministratorMitraRouteImport } from './routes/administrator.mitra'
@@ -77,6 +78,12 @@ const AdministratorTentangRoute = AdministratorTentangRouteImport.update({
   path: '/tentang',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorSideButtonsRoute =
+  AdministratorSideButtonsRouteImport.update({
+    id: '/side-buttons',
+    path: '/side-buttons',
+    getParentRoute: () => AdministratorRoute,
+  } as any)
 const AdministratorSectionsRoute = AdministratorSectionsRouteImport.update({
   id: '/sections',
   path: '/sections',
@@ -195,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
+  '/administrator/side-buttons': typeof AdministratorSideButtonsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/users': typeof AdministratorUsersRoute
@@ -223,6 +231,7 @@ export interface FileRoutesByTo {
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
+  '/administrator/side-buttons': typeof AdministratorSideButtonsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/users': typeof AdministratorUsersRoute
@@ -253,6 +262,7 @@ export interface FileRoutesById {
   '/administrator/mitra': typeof AdministratorMitraRoute
   '/administrator/pages': typeof AdministratorPagesRoute
   '/administrator/sections': typeof AdministratorSectionsRoute
+  '/administrator/side-buttons': typeof AdministratorSideButtonsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
   '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/users': typeof AdministratorUsersRoute
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/administrator/mitra'
     | '/administrator/pages'
     | '/administrator/sections'
+    | '/administrator/side-buttons'
     | '/administrator/tentang'
     | '/administrator/theme'
     | '/administrator/users'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/administrator/mitra'
     | '/administrator/pages'
     | '/administrator/sections'
+    | '/administrator/side-buttons'
     | '/administrator/tentang'
     | '/administrator/theme'
     | '/administrator/users'
@@ -341,6 +353,7 @@ export interface FileRouteTypes {
     | '/administrator/mitra'
     | '/administrator/pages'
     | '/administrator/sections'
+    | '/administrator/side-buttons'
     | '/administrator/tentang'
     | '/administrator/theme'
     | '/administrator/users'
@@ -417,6 +430,13 @@ declare module '@tanstack/react-router' {
       path: '/tentang'
       fullPath: '/administrator/tentang'
       preLoaderRoute: typeof AdministratorTentangRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/side-buttons': {
+      id: '/administrator/side-buttons'
+      path: '/side-buttons'
+      fullPath: '/administrator/side-buttons'
+      preLoaderRoute: typeof AdministratorSideButtonsRouteImport
       parentRoute: typeof AdministratorRoute
     }
     '/administrator/sections': {
@@ -572,6 +592,7 @@ interface AdministratorRouteChildren {
   AdministratorMitraRoute: typeof AdministratorMitraRoute
   AdministratorPagesRoute: typeof AdministratorPagesRoute
   AdministratorSectionsRoute: typeof AdministratorSectionsRoute
+  AdministratorSideButtonsRoute: typeof AdministratorSideButtonsRoute
   AdministratorTentangRoute: typeof AdministratorTentangRoute
   AdministratorThemeRoute: typeof AdministratorThemeRoute
   AdministratorUsersRoute: typeof AdministratorUsersRoute
@@ -595,6 +616,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorMitraRoute: AdministratorMitraRoute,
   AdministratorPagesRoute: AdministratorPagesRoute,
   AdministratorSectionsRoute: AdministratorSectionsRoute,
+  AdministratorSideButtonsRoute: AdministratorSideButtonsRoute,
   AdministratorTentangRoute: AdministratorTentangRoute,
   AdministratorThemeRoute: AdministratorThemeRoute,
   AdministratorUsersRoute: AdministratorUsersRoute,
