@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 type Item = { id: string; label: string; time_range: string };
 
 const FALLBACK: Item[] = [
-  { id: "f1", label: "SIANG", time_range: "11.00 – 13.30 WIB" },
-  { id: "f2", label: "SORE", time_range: "17.00 – 19.00 WIB" },
+  { id: "f1", label: "SIANG", time_range: "10.00 – 13.00 WIB" },
+  { id: "f2", label: "SORE", time_range: "16.00 – 18.00 WIB" },
 ];
 
 export default function JamBesukSection() {
