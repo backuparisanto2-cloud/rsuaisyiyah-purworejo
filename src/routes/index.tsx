@@ -158,9 +158,9 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <SideSocial />
+      <SideButtons />
       <ChatbotArini />
-      <AccessibilityWidget />
+      <AccessibilityWidget showTrigger={false} />
       <PendaftaranModal open={pendaftaranOpen} onClose={() => setPendaftaranOpen(false)} />
 
       {/* HERO (fixed) */}
