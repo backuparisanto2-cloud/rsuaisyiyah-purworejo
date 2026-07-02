@@ -177,6 +177,13 @@ function HomePage() {
           </h1>
           <p className="mt-3 sm:mt-4 text-xl sm:text-3xl md:text-4xl font-script text-gold [-webkit-text-stroke:1px_rgba(0,0,0,0.45)] drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">{hero.tagline}</p>
 
+          <div className="mt-4 flex justify-center">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/35 backdrop-blur-sm border border-white/25 text-white text-xs sm:text-sm font-bold tracking-wide [text-shadow:0_1px_3px_rgba(0,0,0,0.9)] [-webkit-text-stroke:0.5px_rgba(0,0,0,0.6)]">
+              <span className="text-gold">SMART</span>
+              <span className="opacity-90">— Sehat · Mutu · Amanah · Ramah · Terampil</span>
+            </span>
+          </div>
+
           <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <button onClick={() => setPendaftaranOpen(true)} className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-gold text-primary-dark font-bold hover:scale-105 transition-transform shadow-lg text-sm sm:text-base">
               <CalendarCheck className="h-5 w-5" /> {hero.cta_text}
