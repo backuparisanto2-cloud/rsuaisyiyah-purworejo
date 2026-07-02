@@ -39,6 +39,7 @@ type HeroContent = {
   smart_desc_color: string;
   smart_font_family: string;
   smart_font_size: number;
+  smart_bg_opacity: number;
   pendaftaran_wa_number: string;
   pendaftaran_wa_prolog: string;
 };
