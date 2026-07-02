@@ -39,6 +39,7 @@ type HeroContent = {
   smart_desc_color: string;
   smart_font_family: string;
   smart_font_size: number;
+  smart_bg_opacity: number;
   pendaftaran_wa_number: string;
   pendaftaran_wa_prolog: string;
 };
@@ -74,6 +75,7 @@ function HeroContentAdmin() {
       smart_desc_color: data.smart_desc_color,
       smart_font_family: data.smart_font_family,
       smart_font_size: data.smart_font_size,
+      smart_bg_opacity: data.smart_bg_opacity,
       pendaftaran_wa_number: (data.pendaftaran_wa_number || "").replace(/[^0-9]/g, ""),
       pendaftaran_wa_prolog: data.pendaftaran_wa_prolog,
     }).eq("id", data.id);
@@ -244,13 +246,30 @@ function HeroContentAdmin() {
             />
           </div>
         </div>
+        <div>
+          <div className="flex items-center justify-between">
+            <Label>Opasitas background badge SMART</Label>
+            <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted">{Math.round((data.smart_bg_opacity ?? 0.4) * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={Math.round((data.smart_bg_opacity ?? 0.4) * 100)}
+            onChange={(e) => setData({ ...data, smart_bg_opacity: Number(e.target.value) / 100 })}
+            className="w-full mt-2 accent-primary"
+          />
+          <p className="text-xs text-muted-foreground mt-1">0% = transparan penuh (tanpa pill), 100% = hitam pekat.</p>
+        </div>
         <div className="rounded-lg bg-primary-dark p-4 text-center">
           <span
-            className="inline-flex items-center flex-wrap justify-center gap-2 px-5 py-2.5 rounded-full bg-black/40 border border-white/25 font-bold [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
+            className="inline-flex items-center flex-wrap justify-center gap-2 px-5 py-2.5 rounded-full border border-white/25 font-bold [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
             style={{
               fontFamily: SMART_FONT_MAP[data.smart_font_family] || SMART_FONT_MAP.sans,
               fontSize: `${data.smart_font_size}px`,
               lineHeight: 1.2,
+              backgroundColor: `rgba(0,0,0,${data.smart_bg_opacity ?? 0.4})`,
             }}
           >
             <span style={{ color: data.smart_color }}>{data.smart_word}</span>
@@ -294,11 +313,12 @@ function HeroContentAdmin() {
         <h3 className="text-2xl font-bold">{data.title_line1}<br /><span className="text-gold">{data.title_line2}</span></h3>
         <div className="flex justify-center">
           <span
-            className="inline-flex items-center flex-wrap justify-center gap-2 px-5 py-2.5 rounded-full bg-black/40 border border-white/25 font-bold [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
+            className="inline-flex items-center flex-wrap justify-center gap-2 px-5 py-2.5 rounded-full border border-white/25 font-bold [text-shadow:0_1px_3px_rgba(0,0,0,0.9)]"
             style={{
               fontFamily: SMART_FONT_MAP[data.smart_font_family] || SMART_FONT_MAP.sans,
               fontSize: `${data.smart_font_size}px`,
               lineHeight: 1.2,
+              backgroundColor: `rgba(0,0,0,${data.smart_bg_opacity ?? 0.4})`,
             }}
           >
             <span style={{ color: data.smart_color }}>{data.smart_word}</span>

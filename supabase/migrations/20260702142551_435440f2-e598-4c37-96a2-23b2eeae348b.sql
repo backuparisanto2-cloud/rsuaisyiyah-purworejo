@@ -1,0 +1,1 @@
+ALTER TABLE public.hero_content ADD COLUMN IF NOT EXISTS smart_bg_opacity numeric NOT NULL DEFAULT 0.4;
