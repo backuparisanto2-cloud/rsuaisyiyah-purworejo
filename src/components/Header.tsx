@@ -53,7 +53,7 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
   const childrenOf = (pid: string) => active.filter((i) => i.parent_id === pid);
 
   return (
-    <header className="fixed top-0 inset-x-0 z-30 bg-primary text-primary-foreground shadow-md">
+    <header className="fixed top-0 inset-x-0 z-30 bg-primary/90 text-primary-foreground shadow-md">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 h-24 flex items-center gap-4">
         <a href="#beranda" className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
           <span className="shrink-0 inline-flex items-center justify-center rounded-full ring-[3px] ring-gold shadow-[0_0_18px_rgba(234,179,8,0.55)]">
