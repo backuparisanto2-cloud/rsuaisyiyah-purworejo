@@ -1,26 +1,21 @@
 ## Perubahan
 
-### 1. Tombol WhatsApp di Side Buttons (kanan layar)
-Ganti style tombol WhatsApp di `src/components/SideButtons.tsx` agar sesuai gambar referensi:
-- Lingkaran hijau khas WhatsApp (`#25D366`)
-- Logo WhatsApp putih di tengah
-- Shadow lembut + hover scale
-- Ukuran sedikit lebih besar / menonjol dibanding tombol lain agar jadi CTA utama
+### 1. Kembalikan tombol WhatsApp di SideButtons ke gaya sebelumnya
+File: `src/components/SideButtons.tsx`
+- Hapus styling khusus WhatsApp (lingkaran besar hijau glossy + pulse + gradient + ring tebal).
+- Samakan kembali dengan tombol lain: kotak rounded `h-10 w-10 rounded-xl bg-[#25D366]` + shadow + ring tipis + hover scale.
+- Ikon WhatsApp putih ukuran standar (`h-5 w-5`) agar proporsional dengan tombol sosial lainnya.
 
-Tombol lain (Instagram, YouTube, TikTok, FB, Aksesibilitas) tetap seperti sekarang.
+### 2. Rapikan posisi & ukuran side buttons di mobile
+File: `src/components/SideButtons.tsx`
+- Kecilkan sedikit di mobile: `h-9 w-9` di mobile, `h-10 w-10` di `sm:`.
+- Geser lebih ke tepi & naikkan sedikit dari titik tengah agar tidak menabrak tombol "Pendaftaran Online" / chatbot mengambang: `right-2 sm:right-3`, `top-[42%] sm:top-1/2`.
+- Kurangi gap antar tombol di mobile: `gap-2 sm:gap-2.5`.
 
-### 2. Editor Opacity Background SMART di Admin Hero
-Di `src/routes/administrator.hero-content.tsx` bagian card **"Teks SMART"**, tambahkan kontrol baru:
-- **Slider "Opasitas Background" (0–100%)** — mengatur transparansi pill/badge di belakang teks SMART
-- Preview live persentase
+### 3. Ubah label chatbot "Tanya Arini" → "Tanya Aisha"
+File: `src/components/ChatbotArini.tsx`
+- Ganti teks `Arini` menjadi `Aisha` pada tombol mengambang.
+- Ganti `aria-label` "Buka chat Arini" → "Buka chat Aisha".
+- Alt gambar tetap (aset `arini.png` tidak diubah agar tidak menyentuh backend/asset).
 
-Skema database `hero_content`:
-- Tambah kolom `smart_bg_opacity` (numeric, default `0.4`) via migrasi
-
-Frontend `src/routes/index.tsx`:
-- Terapkan opacity ke background badge SMART menggunakan `rgba` / `color-mix` berdasarkan nilai `smart_bg_opacity` dari DB (fallback 0.4 bila null).
-
-### Detail teknis
-- Migrasi: `ALTER TABLE public.hero_content ADD COLUMN smart_bg_opacity numeric NOT NULL DEFAULT 0.4;`
-- Admin form: `<Slider min={0} max={100} step={5}>` dengan label persentase; simpan sebagai `value/100`.
-- Badge SMART: `style={{ backgroundColor: \`rgba(0,0,0,${opacity})\` }}` (atau warna badge existing dengan alpha yang diatur).
+Catatan: nama internal komponen/route dan persona chatbot di backend tidak diubah — hanya label UI yang tampil ke pengunjung.

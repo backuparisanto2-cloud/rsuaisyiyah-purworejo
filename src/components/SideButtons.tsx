@@ -26,7 +26,7 @@ function IconFor({ k }: { k: string }) {
   switch (k) {
     case "whatsapp":
       return (
-        <svg viewBox="0 0 24 24" className="relative h-8 w-8 fill-white drop-shadow-sm">
+        <svg viewBox="0 0 24 24" className="h-5 w-5 fill-white">
           <path d="M20.52 3.48A11.86 11.86 0 0 0 12.04 0C5.5 0 .2 5.3.2 11.84c0 2.09.55 4.13 1.6 5.93L0 24l6.39-1.67a11.85 11.85 0 0 0 5.65 1.44h.01c6.54 0 11.84-5.3 11.84-11.84 0-3.16-1.23-6.13-3.37-8.45zM17.48 14.24c-.3-.15-1.76-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.08 4.48.71.3 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35z" />
         </svg>
       );
@@ -98,12 +98,9 @@ export default function SideButtons() {
   }, []);
 
   return (
-    <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2.5 items-center">
+    <div className="fixed right-2 sm:right-3 top-[42%] sm:top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 sm:gap-2.5 items-center">
       {rows.map((r) => {
-        const isWA = r.key === "whatsapp";
-        const common = isWA
-          ? "relative h-14 w-14 rounded-full flex items-center justify-center bg-gradient-to-b from-[#4ade80] to-[#25D366] shadow-[0_6px_18px_rgba(37,211,102,0.55)] ring-2 ring-white hover:scale-110 transition-transform before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-b before:from-white/40 before:to-transparent before:opacity-60 before:pointer-events-none animate-[pulse_2.5s_ease-in-out_infinite]"
-          : `${bgFor(r.key)} h-10 w-10 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform`;
+        const common = `${bgFor(r.key)} h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform`;
         if (r.key === "accessibility") {
           return (
             <button
