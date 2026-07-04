@@ -501,44 +501,57 @@ function MenuEditor({ pageId }: { pageId: string }) {
     const { data, error } = await supabase
       .from("page_menu_items").select("*").eq("page_id", pageId).order("display_order");
     if (error) { toast.error(error.message); setLoading(false); return; }
-    let rows = (data ?? []) as MenuItem[];
-
-    // Seed from global menu_items if empty.
-    if (rows.length === 0) {
-      setSeeding(true);
-      const { data: globalRows } = await supabase
-        .from("menu_items").select("*").order("display_order");
-      const seedSrc = (globalRows ?? []) as MenuItem[];
-      if (seedSrc.length) {
-        // Two-pass to preserve parent_id relationships.
-        const idMap = new Map<string, string>();
-        const roots = seedSrc.filter((r) => !r.parent_id);
-        const children = seedSrc.filter((r) => r.parent_id);
-        for (const r of roots) {
-          const { data: ins } = await supabase.from("page_menu_items").insert({
-            page_id: pageId, label: r.label, href: r.href, parent_id: null,
-            display_order: r.display_order, is_active: r.is_active,
-          }).select("id").maybeSingle();
-          if (ins) idMap.set(r.id, (ins as any).id);
-        }
-        for (const c of children) {
-          const newParent = c.parent_id ? idMap.get(c.parent_id) ?? null : null;
-          await supabase.from("page_menu_items").insert({
-            page_id: pageId, label: c.label, href: c.href, parent_id: newParent,
-            display_order: c.display_order, is_active: c.is_active,
-          });
-        }
-        const { data: reloaded } = await supabase
-          .from("page_menu_items").select("*").eq("page_id", pageId).order("display_order");
-        rows = (reloaded ?? []) as MenuItem[];
-      }
-      setSeeding(false);
-    }
+    const rows = (data ?? []) as MenuItem[];
     setItems(rows);
     setOriginal(Object.fromEntries(rows.map((r) => [r.id, r])));
     setLoading(false);
   }
   useEffect(() => { if (pageId) load(); /* eslint-disable-next-line */ }, [pageId]);
+
+  const isInherit = !loading && items.length === 0;
+
+  async function overrideFromGlobal() {
+    setSeeding(true);
+    const { data: globalRows } = await supabase
+      .from("menu_items").select("*").order("display_order");
+    const seedSrc = (globalRows ?? []) as MenuItem[];
+    if (!seedSrc.length) {
+      setSeeding(false);
+      toast.error("Menu utama kosong. Isi Menu Utama dulu.");
+      return;
+    }
+    const idMap = new Map<string, string>();
+    const roots = seedSrc.filter((r) => !r.parent_id);
+    const children = seedSrc.filter((r) => r.parent_id);
+    for (const r of roots) {
+      const { data: ins } = await supabase.from("page_menu_items").insert({
+        page_id: pageId, label: r.label, href: r.href, parent_id: null,
+        display_order: r.display_order, is_active: r.is_active,
+      }).select("id").maybeSingle();
+      if (ins) idMap.set(r.id, (ins as any).id);
+    }
+    for (const c of children) {
+      const newParent = c.parent_id ? idMap.get(c.parent_id) ?? null : null;
+      await supabase.from("page_menu_items").insert({
+        page_id: pageId, label: c.label, href: c.href, parent_id: newParent,
+        display_order: c.display_order, is_active: c.is_active,
+      });
+    }
+    setSeeding(false);
+    toast.success("Menu halaman kini dapat dikustomisasi");
+    load();
+  }
+
+  async function resetToInherit() {
+    if (!confirm("Kembalikan menu halaman ini agar mengikuti Menu Utama? Semua kustomisasi untuk halaman ini akan dihapus.")) return;
+    setSeeding(true);
+    const { error } = await supabase.from("page_menu_items").delete().eq("page_id", pageId);
+    setSeeding(false);
+    if (error) return toast.error(error.message);
+    toast.success("Menu halaman kembali mengikuti Menu Utama");
+    load();
+  }
+
 
   const roots = items.filter((i) => !i.parent_id).sort((a, b) => a.display_order - b.display_order);
   const childrenOf = (pid: string) =>
