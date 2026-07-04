@@ -60,7 +60,7 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
   return (
     <header className="fixed top-0 inset-x-0 z-30 bg-primary/90 backdrop-blur-md text-primary-foreground shadow-md">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 h-24 flex items-center gap-4">
-        <a href="#beranda" className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
+        <a href={pageId ? "/#beranda" : "#beranda"} className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
           <span className="shrink-0 inline-flex items-center justify-center rounded-full ring-[3px] ring-gold shadow-[0_0_18px_rgba(234,179,8,0.55)]">
             <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-20 sm:w-20 object-contain rounded-full" />
           </span>
@@ -78,20 +78,20 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
             const subs = childrenOf(n.id);
             if (subs.length === 0) {
               return (
-                <a key={n.id} href={n.href} className="px-3 py-2 hover:text-gold transition-colors">
+                <a key={n.id} href={hrefFor(n.href)} className="px-3 py-2 hover:text-gold transition-colors">
                   {n.label.toUpperCase()}
                 </a>
               );
             }
             return (
               <div key={n.id} className="relative group">
-                <a href={n.href} className="px-3 py-2 hover:text-gold transition-colors inline-flex items-center gap-1">
+                <a href={hrefFor(n.href)} className="px-3 py-2 hover:text-gold transition-colors inline-flex items-center gap-1">
                   {n.label.toUpperCase()}
                   <ChevronDown className="h-3 w-3" />
                 </a>
                 <div className="absolute left-0 top-full hidden group-hover:block bg-primary border border-white/10 shadow-xl min-w-[200px] z-40">
                   {subs.map((s) => (
-                    <a key={s.id} href={s.href} className="block px-4 py-2 text-xs hover:bg-white/10 hover:text-gold">
+                    <a key={s.id} href={hrefFor(s.href)} className="block px-4 py-2 text-xs hover:bg-white/10 hover:text-gold">
                       {s.label.toUpperCase()}
                     </a>
                   ))}
@@ -121,11 +121,11 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
           <nav className="p-4 space-y-1">
             {roots.map((n) => (
               <div key={n.id}>
-                <a href={n.href} onClick={() => setOpen(false)} className="block py-3 border-b border-white/10 font-semibold">
+                <a href={hrefFor(n.href)} onClick={() => setOpen(false)} className="block py-3 border-b border-white/10 font-semibold">
                   {n.label.toUpperCase()}
                 </a>
                 {childrenOf(n.id).map((s) => (
-                  <a key={s.id} href={s.href} onClick={() => setOpen(false)} className="block py-2 pl-4 border-b border-white/10 text-sm opacity-90">
+                  <a key={s.id} href={hrefFor(s.href)} onClick={() => setOpen(false)} className="block py-2 pl-4 border-b border-white/10 text-sm opacity-90">
                     → {s.label.toUpperCase()}
                   </a>
                 ))}
