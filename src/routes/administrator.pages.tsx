@@ -77,6 +77,7 @@ async function syncMenuItem(opts: {
 
 function PagesAdmin() {
   const [pages, setPages] = useState<Page[]>([]);
+  const [customMenuPageIds, setCustomMenuPageIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Page | null>(null);
   const [originalHref, setOriginalHref] = useState<string>("");
@@ -84,12 +85,15 @@ function PagesAdmin() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("custom_pages").select("*").order("updated_at", { ascending: false });
+    const [{ data, error }, { data: pmi }] = await Promise.all([
+      supabase.from("custom_pages").select("*").order("updated_at", { ascending: false }),
+      supabase.from("page_menu_items").select("page_id"),
+    ]);
     if (error) toast.error(error.message);
     setPages(((data ?? []) as any[]).map((p) => ({
       ...p, images: Array.isArray(p.images) ? p.images : [],
     })) as Page[]);
+    setCustomMenuPageIds(new Set(((pmi ?? []) as any[]).map((r) => r.page_id)));
     setLoading(false);
   }
 
@@ -384,6 +388,9 @@ function PagesAdmin() {
                           <span className="font-semibold truncate">{p.title}</span>
                           {!p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">Draft</span>}
                           {p.show_in_menu && p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">Di Menu</span>}
+                          {customMenuPageIds.has(p.id)
+                            ? <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-500">Menu: Custom</span>
+                            : <span className="text-xs px-2 py-0.5 rounded bg-green-500/10 text-green-700 dark:text-green-500">Menu: Ikut Utama</span>}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">/p/{p.slug}{p.menu_href ? ` · menu: ${p.menu_href}` : ""}</div>
                       </div>
@@ -501,44 +508,57 @@ function MenuEditor({ pageId }: { pageId: string }) {
     const { data, error } = await supabase
       .from("page_menu_items").select("*").eq("page_id", pageId).order("display_order");
     if (error) { toast.error(error.message); setLoading(false); return; }
-    let rows = (data ?? []) as MenuItem[];
-
-    // Seed from global menu_items if empty.
-    if (rows.length === 0) {
-      setSeeding(true);
-      const { data: globalRows } = await supabase
-        .from("menu_items").select("*").order("display_order");
-      const seedSrc = (globalRows ?? []) as MenuItem[];
-      if (seedSrc.length) {
-        // Two-pass to preserve parent_id relationships.
-        const idMap = new Map<string, string>();
-        const roots = seedSrc.filter((r) => !r.parent_id);
-        const children = seedSrc.filter((r) => r.parent_id);
-        for (const r of roots) {
-          const { data: ins } = await supabase.from("page_menu_items").insert({
-            page_id: pageId, label: r.label, href: r.href, parent_id: null,
-            display_order: r.display_order, is_active: r.is_active,
-          }).select("id").maybeSingle();
-          if (ins) idMap.set(r.id, (ins as any).id);
-        }
-        for (const c of children) {
-          const newParent = c.parent_id ? idMap.get(c.parent_id) ?? null : null;
-          await supabase.from("page_menu_items").insert({
-            page_id: pageId, label: c.label, href: c.href, parent_id: newParent,
-            display_order: c.display_order, is_active: c.is_active,
-          });
-        }
-        const { data: reloaded } = await supabase
-          .from("page_menu_items").select("*").eq("page_id", pageId).order("display_order");
-        rows = (reloaded ?? []) as MenuItem[];
-      }
-      setSeeding(false);
-    }
+    const rows = (data ?? []) as MenuItem[];
     setItems(rows);
     setOriginal(Object.fromEntries(rows.map((r) => [r.id, r])));
     setLoading(false);
   }
   useEffect(() => { if (pageId) load(); /* eslint-disable-next-line */ }, [pageId]);
+
+  const isInherit = !loading && items.length === 0;
+
+  async function overrideFromGlobal() {
+    setSeeding(true);
+    const { data: globalRows } = await supabase
+      .from("menu_items").select("*").order("display_order");
+    const seedSrc = (globalRows ?? []) as MenuItem[];
+    if (!seedSrc.length) {
+      setSeeding(false);
+      toast.error("Menu utama kosong. Isi Menu Utama dulu.");
+      return;
+    }
+    const idMap = new Map<string, string>();
+    const roots = seedSrc.filter((r) => !r.parent_id);
+    const children = seedSrc.filter((r) => r.parent_id);
+    for (const r of roots) {
+      const { data: ins } = await supabase.from("page_menu_items").insert({
+        page_id: pageId, label: r.label, href: r.href, parent_id: null,
+        display_order: r.display_order, is_active: r.is_active,
+      }).select("id").maybeSingle();
+      if (ins) idMap.set(r.id, (ins as any).id);
+    }
+    for (const c of children) {
+      const newParent = c.parent_id ? idMap.get(c.parent_id) ?? null : null;
+      await supabase.from("page_menu_items").insert({
+        page_id: pageId, label: c.label, href: c.href, parent_id: newParent,
+        display_order: c.display_order, is_active: c.is_active,
+      });
+    }
+    setSeeding(false);
+    toast.success("Menu halaman kini dapat dikustomisasi");
+    load();
+  }
+
+  async function resetToInherit() {
+    if (!confirm("Kembalikan menu halaman ini agar mengikuti Menu Utama? Semua kustomisasi untuk halaman ini akan dihapus.")) return;
+    setSeeding(true);
+    const { error } = await supabase.from("page_menu_items").delete().eq("page_id", pageId);
+    setSeeding(false);
+    if (error) return toast.error(error.message);
+    toast.success("Menu halaman kembali mengikuti Menu Utama");
+    load();
+  }
+
 
   const roots = items.filter((i) => !i.parent_id).sort((a, b) => a.display_order - b.display_order);
   const childrenOf = (pid: string) =>
@@ -628,13 +648,6 @@ function MenuEditor({ pageId }: { pageId: string }) {
     load();
   }
 
-  async function pullFromGlobal() {
-    if (!confirm("Tarik ulang dari Menu Utama? Semua menu halaman ini akan diganti.")) return;
-    setSeeding(true);
-    await supabase.from("page_menu_items").delete().eq("page_id", pageId);
-    setSeeding(false);
-    load();
-  }
 
   function Row({ item, depth }: { item: MenuItem; depth: number }) {
     const isItemDirty = dirtyIds.includes(item.id);
@@ -688,6 +701,12 @@ function MenuEditor({ pageId }: { pageId: string }) {
     <span className="text-xs font-normal text-primary">● {dirtyIds.length} belum disimpan</span>
   ) : null;
 
+  const modeBadge = isInherit ? (
+    <span className="text-xs font-normal text-green-600 dark:text-green-500">Ikut Menu Utama</span>
+  ) : (
+    <span className="text-xs font-normal text-primary">Custom</span>
+  );
+
   return (
     <Card>
       <CardHeader className="cursor-pointer" onClick={() => setOpen((v) => !v)}>
@@ -695,41 +714,50 @@ function MenuEditor({ pageId }: { pageId: string }) {
           <span className="flex items-center gap-2 min-w-0"><MenuIcon className="h-4 w-4 shrink-0" /> <span className="truncate">Menu Navigasi Halaman Ini</span></span>
           <div className="flex items-center gap-2 shrink-0">
             {statusBadge}
-            <span className="text-xs font-normal text-muted-foreground hidden sm:inline">{items.length} item</span>
+            {!loading && modeBadge}
             {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </CardTitle>
       </CardHeader>
       {open && (
         <CardContent className="space-y-3" onClick={(e) => e.stopPropagation()}>
-          <p className="text-xs text-muted-foreground">
-            Menu khusus halaman ini (independen dari menu utama). Path relatif otomatis diberi prefix <code>../../</code> saat disimpan.
-            Gunakan <code>#anchor</code>, <code>/p/slug</code>, atau <code>https://...</code> untuk link eksternal.
-          </p>
           {(loading || seeding) ? (
             <div className="flex items-center justify-center py-6 gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
-              {seeding ? "Menyalin dari menu utama..." : "Memuat..."}
+              {seeding ? "Memproses..." : "Memuat..."}
             </div>
-          ) : roots.length === 0 ? (
-            <p className="text-center py-6 text-sm text-muted-foreground">Belum ada menu.</p>
+          ) : isInherit ? (
+            <div className="space-y-3 py-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Halaman ini <b>otomatis mengikuti Menu Utama</b>. Setiap perubahan di Menu Utama langsung tercermin di sini — tidak perlu dicocokkan manual.
+              </p>
+              <Button size="sm" variant="outline" onClick={overrideFromGlobal} disabled={seeding}>
+                <Pencil className="h-3 w-3 mr-1" />Kustomisasi Menu Halaman Ini
+              </Button>
+            </div>
           ) : (
-            <div className="space-y-2">{roots.map((r) => <Row key={r.id} item={r} depth={0} />)}</div>
+            <>
+              <p className="text-xs text-muted-foreground">
+                Mode <b>Custom</b>: menu di bawah hanya berlaku untuk halaman ini. Path relatif otomatis diberi prefix <code>../../</code> saat disimpan.
+                Gunakan <code>#anchor</code>, <code>/p/slug</code>, atau <code>https://...</code>.
+              </p>
+              <div className="space-y-2">{roots.map((r) => <Row key={r.id} item={r} depth={0} />)}</div>
+              <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button size="sm" variant="outline" onClick={() => addItem(null)}>
+                    <Plus className="h-3 w-3 mr-1" />Menu Utama
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={resetToInherit} disabled={seeding}>
+                    <RotateCcw className="h-3 w-3 mr-1" />Kembalikan ke Menu Utama
+                  </Button>
+                </div>
+                <Button size="sm" onClick={saveAll} disabled={!isDirty || saving}>
+                  {saving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
+                  Simpan Perubahan
+                </Button>
+              </div>
+            </>
           )}
-          <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button size="sm" variant="outline" onClick={() => addItem(null)}>
-                <Plus className="h-3 w-3 mr-1" />Menu Utama
-              </Button>
-              <Button size="sm" variant="ghost" onClick={pullFromGlobal} disabled={seeding}>
-                <RotateCcw className="h-3 w-3 mr-1" />Tarik dari Menu Utama
-              </Button>
-            </div>
-            <Button size="sm" onClick={saveAll} disabled={!isDirty || saving}>
-              {saving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
-              Simpan Perubahan
-            </Button>
-          </div>
         </CardContent>
       )}
     </Card>
