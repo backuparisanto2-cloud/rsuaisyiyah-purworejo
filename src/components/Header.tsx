@@ -52,6 +52,11 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
   const roots = active.filter((i) => !i.parent_id);
   const childrenOf = (pid: string) => active.filter((i) => i.parent_id === pid);
 
+  // On custom pages (/p/...), rewrite bare "#anchor" to "/#anchor"
+  // so links jump to the section on the home page.
+  const hrefFor = (h: string) => (pageId && h.startsWith("#") ? `/${h}` : h);
+
+
   return (
     <header className="fixed top-0 inset-x-0 z-30 bg-primary/90 backdrop-blur-md text-primary-foreground shadow-md">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 h-24 flex items-center gap-4">
