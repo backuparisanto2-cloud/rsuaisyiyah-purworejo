@@ -641,13 +641,6 @@ function MenuEditor({ pageId }: { pageId: string }) {
     load();
   }
 
-  async function pullFromGlobal() {
-    if (!confirm("Tarik ulang dari Menu Utama? Semua menu halaman ini akan diganti.")) return;
-    setSeeding(true);
-    await supabase.from("page_menu_items").delete().eq("page_id", pageId);
-    setSeeding(false);
-    load();
-  }
 
   function Row({ item, depth }: { item: MenuItem; depth: number }) {
     const isItemDirty = dirtyIds.includes(item.id);
@@ -701,6 +694,12 @@ function MenuEditor({ pageId }: { pageId: string }) {
     <span className="text-xs font-normal text-primary">● {dirtyIds.length} belum disimpan</span>
   ) : null;
 
+  const modeBadge = isInherit ? (
+    <span className="text-xs font-normal text-green-600 dark:text-green-500">Ikut Menu Utama</span>
+  ) : (
+    <span className="text-xs font-normal text-primary">Custom</span>
+  );
+
   return (
     <Card>
       <CardHeader className="cursor-pointer" onClick={() => setOpen((v) => !v)}>
@@ -708,41 +707,50 @@ function MenuEditor({ pageId }: { pageId: string }) {
           <span className="flex items-center gap-2 min-w-0"><MenuIcon className="h-4 w-4 shrink-0" /> <span className="truncate">Menu Navigasi Halaman Ini</span></span>
           <div className="flex items-center gap-2 shrink-0">
             {statusBadge}
-            <span className="text-xs font-normal text-muted-foreground hidden sm:inline">{items.length} item</span>
+            {!loading && modeBadge}
             {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </CardTitle>
       </CardHeader>
       {open && (
         <CardContent className="space-y-3" onClick={(e) => e.stopPropagation()}>
-          <p className="text-xs text-muted-foreground">
-            Menu khusus halaman ini (independen dari menu utama). Path relatif otomatis diberi prefix <code>../../</code> saat disimpan.
-            Gunakan <code>#anchor</code>, <code>/p/slug</code>, atau <code>https://...</code> untuk link eksternal.
-          </p>
           {(loading || seeding) ? (
             <div className="flex items-center justify-center py-6 gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
-              {seeding ? "Menyalin dari menu utama..." : "Memuat..."}
+              {seeding ? "Memproses..." : "Memuat..."}
             </div>
-          ) : roots.length === 0 ? (
-            <p className="text-center py-6 text-sm text-muted-foreground">Belum ada menu.</p>
+          ) : isInherit ? (
+            <div className="space-y-3 py-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                Halaman ini <b>otomatis mengikuti Menu Utama</b>. Setiap perubahan di Menu Utama langsung tercermin di sini — tidak perlu dicocokkan manual.
+              </p>
+              <Button size="sm" variant="outline" onClick={overrideFromGlobal} disabled={seeding}>
+                <Pencil className="h-3 w-3 mr-1" />Kustomisasi Menu Halaman Ini
+              </Button>
+            </div>
           ) : (
-            <div className="space-y-2">{roots.map((r) => <Row key={r.id} item={r} depth={0} />)}</div>
+            <>
+              <p className="text-xs text-muted-foreground">
+                Mode <b>Custom</b>: menu di bawah hanya berlaku untuk halaman ini. Path relatif otomatis diberi prefix <code>../../</code> saat disimpan.
+                Gunakan <code>#anchor</code>, <code>/p/slug</code>, atau <code>https://...</code>.
+              </p>
+              <div className="space-y-2">{roots.map((r) => <Row key={r.id} item={r} depth={0} />)}</div>
+              <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button size="sm" variant="outline" onClick={() => addItem(null)}>
+                    <Plus className="h-3 w-3 mr-1" />Menu Utama
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={resetToInherit} disabled={seeding}>
+                    <RotateCcw className="h-3 w-3 mr-1" />Kembalikan ke Menu Utama
+                  </Button>
+                </div>
+                <Button size="sm" onClick={saveAll} disabled={!isDirty || saving}>
+                  {saving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
+                  Simpan Perubahan
+                </Button>
+              </div>
+            </>
           )}
-          <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button size="sm" variant="outline" onClick={() => addItem(null)}>
-                <Plus className="h-3 w-3 mr-1" />Menu Utama
-              </Button>
-              <Button size="sm" variant="ghost" onClick={pullFromGlobal} disabled={seeding}>
-                <RotateCcw className="h-3 w-3 mr-1" />Tarik dari Menu Utama
-              </Button>
-            </div>
-            <Button size="sm" onClick={saveAll} disabled={!isDirty || saving}>
-              {saving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
-              Simpan Perubahan
-            </Button>
-          </div>
         </CardContent>
       )}
     </Card>
