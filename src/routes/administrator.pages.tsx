@@ -77,6 +77,7 @@ async function syncMenuItem(opts: {
 
 function PagesAdmin() {
   const [pages, setPages] = useState<Page[]>([]);
+  const [customMenuPageIds, setCustomMenuPageIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Page | null>(null);
   const [originalHref, setOriginalHref] = useState<string>("");
@@ -84,12 +85,15 @@ function PagesAdmin() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("custom_pages").select("*").order("updated_at", { ascending: false });
+    const [{ data, error }, { data: pmi }] = await Promise.all([
+      supabase.from("custom_pages").select("*").order("updated_at", { ascending: false }),
+      supabase.from("page_menu_items").select("page_id"),
+    ]);
     if (error) toast.error(error.message);
     setPages(((data ?? []) as any[]).map((p) => ({
       ...p, images: Array.isArray(p.images) ? p.images : [],
     })) as Page[]);
+    setCustomMenuPageIds(new Set(((pmi ?? []) as any[]).map((r) => r.page_id)));
     setLoading(false);
   }
 
@@ -384,6 +388,9 @@ function PagesAdmin() {
                           <span className="font-semibold truncate">{p.title}</span>
                           {!p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">Draft</span>}
                           {p.show_in_menu && p.is_published && <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">Di Menu</span>}
+                          {customMenuPageIds.has(p.id)
+                            ? <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-500">Menu: Custom</span>
+                            : <span className="text-xs px-2 py-0.5 rounded bg-green-500/10 text-green-700 dark:text-green-500">Menu: Ikut Utama</span>}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">/p/{p.slug}{p.menu_href ? ` · menu: ${p.menu_href}` : ""}</div>
                       </div>
