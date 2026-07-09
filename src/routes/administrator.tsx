@@ -38,6 +38,7 @@ const NAV: NavItem[] = [
   { to: "/administrator/side-buttons", label: "Tombol Samping", icon: MenuIcon },
   { to: "/administrator/instagram", label: "Berita & Instagram", icon: Instagram },
   { to: "/administrator/pages", label: "Page Builder", icon: FileText },
+  { to: "/administrator/test-page-editor", label: "Test Page Editor", icon: LayoutTemplate, adminOnly: true },
   { to: "/administrator/menu", label: "Menu Builder", icon: ListTree },
   { to: "/administrator/sections", label: "Urutan Section", icon: LayoutTemplate },
   { to: "/administrator/theme", label: "Tema Warna", icon: Palette, adminOnly: true },
