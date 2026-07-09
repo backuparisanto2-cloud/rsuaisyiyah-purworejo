@@ -16,6 +16,7 @@ import { Route as AdministratorIndexRouteImport } from './routes/administrator.i
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as AdministratorUsersRouteImport } from './routes/administrator.users'
 import { Route as AdministratorThemeRouteImport } from './routes/administrator.theme'
+import { Route as AdministratorTestPageEditorRouteImport } from './routes/administrator.test-page-editor'
 import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
 import { Route as AdministratorSideButtonsRouteImport } from './routes/administrator.side-buttons'
 import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
@@ -73,6 +74,12 @@ const AdministratorThemeRoute = AdministratorThemeRouteImport.update({
   path: '/theme',
   getParentRoute: () => AdministratorRoute,
 } as any)
+const AdministratorTestPageEditorRoute =
+  AdministratorTestPageEditorRouteImport.update({
+    id: '/test-page-editor',
+    path: '/test-page-editor',
+    getParentRoute: () => AdministratorRoute,
+  } as any)
 const AdministratorTentangRoute = AdministratorTentangRouteImport.update({
   id: '/tentang',
   path: '/tentang',
@@ -204,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/side-buttons': typeof AdministratorSideButtonsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
+  '/administrator/test-page-editor': typeof AdministratorTestPageEditorRoute
   '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/users': typeof AdministratorUsersRoute
   '/p/$slug': typeof PSlugRoute
@@ -233,6 +241,7 @@ export interface FileRoutesByTo {
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/side-buttons': typeof AdministratorSideButtonsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
+  '/administrator/test-page-editor': typeof AdministratorTestPageEditorRoute
   '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/users': typeof AdministratorUsersRoute
   '/p/$slug': typeof PSlugRoute
@@ -264,6 +273,7 @@ export interface FileRoutesById {
   '/administrator/sections': typeof AdministratorSectionsRoute
   '/administrator/side-buttons': typeof AdministratorSideButtonsRoute
   '/administrator/tentang': typeof AdministratorTentangRoute
+  '/administrator/test-page-editor': typeof AdministratorTestPageEditorRoute
   '/administrator/theme': typeof AdministratorThemeRoute
   '/administrator/users': typeof AdministratorUsersRoute
   '/p/$slug': typeof PSlugRoute
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/administrator/sections'
     | '/administrator/side-buttons'
     | '/administrator/tentang'
+    | '/administrator/test-page-editor'
     | '/administrator/theme'
     | '/administrator/users'
     | '/p/$slug'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/administrator/sections'
     | '/administrator/side-buttons'
     | '/administrator/tentang'
+    | '/administrator/test-page-editor'
     | '/administrator/theme'
     | '/administrator/users'
     | '/p/$slug'
@@ -355,6 +367,7 @@ export interface FileRouteTypes {
     | '/administrator/sections'
     | '/administrator/side-buttons'
     | '/administrator/tentang'
+    | '/administrator/test-page-editor'
     | '/administrator/theme'
     | '/administrator/users'
     | '/p/$slug'
@@ -423,6 +436,13 @@ declare module '@tanstack/react-router' {
       path: '/theme'
       fullPath: '/administrator/theme'
       preLoaderRoute: typeof AdministratorThemeRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/test-page-editor': {
+      id: '/administrator/test-page-editor'
+      path: '/test-page-editor'
+      fullPath: '/administrator/test-page-editor'
+      preLoaderRoute: typeof AdministratorTestPageEditorRouteImport
       parentRoute: typeof AdministratorRoute
     }
     '/administrator/tentang': {
@@ -594,6 +614,7 @@ interface AdministratorRouteChildren {
   AdministratorSectionsRoute: typeof AdministratorSectionsRoute
   AdministratorSideButtonsRoute: typeof AdministratorSideButtonsRoute
   AdministratorTentangRoute: typeof AdministratorTentangRoute
+  AdministratorTestPageEditorRoute: typeof AdministratorTestPageEditorRoute
   AdministratorThemeRoute: typeof AdministratorThemeRoute
   AdministratorUsersRoute: typeof AdministratorUsersRoute
   AdministratorIndexRoute: typeof AdministratorIndexRoute
@@ -618,6 +639,7 @@ const AdministratorRouteChildren: AdministratorRouteChildren = {
   AdministratorSectionsRoute: AdministratorSectionsRoute,
   AdministratorSideButtonsRoute: AdministratorSideButtonsRoute,
   AdministratorTentangRoute: AdministratorTentangRoute,
+  AdministratorTestPageEditorRoute: AdministratorTestPageEditorRoute,
   AdministratorThemeRoute: AdministratorThemeRoute,
   AdministratorUsersRoute: AdministratorUsersRoute,
   AdministratorIndexRoute: AdministratorIndexRoute,
@@ -639,13 +661,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
