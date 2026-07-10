@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import {
   Undo2, Redo2, Copy, ClipboardPaste, CopyPlus, Trash2, Save, Rocket, Code2,
-  Monitor, Tablet, Smartphone, ChevronRight,
+  Monitor, Tablet, Smartphone, ChevronRight, History, RotateCcw, Loader2,
 } from "lucide-react";
 import { WIDGETS, WIDGET_LIST, type EditorNode, type NodeType } from "./registry";
 import { cloneWithIds, parseHtml, serializeTree } from "./serialize";
