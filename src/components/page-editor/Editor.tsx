@@ -506,3 +506,113 @@ function PublishDialog({ open, onOpenChange, draft, onPublished }: { open: boole
     </Dialog>
   );
 }
+
+// ---------- history dialog ----------
+type Revision = {
+  id: string;
+  created_at: string;
+  kind: "draft" | "publish";
+  label: string | null;
+  title: string | null;
+  slug: string | null;
+  snapshot: Draft;
+};
+
+function HistoryDialog({ open, onOpenChange, onRestore }: { open: boolean; onOpenChange: (v: boolean) => void; onRestore: (snapshot: Draft) => void }) {
+  const [items, setItems] = useState<Revision[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("page_editor_revisions" as any)
+        .select("id, created_at, kind, label, title, slug, snapshot")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      setItems((data as any as Revision[]) ?? []);
+    } catch (e: any) {
+      toast.error(`Gagal memuat revisi: ${e.message ?? e}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { if (open) load(); }, [open, load]);
+
+  const handleRestore = (r: Revision) => {
+    if (!confirm("Pulihkan revisi ini? Perubahan saat ini akan tergantikan (Undo tetap tersedia).")) return;
+    onRestore(r.snapshot);
+  };
+  const handleDelete = async (r: Revision) => {
+    if (!confirm("Hapus revisi ini secara permanen?")) return;
+    setBusyId(r.id);
+    try {
+      const { error } = await supabase.from("page_editor_revisions" as any).delete().eq("id", r.id);
+      if (error) throw error;
+      setItems((prev) => prev.filter((x) => x.id !== r.id));
+      toast.success("Revisi dihapus");
+    } catch (e: any) {
+      toast.error(`Gagal menghapus: ${e.message ?? e}`);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2"><History className="h-4 w-4" />Revision History</DialogTitle>
+          <DialogDescription>Daftar revisi setiap Save Draft dan Publish. Pilih versi untuk memulihkan.</DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-[60vh] pr-3">
+          {loading ? (
+            <div className="flex items-center justify-center py-10 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 mr-2 animate-spin" />Memuat...</div>
+          ) : items.length === 0 ? (
+            <div className="text-center py-10 text-sm text-muted-foreground">Belum ada revisi. Klik <b>Save Draft</b> atau <b>Kirim ke Pages</b> untuk membuat entri.</div>
+          ) : (
+            <ul className="space-y-2">
+              {items.map((r) => (
+                <li key={r.id} className="border rounded-md p-3 bg-background flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant={r.kind === "publish" ? "default" : "secondary"} className="text-[10px]">
+                        {r.kind === "publish" ? "Publish" : "Draft"}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{fmt(r.created_at)}</span>
+                    </div>
+                    <div className="text-sm font-medium mt-1 truncate">
+                      {r.label ?? r.title ?? "(tanpa label)"}
+                    </div>
+                    {r.slug && <div className="text-xs text-muted-foreground truncate">/p/{r.slug}</div>}
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {r.snapshot?.tree?.length ?? 0} elemen · header {r.snapshot?.showHeader ? "on" : "off"} · footer {r.snapshot?.showFooter ? "on" : "off"}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Button size="sm" variant="outline" onClick={() => handleRestore(r)}>
+                      <RotateCcw className="h-3.5 w-3.5 mr-1" />Restore
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" disabled={busyId === r.id} onClick={() => handleDelete(r)}>
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />Hapus
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
+          <Button onClick={load} disabled={loading}>Muat Ulang</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
