@@ -472,6 +472,7 @@ function PublishDialog({ open, onOpenChange, draft, onPublished }: { open: boole
       } as any);
       if (error) throw error;
       toast.success(`Halaman dibuat: /p/${finalSlug} (draft, belum publish)`);
+      await onPublished?.(title, finalSlug);
       onOpenChange(false);
     } catch (e: any) {
       toast.error(`Gagal membuat halaman: ${e.message}`);
