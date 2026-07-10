@@ -108,6 +108,7 @@ export default function Editor() {
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [sourceOpen, setSourceOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // history
   const historyRef = useRef<Draft[]>([]);
