@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import {
   Undo2, Redo2, Copy, ClipboardPaste, CopyPlus, Trash2, Save, Rocket, Code2,
-  Monitor, Tablet, Smartphone, ChevronRight,
+  Monitor, Tablet, Smartphone, ChevronRight, History, RotateCcw, Loader2,
 } from "lucide-react";
 import { WIDGETS, WIDGET_LIST, type EditorNode, type NodeType } from "./registry";
 import { cloneWithIds, parseHtml, serializeTree } from "./serialize";
@@ -106,6 +108,7 @@ export default function Editor() {
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [sourceOpen, setSourceOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // history
   const historyRef = useRef<Draft[]>([]);
@@ -189,12 +192,39 @@ export default function Editor() {
     setTree(findAndUpdate(tree, id, (n) => ({ ...n, props: { ...n.props, [key]: value } })));
   };
 
-  const saveDraft = () => {
+  const saveRevision = useCallback(async (kind: "draft" | "publish", extras?: { title?: string; slug?: string; label?: string }) => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const { error } = await supabase.from("page_editor_revisions" as any).insert({
+        kind,
+        label: extras?.label ?? null,
+        title: extras?.title ?? null,
+        slug: extras?.slug ?? null,
+        snapshot: draft as any,
+        created_by: userData.user?.id ?? null,
+      } as any);
+      if (error) throw error;
+    } catch (e: any) {
+      console.error("[revision] save failed", e);
+      toast.error(`Gagal menyimpan revisi: ${e.message ?? e}`);
+    }
+  }, [draft]);
+
+  const saveDraft = async () => {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-      toast.success("Draft tersimpan (lokal)");
-    } catch { toast.error("Gagal menyimpan draft"); }
+    } catch { toast.error("Gagal menyimpan draft lokal"); return; }
+    await saveRevision("draft");
+    toast.success("Draft tersimpan & revisi tercatat");
   };
+
+  const restoreRevision = (snapshot: Draft) => {
+    applyDraft({ ...emptyDraft, ...snapshot });
+    setSelectedId(null);
+    setHistoryOpen(false);
+    toast.success("Revisi dipulihkan");
+  };
+
 
   const sourceBundle: SourceBundle = useMemo(() => ({
     html: serializeTree(draft.tree),
@@ -247,6 +277,7 @@ export default function Editor() {
         <label className="text-xs flex items-center gap-2"><Switch checked={draft.showHeader} onCheckedChange={(v) => applyDraft({ ...draft, showHeader: v })} />Header</label>
         <label className="text-xs flex items-center gap-2"><Switch checked={draft.showFooter} onCheckedChange={(v) => applyDraft({ ...draft, showFooter: v })} />Footer</label>
         <Button size="sm" variant="outline" onClick={() => setSourceOpen(true)}><Code2 className="h-4 w-4 mr-1" />Source</Button>
+        <Button size="sm" variant="outline" onClick={() => setHistoryOpen(true)}><History className="h-4 w-4 mr-1" />History</Button>
         <Button size="sm" variant="outline" onClick={saveDraft}><Save className="h-4 w-4 mr-1" />Save Draft</Button>
         <Button size="sm" onClick={() => setPublishOpen(true)}><Rocket className="h-4 w-4 mr-1" />Kirim ke Pages</Button>
       </div>
@@ -306,7 +337,8 @@ export default function Editor() {
       </div>
 
       <SourceCodeDialog open={sourceOpen} onOpenChange={setSourceOpen} value={sourceBundle} onApply={applySource} />
-      <PublishDialog open={publishOpen} onOpenChange={setPublishOpen} draft={draft} />
+      <PublishDialog open={publishOpen} onOpenChange={setPublishOpen} draft={draft} onPublished={(t, s) => saveRevision("publish", { title: t, slug: s, label: `Publish: ${t}` })} />
+      <HistoryDialog open={historyOpen} onOpenChange={setHistoryOpen} onRestore={restoreRevision} />
     </div>
   );
 }
@@ -412,7 +444,7 @@ function PropertyForm({ node, onChange }: { node: EditorNode; onChange: (k: stri
 }
 
 // ---------- publish dialog ----------
-function PublishDialog({ open, onOpenChange, draft }: { open: boolean; onOpenChange: (v: boolean) => void; draft: Draft }) {
+function PublishDialog({ open, onOpenChange, draft, onPublished }: { open: boolean; onOpenChange: (v: boolean) => void; draft: Draft; onPublished?: (title: string, slug: string) => void | Promise<void> }) {
   const [title, setTitle] = useState("Halaman Baru");
   const [slug, setSlug] = useState("");
   const [saving, setSaving] = useState(false);
@@ -440,6 +472,7 @@ function PublishDialog({ open, onOpenChange, draft }: { open: boolean; onOpenCha
       } as any);
       if (error) throw error;
       toast.success(`Halaman dibuat: /p/${finalSlug} (draft, belum publish)`);
+      await onPublished?.(title, finalSlug);
       onOpenChange(false);
     } catch (e: any) {
       toast.error(`Gagal membuat halaman: ${e.message}`);
@@ -473,3 +506,113 @@ function PublishDialog({ open, onOpenChange, draft }: { open: boolean; onOpenCha
     </Dialog>
   );
 }
+
+// ---------- history dialog ----------
+type Revision = {
+  id: string;
+  created_at: string;
+  kind: "draft" | "publish";
+  label: string | null;
+  title: string | null;
+  slug: string | null;
+  snapshot: Draft;
+};
+
+function HistoryDialog({ open, onOpenChange, onRestore }: { open: boolean; onOpenChange: (v: boolean) => void; onRestore: (snapshot: Draft) => void }) {
+  const [items, setItems] = useState<Revision[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("page_editor_revisions" as any)
+        .select("id, created_at, kind, label, title, slug, snapshot")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      setItems((data as any as Revision[]) ?? []);
+    } catch (e: any) {
+      toast.error(`Gagal memuat revisi: ${e.message ?? e}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { if (open) load(); }, [open, load]);
+
+  const handleRestore = (r: Revision) => {
+    if (!confirm("Pulihkan revisi ini? Perubahan saat ini akan tergantikan (Undo tetap tersedia).")) return;
+    onRestore(r.snapshot);
+  };
+  const handleDelete = async (r: Revision) => {
+    if (!confirm("Hapus revisi ini secara permanen?")) return;
+    setBusyId(r.id);
+    try {
+      const { error } = await supabase.from("page_editor_revisions" as any).delete().eq("id", r.id);
+      if (error) throw error;
+      setItems((prev) => prev.filter((x) => x.id !== r.id));
+      toast.success("Revisi dihapus");
+    } catch (e: any) {
+      toast.error(`Gagal menghapus: ${e.message ?? e}`);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2"><History className="h-4 w-4" />Revision History</DialogTitle>
+          <DialogDescription>Daftar revisi setiap Save Draft dan Publish. Pilih versi untuk memulihkan.</DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-[60vh] pr-3">
+          {loading ? (
+            <div className="flex items-center justify-center py-10 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 mr-2 animate-spin" />Memuat...</div>
+          ) : items.length === 0 ? (
+            <div className="text-center py-10 text-sm text-muted-foreground">Belum ada revisi. Klik <b>Save Draft</b> atau <b>Kirim ke Pages</b> untuk membuat entri.</div>
+          ) : (
+            <ul className="space-y-2">
+              {items.map((r) => (
+                <li key={r.id} className="border rounded-md p-3 bg-background flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant={r.kind === "publish" ? "default" : "secondary"} className="text-[10px]">
+                        {r.kind === "publish" ? "Publish" : "Draft"}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{fmt(r.created_at)}</span>
+                    </div>
+                    <div className="text-sm font-medium mt-1 truncate">
+                      {r.label ?? r.title ?? "(tanpa label)"}
+                    </div>
+                    {r.slug && <div className="text-xs text-muted-foreground truncate">/p/{r.slug}</div>}
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {r.snapshot?.tree?.length ?? 0} elemen · header {r.snapshot?.showHeader ? "on" : "off"} · footer {r.snapshot?.showFooter ? "on" : "off"}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Button size="sm" variant="outline" onClick={() => handleRestore(r)}>
+                      <RotateCcw className="h-3.5 w-3.5 mr-1" />Restore
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" disabled={busyId === r.id} onClick={() => handleDelete(r)}>
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />Hapus
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
+          <Button onClick={load} disabled={loading}>Muat Ulang</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+

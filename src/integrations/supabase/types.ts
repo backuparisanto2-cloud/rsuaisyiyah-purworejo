@@ -689,6 +689,39 @@ export type Database = {
           },
         ]
       }
+      page_editor_revisions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          label: string | null
+          slug: string | null
+          snapshot: Json
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          label?: string | null
+          slug?: string | null
+          snapshot: Json
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          label?: string | null
+          slug?: string | null
+          snapshot?: Json
+          title?: string | null
+        }
+        Relationships: []
+      }
       page_menu_items: {
         Row: {
           created_at: string
