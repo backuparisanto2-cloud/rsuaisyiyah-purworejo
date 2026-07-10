@@ -192,12 +192,39 @@ export default function Editor() {
     setTree(findAndUpdate(tree, id, (n) => ({ ...n, props: { ...n.props, [key]: value } })));
   };
 
-  const saveDraft = () => {
+  const saveRevision = useCallback(async (kind: "draft" | "publish", extras?: { title?: string; slug?: string; label?: string }) => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const { error } = await supabase.from("page_editor_revisions" as any).insert({
+        kind,
+        label: extras?.label ?? null,
+        title: extras?.title ?? null,
+        slug: extras?.slug ?? null,
+        snapshot: draft as any,
+        created_by: userData.user?.id ?? null,
+      } as any);
+      if (error) throw error;
+    } catch (e: any) {
+      console.error("[revision] save failed", e);
+      toast.error(`Gagal menyimpan revisi: ${e.message ?? e}`);
+    }
+  }, [draft]);
+
+  const saveDraft = async () => {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-      toast.success("Draft tersimpan (lokal)");
-    } catch { toast.error("Gagal menyimpan draft"); }
+    } catch { toast.error("Gagal menyimpan draft lokal"); return; }
+    await saveRevision("draft");
+    toast.success("Draft tersimpan & revisi tercatat");
   };
+
+  const restoreRevision = (snapshot: Draft) => {
+    applyDraft({ ...emptyDraft, ...snapshot });
+    setSelectedId(null);
+    setHistoryOpen(false);
+    toast.success("Revisi dipulihkan");
+  };
+
 
   const sourceBundle: SourceBundle = useMemo(() => ({
     html: serializeTree(draft.tree),
