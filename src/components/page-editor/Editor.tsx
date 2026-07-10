@@ -444,7 +444,7 @@ function PropertyForm({ node, onChange }: { node: EditorNode; onChange: (k: stri
 }
 
 // ---------- publish dialog ----------
-function PublishDialog({ open, onOpenChange, draft }: { open: boolean; onOpenChange: (v: boolean) => void; draft: Draft }) {
+function PublishDialog({ open, onOpenChange, draft, onPublished }: { open: boolean; onOpenChange: (v: boolean) => void; draft: Draft; onPublished?: (title: string, slug: string) => void | Promise<void> }) {
   const [title, setTitle] = useState("Halaman Baru");
   const [slug, setSlug] = useState("");
   const [saving, setSaving] = useState(false);
