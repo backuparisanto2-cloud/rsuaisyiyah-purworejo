@@ -277,6 +277,7 @@ export default function Editor() {
         <label className="text-xs flex items-center gap-2"><Switch checked={draft.showHeader} onCheckedChange={(v) => applyDraft({ ...draft, showHeader: v })} />Header</label>
         <label className="text-xs flex items-center gap-2"><Switch checked={draft.showFooter} onCheckedChange={(v) => applyDraft({ ...draft, showFooter: v })} />Footer</label>
         <Button size="sm" variant="outline" onClick={() => setSourceOpen(true)}><Code2 className="h-4 w-4 mr-1" />Source</Button>
+        <Button size="sm" variant="outline" onClick={() => setHistoryOpen(true)}><History className="h-4 w-4 mr-1" />History</Button>
         <Button size="sm" variant="outline" onClick={saveDraft}><Save className="h-4 w-4 mr-1" />Save Draft</Button>
         <Button size="sm" onClick={() => setPublishOpen(true)}><Rocket className="h-4 w-4 mr-1" />Kirim ke Pages</Button>
       </div>
