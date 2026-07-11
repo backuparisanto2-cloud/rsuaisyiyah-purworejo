@@ -244,6 +244,49 @@ export default function Editor() {
     toast.success("Revisi dipulihkan");
   };
 
+  const exportJson = () => {
+    try {
+      const payload = { _kind: "test-page-editor", version: 1, exportedAt: new Date().toISOString(), draft };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `page-editor-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Diekspor sebagai JSON");
+    } catch (e: any) { toast.error(`Gagal ekspor: ${e.message ?? e}`); }
+  };
+
+  const importJsonFile = async (file: File) => {
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      // Accept either full export payload or a bare draft
+      const candidate = (parsed?._kind === "test-page-editor" && parsed?.draft) ? parsed.draft : parsed;
+      if (!candidate || typeof candidate !== "object" || !Array.isArray(candidate.tree)) {
+        throw new Error("Format JSON tidak dikenali (butuh field 'tree').");
+      }
+      // Regenerate ids to avoid clashes
+      const withIds = { ...candidate, tree: (candidate.tree as EditorNode[]).map((n) => cloneWithIds(n)) } as Draft;
+      applyDraft({ ...emptyDraft, ...withIds });
+      setSelectedId(null);
+      toast.success("Impor berhasil");
+    } catch (e: any) { toast.error(`Gagal impor: ${e.message ?? e}`); }
+  };
+
+  const loadTemplate = (snapshot: Draft, mode: "replace" | "append") => {
+    const cloned = (snapshot.tree ?? []).map((n) => cloneWithIds(n));
+    if (mode === "replace") {
+      applyDraft({ ...emptyDraft, ...snapshot, tree: cloned });
+    } else {
+      applyDraft({ ...draft, tree: [...draft.tree, ...cloned] });
+    }
+    setSelectedId(null);
+    setTemplatesOpen(false);
+    toast.success(mode === "replace" ? "Template dimuat" : "Template ditambahkan");
+  };
+
 
   const sourceBundle: SourceBundle = useMemo(() => ({
     html: serializeTree(draft.tree),
