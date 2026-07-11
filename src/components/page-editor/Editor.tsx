@@ -123,6 +123,8 @@ export default function Editor() {
   const [sourceOpen, setSourceOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   // history
   const historyRef = useRef<Draft[]>([]);
