@@ -433,6 +433,7 @@ export default function Editor() {
       <SourceCodeDialog open={sourceOpen} onOpenChange={setSourceOpen} value={sourceBundle} onApply={applySource} />
       <PublishDialog open={publishOpen} onOpenChange={setPublishOpen} draft={draft} onPublished={(t, s) => saveRevision("publish", { title: t, slug: s, label: `Publish: ${t}` })} />
       <HistoryDialog open={historyOpen} onOpenChange={setHistoryOpen} onRestore={restoreRevision} />
+      <TemplatesDialog open={templatesOpen} onOpenChange={setTemplatesOpen} currentDraft={draft} onLoad={loadTemplate} />
     </div>
   );
 }
