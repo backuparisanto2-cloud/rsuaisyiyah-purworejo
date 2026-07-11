@@ -318,7 +318,25 @@ export default function Editor() {
               </div>
             ))}
           </div>
+          <div className="border-t p-3">
+            <div className="text-xs font-semibold text-muted-foreground uppercase mb-2 flex items-center gap-1">
+              <LayersIcon className="h-3.5 w-3.5" />Layers
+            </div>
+            {tree.length === 0 ? (
+              <p className="text-[11px] text-muted-foreground">Belum ada elemen.</p>
+            ) : (
+              <LayersPanel
+                nodes={tree}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onMove={moveNode}
+                onDelete={deleteNode}
+                onDuplicate={duplicateNode}
+              />
+            )}
+          </div>
         </aside>
+
 
         {/* Canvas */}
         <div className="bg-muted/30 overflow-auto p-4">
