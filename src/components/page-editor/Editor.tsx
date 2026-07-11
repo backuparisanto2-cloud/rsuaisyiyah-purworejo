@@ -651,3 +651,126 @@ function HistoryDialog({ open, onOpenChange, onRestore }: { open: boolean; onOpe
   );
 }
 
+// ---------- layers panel ----------
+function LayersPanel({ nodes, selectedId, onSelect, onMove, onDelete, onDuplicate }: {
+  nodes: EditorNode[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onMove: (id: string, dir: -1 | 1) => void;
+  onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+}) {
+  return (
+    <ul className="space-y-0.5 text-xs">
+      {nodes.map((n, i) => (
+        <LayerRow
+          key={n.id}
+          node={n}
+          depth={0}
+          index={i}
+          siblingCount={nodes.length}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          onMove={onMove}
+          onDelete={onDelete}
+          onDuplicate={onDuplicate}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function LayerRow({ node, depth, index, siblingCount, selectedId, onSelect, onMove, onDelete, onDuplicate }: {
+  node: EditorNode;
+  depth: number;
+  index: number;
+  siblingCount: number;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onMove: (id: string, dir: -1 | 1) => void;
+  onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+}) {
+  const def = WIDGETS[node.type];
+  const [open, setOpen] = useState(true);
+  const hasChildren = !!node.children && node.children.length > 0;
+  const isSelected = node.id === selectedId;
+
+  // Small preview label: first prop text if any
+  const preview = (() => {
+    const p = node.props ?? {};
+    const val = p.text ?? p.content ?? p.title ?? p.src ?? "";
+    const s = typeof val === "string" ? val : "";
+    return s ? ` · ${s.slice(0, 20)}${s.length > 20 ? "…" : ""}` : "";
+  })();
+
+  return (
+    <li>
+      <div
+        className={`group flex items-center gap-1 rounded px-1 py-1 cursor-pointer ${isSelected ? "bg-primary/15 text-primary" : "hover:bg-muted"}`}
+        style={{ paddingLeft: 4 + depth * 10 }}
+        onClick={() => onSelect(node.id)}
+      >
+        {hasChildren ? (
+          <button
+            className="shrink-0 p-0.5 hover:bg-muted rounded"
+            onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+            title={open ? "Tutup" : "Buka"}
+          >
+            {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          </button>
+        ) : (
+          <span className="shrink-0 w-3.5" />
+        )}
+        <span className="flex-1 truncate">
+          <span className="font-medium">{def.label}</span>
+          <span className="text-muted-foreground">{preview}</span>
+        </span>
+        <span className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5">
+          <button
+            className="p-0.5 hover:bg-background rounded disabled:opacity-30"
+            disabled={index === 0}
+            onClick={(e) => { e.stopPropagation(); onMove(node.id, -1); }}
+            title="Naik"
+          ><ArrowUp className="h-3 w-3" /></button>
+          <button
+            className="p-0.5 hover:bg-background rounded disabled:opacity-30"
+            disabled={index === siblingCount - 1}
+            onClick={(e) => { e.stopPropagation(); onMove(node.id, 1); }}
+            title="Turun"
+          ><ArrowDown className="h-3 w-3" /></button>
+          <button
+            className="p-0.5 hover:bg-background rounded"
+            onClick={(e) => { e.stopPropagation(); onDuplicate(node.id); }}
+            title="Duplikasi"
+          ><CopyPlus className="h-3 w-3" /></button>
+          <button
+            className="p-0.5 hover:bg-background rounded text-destructive"
+            onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
+            title="Hapus"
+          ><Trash2 className="h-3 w-3" /></button>
+        </span>
+      </div>
+      {hasChildren && open && (
+        <ul className="space-y-0.5">
+          {node.children!.map((c, i) => (
+            <LayerRow
+              key={c.id}
+              node={c}
+              depth={depth + 1}
+              index={i}
+              siblingCount={node.children!.length}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              onMove={onMove}
+              onDelete={onDelete}
+              onDuplicate={onDuplicate}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+
