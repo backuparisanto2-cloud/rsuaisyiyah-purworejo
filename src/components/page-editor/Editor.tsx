@@ -92,6 +92,17 @@ function insertInto(nodes: EditorNode[], targetContainerId: string | null, node:
   });
 }
 
+function moveSibling(nodes: EditorNode[], id: string, dir: -1 | 1): EditorNode[] {
+  const idx = nodes.findIndex((n) => n.id === id);
+  if (idx !== -1) {
+    const target = idx + dir;
+    if (target < 0 || target >= nodes.length) return nodes;
+    const copy = [...nodes];
+    [copy[idx], copy[target]] = [copy[target], copy[idx]];
+    return copy;
+  }
+  return nodes.map((n) => n.children ? { ...n, children: moveSibling(n.children, id, dir) } : n);
+
 function newNode(type: NodeType): EditorNode {
   const def = WIDGETS[type];
   return {
