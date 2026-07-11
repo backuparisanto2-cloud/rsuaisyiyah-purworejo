@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Undo2, Redo2, Copy, ClipboardPaste, CopyPlus, Trash2, Save, Rocket, Code2,
   Monitor, Tablet, Smartphone, ChevronRight, ChevronDown, History, RotateCcw, Loader2,
-  Layers as LayersIcon, ArrowUp, ArrowDown, Download, Upload, LayoutTemplate, Plus,
+  Layers as LayersIcon, ArrowUp, ArrowDown, Download, Upload, LayoutTemplate, Plus, Eye,
 } from "lucide-react";
 import { WIDGETS, WIDGET_LIST, type EditorNode, type NodeType } from "./registry";
 import { cloneWithIds, parseHtml, serializeTree } from "./serialize";
