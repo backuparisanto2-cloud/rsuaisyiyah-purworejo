@@ -338,6 +338,20 @@ export default function Editor() {
         <div className="flex-1" />
         <label className="text-xs flex items-center gap-2"><Switch checked={draft.showHeader} onCheckedChange={(v) => applyDraft({ ...draft, showHeader: v })} />Header</label>
         <label className="text-xs flex items-center gap-2"><Switch checked={draft.showFooter} onCheckedChange={(v) => applyDraft({ ...draft, showFooter: v })} />Footer</label>
+        <Button size="sm" variant="outline" onClick={() => setTemplatesOpen(true)}><LayoutTemplate className="h-4 w-4 mr-1" />Templates</Button>
+        <Button size="sm" variant="outline" onClick={() => importInputRef.current?.click()} title="Impor JSON"><Upload className="h-4 w-4 mr-1" />Import</Button>
+        <input
+          ref={importInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) importJsonFile(f);
+            e.currentTarget.value = "";
+          }}
+        />
+        <Button size="sm" variant="outline" onClick={exportJson} title="Ekspor JSON"><Download className="h-4 w-4 mr-1" />Export</Button>
         <Button size="sm" variant="outline" onClick={() => setSourceOpen(true)}><Code2 className="h-4 w-4 mr-1" />Source</Button>
         <Button size="sm" variant="outline" onClick={() => setHistoryOpen(true)}><History className="h-4 w-4 mr-1" />History</Button>
         <Button size="sm" variant="outline" onClick={saveDraft}><Save className="h-4 w-4 mr-1" />Save Draft</Button>
