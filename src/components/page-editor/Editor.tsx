@@ -833,4 +833,171 @@ function LayerRow({ node, depth, index, siblingCount, selectedId, onSelect, onMo
   );
 }
 
+// ---------- templates dialog ----------
+type Template = {
+  id: string;
+  created_at: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  snapshot: Draft;
+};
+
+function TemplatesDialog({ open, onOpenChange, currentDraft, onLoad }: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  currentDraft: Draft;
+  onLoad: (snapshot: Draft, mode: "replace" | "append") => void;
+}) {
+  const [items, setItems] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("page_editor_templates" as any)
+        .select("id, created_at, name, description, category, snapshot")
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      setItems((data as any as Template[]) ?? []);
+    } catch (e: any) {
+      toast.error(`Gagal memuat template: ${e.message ?? e}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { if (open) load(); }, [open, load]);
+
+  const saveCurrentAsTemplate = async () => {
+    if (!name.trim()) { toast.error("Nama template wajib diisi"); return; }
+    if ((currentDraft.tree ?? []).length === 0) { toast.error("Kanvas kosong, tidak ada yang disimpan"); return; }
+    setSaving(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const { error } = await supabase.from("page_editor_templates" as any).insert({
+        name: name.trim(),
+        description: description.trim() || null,
+        category: category.trim() || null,
+        snapshot: currentDraft as any,
+        created_by: userData.user?.id ?? null,
+      } as any);
+      if (error) throw error;
+      toast.success("Template disimpan");
+      setName(""); setDescription(""); setCategory("");
+      await load();
+    } catch (e: any) {
+      toast.error(`Gagal menyimpan template: ${e.message ?? e}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (t: Template) => {
+    if (!confirm(`Hapus template "${t.name}"?`)) return;
+    setBusyId(t.id);
+    try {
+      const { error } = await supabase.from("page_editor_templates" as any).delete().eq("id", t.id);
+      if (error) throw error;
+      setItems((prev) => prev.filter((x) => x.id !== t.id));
+      toast.success("Template dihapus");
+    } catch (e: any) {
+      toast.error(`Gagal menghapus: ${e.message ?? e}`);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleLoad = (t: Template, mode: "replace" | "append") => {
+    if (mode === "replace" && !confirm(`Muat template "${t.name}" dan ganti kanvas saat ini?`)) return;
+    onLoad(t.snapshot, mode);
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2"><LayoutTemplate className="h-4 w-4" />Template Library</DialogTitle>
+          <DialogDescription>Simpan kanvas saat ini sebagai template, atau muat template yang tersimpan ke editor.</DialogDescription>
+        </DialogHeader>
+
+        <div className="border rounded-md p-3 bg-muted/30 space-y-2">
+          <div className="text-xs font-semibold uppercase text-muted-foreground">Simpan kanvas saat ini</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="space-y-1 sm:col-span-1">
+              <Label className="text-xs">Nama</Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Landing Page A" />
+            </div>
+            <div className="space-y-1 sm:col-span-1">
+              <Label className="text-xs">Kategori</Label>
+              <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Landing, Berita, ..." />
+            </div>
+            <div className="space-y-1 sm:col-span-1">
+              <Label className="text-xs">Deskripsi</Label>
+              <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Ringkas" />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button size="sm" onClick={saveCurrentAsTemplate} disabled={saving}>
+              <Plus className="h-4 w-4 mr-1" />{saving ? "Menyimpan..." : "Simpan sebagai Template"}
+            </Button>
+          </div>
+        </div>
+
+        <ScrollArea className="max-h-[50vh] pr-3">
+          {loading ? (
+            <div className="flex items-center justify-center py-10 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 mr-2 animate-spin" />Memuat...</div>
+          ) : items.length === 0 ? (
+            <div className="text-center py-10 text-sm text-muted-foreground">Belum ada template.</div>
+          ) : (
+            <ul className="space-y-2">
+              {items.map((t) => (
+                <li key={t.id} className="border rounded-md p-3 bg-background flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium truncate">{t.name}</span>
+                      {t.category && <Badge variant="secondary" className="text-[10px]">{t.category}</Badge>}
+                      <span className="text-[11px] text-muted-foreground">{fmt(t.created_at)}</span>
+                    </div>
+                    {t.description && <div className="text-xs text-muted-foreground mt-0.5 truncate">{t.description}</div>}
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {t.snapshot?.tree?.length ?? 0} elemen · header {t.snapshot?.showHeader ? "on" : "off"} · footer {t.snapshot?.showFooter ? "on" : "off"}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Button size="sm" variant="outline" onClick={() => handleLoad(t, "replace")}>
+                      <RotateCcw className="h-3.5 w-3.5 mr-1" />Muat (ganti)
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => handleLoad(t, "append")}>
+                      <Plus className="h-3.5 w-3.5 mr-1" />Tambahkan
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" disabled={busyId === t.id} onClick={() => handleDelete(t)}>
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />Hapus
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
+          <Button onClick={load} disabled={loading}>Muat Ulang</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 
