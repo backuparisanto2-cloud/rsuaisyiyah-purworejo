@@ -722,6 +722,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_editor_templates: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          snapshot: Json
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          snapshot: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          snapshot?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_menu_items: {
         Row: {
           created_at: string
