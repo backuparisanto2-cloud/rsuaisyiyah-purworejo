@@ -920,11 +920,12 @@ function TemplatesDialog({ open, onOpenChange, currentDraft, onLoad }: {
     onLoad(t.snapshot, mode);
   };
 
+  const [previewItem, setPreviewItem] = useState<Template | null>(null);
   const fmt = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-5xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2"><LayoutTemplate className="h-4 w-4" />Template Library</DialogTitle>
           <DialogDescription>Simpan kanvas saat ini sebagai template, atau muat template yang tersimpan ke editor.</DialogDescription>
@@ -953,36 +954,47 @@ function TemplatesDialog({ open, onOpenChange, currentDraft, onLoad }: {
           </div>
         </div>
 
-        <ScrollArea className="max-h-[50vh] pr-3">
+        <ScrollArea className="max-h-[55vh] pr-3">
           {loading ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground text-sm"><Loader2 className="h-4 w-4 mr-2 animate-spin" />Memuat...</div>
           ) : items.length === 0 ? (
             <div className="text-center py-10 text-sm text-muted-foreground">Belum ada template.</div>
           ) : (
-            <ul className="space-y-2">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {items.map((t) => (
-                <li key={t.id} className="border rounded-md p-3 bg-background flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
+                <li key={t.id} className="border rounded-md bg-background overflow-hidden flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewItem(t)}
+                    className="block w-full text-left group"
+                    title="Klik untuk pratinjau besar"
+                  >
+                    <TemplateThumbnail nodes={t.snapshot?.tree ?? []} />
+                  </button>
+                  <div className="p-3 flex-1 flex flex-col gap-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium truncate">{t.name}</span>
                       {t.category && <Badge variant="secondary" className="text-[10px]">{t.category}</Badge>}
-                      <span className="text-[11px] text-muted-foreground">{fmt(t.created_at)}</span>
                     </div>
-                    {t.description && <div className="text-xs text-muted-foreground mt-0.5 truncate">{t.description}</div>}
-                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                    <div className="text-[11px] text-muted-foreground">{fmt(t.created_at)}</div>
+                    {t.description && <div className="text-xs text-muted-foreground line-clamp-2">{t.description}</div>}
+                    <div className="text-[11px] text-muted-foreground">
                       {t.snapshot?.tree?.length ?? 0} elemen · header {t.snapshot?.showHeader ? "on" : "off"} · footer {t.snapshot?.showFooter ? "on" : "off"}
                     </div>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Button size="sm" variant="outline" onClick={() => handleLoad(t, "replace")}>
-                      <RotateCcw className="h-3.5 w-3.5 mr-1" />Muat (ganti)
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleLoad(t, "append")}>
-                      <Plus className="h-3.5 w-3.5 mr-1" />Tambahkan
-                    </Button>
-                    <Button size="sm" variant="ghost" className="text-destructive" disabled={busyId === t.id} onClick={() => handleDelete(t)}>
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />Hapus
-                    </Button>
+                    <div className="mt-auto flex flex-wrap gap-1 pt-1">
+                      <Button size="sm" variant="outline" onClick={() => setPreviewItem(t)}>
+                        <Eye className="h-3.5 w-3.5 mr-1" />Pratinjau
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleLoad(t, "replace")}>
+                        <RotateCcw className="h-3.5 w-3.5 mr-1" />Muat
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleLoad(t, "append")}>
+                        <Plus className="h-3.5 w-3.5 mr-1" />Tambah
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-destructive ml-auto" disabled={busyId === t.id} onClick={() => handleDelete(t)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -995,9 +1007,115 @@ function TemplatesDialog({ open, onOpenChange, currentDraft, onLoad }: {
           <Button onClick={load} disabled={loading}>Muat Ulang</Button>
         </DialogFooter>
       </DialogContent>
+
+      <TemplatePreviewDialog
+        template={previewItem}
+        onOpenChange={(v) => { if (!v) setPreviewItem(null); }}
+        onLoad={(mode) => {
+          if (!previewItem) return;
+          handleLoad(previewItem, mode);
+          setPreviewItem(null);
+        }}
+      />
     </Dialog>
   );
 }
+
+// ---------- template thumbnail + preview ----------
+function TemplateThumbnail({ nodes }: { nodes: EditorNode[] }) {
+  // Render actual tree scaled down inside a fixed-size frame.
+  const BASE_W = 1280;
+  const FRAME_H = 180;
+  const FRAME_W = 320; // matches roughly card width
+  const scale = FRAME_W / BASE_W;
+  if (!nodes || nodes.length === 0) {
+    return (
+      <div className="bg-muted/40 border-b h-[180px] flex items-center justify-center text-xs text-muted-foreground">
+        Kanvas kosong
+      </div>
+    );
+  }
+  return (
+    <div className="relative bg-background border-b overflow-hidden" style={{ height: FRAME_H }}>
+      <div
+        className="absolute top-0 left-0 pointer-events-none origin-top-left"
+        style={{ width: BASE_W, transform: `scale(${scale})` }}
+        aria-hidden
+      >
+        <div className="p-4">
+          <RenderTree
+            nodes={nodes}
+            selectedId={null}
+            onSelect={() => {}}
+            onAddInto={() => () => {}}
+          />
+        </div>
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
+    </div>
+  );
+}
+
+function TemplatePreviewDialog({ template, onOpenChange, onLoad }: {
+  template: Template | null;
+  onOpenChange: (v: boolean) => void;
+  onLoad: (mode: "replace" | "append") => void;
+}) {
+  const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const width = device === "desktop" ? 1280 : device === "tablet" ? 820 : 390;
+  return (
+    <Dialog open={!!template} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-6xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            Pratinjau: {template?.name}
+          </DialogTitle>
+          <DialogDescription>
+            {template?.description || "Pratinjau visual template sebelum dimuat ke kanvas."}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center gap-1 justify-center">
+          <Button size="sm" variant={device === "desktop" ? "default" : "outline"} onClick={() => setDevice("desktop")}>
+            <Monitor className="h-3.5 w-3.5 mr-1" />Desktop
+          </Button>
+          <Button size="sm" variant={device === "tablet" ? "default" : "outline"} onClick={() => setDevice("tablet")}>
+            <Tablet className="h-3.5 w-3.5 mr-1" />Tablet
+          </Button>
+          <Button size="sm" variant={device === "mobile" ? "default" : "outline"} onClick={() => setDevice("mobile")}>
+            <Smartphone className="h-3.5 w-3.5 mr-1" />Mobile
+          </Button>
+        </div>
+        <ScrollArea className="max-h-[65vh] border rounded-md bg-muted/20">
+          <div className="mx-auto my-4 bg-background shadow-sm border" style={{ width }}>
+            <div className="p-4">
+              {(template?.snapshot?.tree ?? []).length === 0 ? (
+                <div className="py-16 text-center text-sm text-muted-foreground">Kanvas kosong</div>
+              ) : (
+                <RenderTree
+                  nodes={template?.snapshot?.tree ?? []}
+                  selectedId={null}
+                  onSelect={() => {}}
+                  onAddInto={() => () => {}}
+                />
+              )}
+            </div>
+          </div>
+        </ScrollArea>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
+          <Button variant="secondary" onClick={() => onLoad("append")}>
+            <Plus className="h-4 w-4 mr-1" />Tambahkan ke Kanvas
+          </Button>
+          <Button onClick={() => onLoad("replace")}>
+            <RotateCcw className="h-4 w-4 mr-1" />Muat (ganti)
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 
 
