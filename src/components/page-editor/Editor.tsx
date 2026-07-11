@@ -12,7 +12,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
   Undo2, Redo2, Copy, ClipboardPaste, CopyPlus, Trash2, Save, Rocket, Code2,
-  Monitor, Tablet, Smartphone, ChevronRight, History, RotateCcw, Loader2,
+  Monitor, Tablet, Smartphone, ChevronRight, ChevronDown, History, RotateCcw, Loader2,
+  Layers as LayersIcon, ArrowUp, ArrowDown,
 } from "lucide-react";
 import { WIDGETS, WIDGET_LIST, type EditorNode, type NodeType } from "./registry";
 import { cloneWithIds, parseHtml, serializeTree } from "./serialize";
@@ -90,6 +91,19 @@ function insertInto(nodes: EditorNode[], targetContainerId: string | null, node:
     return n;
   });
 }
+
+function moveSibling(nodes: EditorNode[], id: string, dir: -1 | 1): EditorNode[] {
+  const idx = nodes.findIndex((n) => n.id === id);
+  if (idx !== -1) {
+    const target = idx + dir;
+    if (target < 0 || target >= nodes.length) return nodes;
+    const copy = [...nodes];
+    [copy[idx], copy[target]] = [copy[target], copy[idx]];
+    return copy;
+  }
+  return nodes.map((n) => n.children ? { ...n, children: moveSibling(n.children, id, dir) } : n);
+}
+
 
 function newNode(type: NodeType): EditorNode {
   const def = WIDGETS[type];
@@ -175,6 +189,9 @@ export default function Editor() {
     })));
     setSelectedId(copy.id);
     toast.success("Elemen diduplikasi");
+  };
+  const moveNode = (id: string, dir: -1 | 1) => {
+    setTree(moveSibling(tree, id, dir));
   };
   const copyNode = (id: string) => {
     const n = findNode(tree, id);
@@ -304,7 +321,25 @@ export default function Editor() {
               </div>
             ))}
           </div>
+          <div className="border-t p-3">
+            <div className="text-xs font-semibold text-muted-foreground uppercase mb-2 flex items-center gap-1">
+              <LayersIcon className="h-3.5 w-3.5" />Layers
+            </div>
+            {tree.length === 0 ? (
+              <p className="text-[11px] text-muted-foreground">Belum ada elemen.</p>
+            ) : (
+              <LayersPanel
+                nodes={tree}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onMove={moveNode}
+                onDelete={deleteNode}
+                onDuplicate={duplicateNode}
+              />
+            )}
+          </div>
         </aside>
+
 
         {/* Canvas */}
         <div className="bg-muted/30 overflow-auto p-4">
@@ -615,4 +650,127 @@ function HistoryDialog({ open, onOpenChange, onRestore }: { open: boolean; onOpe
     </Dialog>
   );
 }
+
+// ---------- layers panel ----------
+function LayersPanel({ nodes, selectedId, onSelect, onMove, onDelete, onDuplicate }: {
+  nodes: EditorNode[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onMove: (id: string, dir: -1 | 1) => void;
+  onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+}) {
+  return (
+    <ul className="space-y-0.5 text-xs">
+      {nodes.map((n, i) => (
+        <LayerRow
+          key={n.id}
+          node={n}
+          depth={0}
+          index={i}
+          siblingCount={nodes.length}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          onMove={onMove}
+          onDelete={onDelete}
+          onDuplicate={onDuplicate}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function LayerRow({ node, depth, index, siblingCount, selectedId, onSelect, onMove, onDelete, onDuplicate }: {
+  node: EditorNode;
+  depth: number;
+  index: number;
+  siblingCount: number;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  onMove: (id: string, dir: -1 | 1) => void;
+  onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+}) {
+  const def = WIDGETS[node.type];
+  const [open, setOpen] = useState(true);
+  const hasChildren = !!node.children && node.children.length > 0;
+  const isSelected = node.id === selectedId;
+
+  // Small preview label: first prop text if any
+  const preview = (() => {
+    const p = node.props ?? {};
+    const val = p.text ?? p.content ?? p.title ?? p.src ?? "";
+    const s = typeof val === "string" ? val : "";
+    return s ? ` · ${s.slice(0, 20)}${s.length > 20 ? "…" : ""}` : "";
+  })();
+
+  return (
+    <li>
+      <div
+        className={`group flex items-center gap-1 rounded px-1 py-1 cursor-pointer ${isSelected ? "bg-primary/15 text-primary" : "hover:bg-muted"}`}
+        style={{ paddingLeft: 4 + depth * 10 }}
+        onClick={() => onSelect(node.id)}
+      >
+        {hasChildren ? (
+          <button
+            className="shrink-0 p-0.5 hover:bg-muted rounded"
+            onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+            title={open ? "Tutup" : "Buka"}
+          >
+            {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          </button>
+        ) : (
+          <span className="shrink-0 w-3.5" />
+        )}
+        <span className="flex-1 truncate">
+          <span className="font-medium">{def.label}</span>
+          <span className="text-muted-foreground">{preview}</span>
+        </span>
+        <span className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5">
+          <button
+            className="p-0.5 hover:bg-background rounded disabled:opacity-30"
+            disabled={index === 0}
+            onClick={(e) => { e.stopPropagation(); onMove(node.id, -1); }}
+            title="Naik"
+          ><ArrowUp className="h-3 w-3" /></button>
+          <button
+            className="p-0.5 hover:bg-background rounded disabled:opacity-30"
+            disabled={index === siblingCount - 1}
+            onClick={(e) => { e.stopPropagation(); onMove(node.id, 1); }}
+            title="Turun"
+          ><ArrowDown className="h-3 w-3" /></button>
+          <button
+            className="p-0.5 hover:bg-background rounded"
+            onClick={(e) => { e.stopPropagation(); onDuplicate(node.id); }}
+            title="Duplikasi"
+          ><CopyPlus className="h-3 w-3" /></button>
+          <button
+            className="p-0.5 hover:bg-background rounded text-destructive"
+            onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
+            title="Hapus"
+          ><Trash2 className="h-3 w-3" /></button>
+        </span>
+      </div>
+      {hasChildren && open && (
+        <ul className="space-y-0.5">
+          {node.children!.map((c, i) => (
+            <LayerRow
+              key={c.id}
+              node={c}
+              depth={depth + 1}
+              index={i}
+              siblingCount={node.children!.length}
+              selectedId={selectedId}
+              onSelect={onSelect}
+              onMove={onMove}
+              onDelete={onDelete}
+              onDuplicate={onDuplicate}
+            />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
 
