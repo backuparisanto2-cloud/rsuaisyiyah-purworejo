@@ -190,6 +190,9 @@ export default function Editor() {
     setSelectedId(copy.id);
     toast.success("Elemen diduplikasi");
   };
+  const moveNode = (id: string, dir: -1 | 1) => {
+    setTree(moveSibling(tree, id, dir));
+  };
   const copyNode = (id: string) => {
     const n = findNode(tree, id);
     if (n) { clipboardRef.current = cloneWithIds(n); toast.success("Disalin"); }
