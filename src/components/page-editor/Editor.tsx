@@ -102,6 +102,8 @@ function moveSibling(nodes: EditorNode[], id: string, dir: -1 | 1): EditorNode[]
     return copy;
   }
   return nodes.map((n) => n.children ? { ...n, children: moveSibling(n.children, id, dir) } : n);
+}
+
 
 function newNode(type: NodeType): EditorNode {
   const def = WIDGETS[type];
