@@ -98,7 +98,10 @@ export default function SideButtons() {
   }, []);
 
   return (
-    <div className="fixed right-2 sm:right-3 top-[42%] sm:top-1/2 -translate-y-1/2 z-[100] flex flex-col gap-2 sm:gap-2.5 items-center">
+    <div
+      className="fixed top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-2 sm:gap-2.5 items-center max-h-[70svh] overflow-y-auto no-scrollbar py-1 pointer-events-auto"
+      style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}
+    >
       {rows.map((r) => {
         const common = `${bgFor(r.key)} h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform`;
         if (r.key === "accessibility") {
