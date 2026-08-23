@@ -113,7 +113,7 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
       </div>
 
       {open && (
-        <div className="lg:hidden fixed inset-0 bg-primary z-50 overflow-y-auto">
+        <div className="lg:hidden fixed inset-0 bg-primary z-[10000] overflow-y-auto">
           <div className="flex items-center justify-between p-4 border-b border-white/10">
             <span className="font-bold">MENU</span>
             <button onClick={() => setOpen(false)} aria-label="Tutup"><X className="h-6 w-6" /></button>

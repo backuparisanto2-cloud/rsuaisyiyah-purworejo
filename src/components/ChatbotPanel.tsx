@@ -179,7 +179,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
   }, [msgs, streaming]);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-[92vw] max-w-sm rounded-2xl bg-card shadow-2xl border overflow-hidden flex flex-col" style={{ height: "min(560px, 80vh)" }}>
+    <div className="fixed bottom-6 right-6 z-[10001] w-[92vw] max-w-sm rounded-2xl bg-card shadow-2xl border overflow-hidden flex flex-col" style={{ height: "min(560px, 80vh)" }}>
       <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
         <div className="h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white/50 shrink-0">
           <img src={avatar} alt={name} className="h-full w-full object-cover object-top scale-110" />
