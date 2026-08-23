@@ -11,7 +11,7 @@ export default function ChatbotArini() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-2xl hover:bg-primary-dark transition-all animate-float"
+          className="fixed bottom-6 right-6 z-[10000] flex items-center gap-3 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-2xl hover:bg-primary-dark transition-all animate-float"
           aria-label="Buka chat Aisha"
         >
           <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white shrink-0">

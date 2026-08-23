@@ -61,7 +61,7 @@ export default function AccessibilityWidget({ showTrigger = true }: { showTrigge
       )}
 
       {open && (
-        <div className="fixed right-3 top-1/2 mt-[110px] z-50 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card border shadow-2xl overflow-hidden">
+        <div className="fixed right-3 top-1/2 mt-[110px] z-[10001] w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-card border shadow-2xl overflow-hidden">
           <div className="bg-secondary text-secondary-foreground p-3 flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold">
               <Accessibility className="h-5 w-5" /> Aksesibilitas
