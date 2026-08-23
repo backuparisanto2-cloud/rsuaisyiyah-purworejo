@@ -212,3 +212,11 @@ html.a11y-big-cursor, html.a11y-big-cursor * {
   .backdrop-blur-lg,
   .backdrop-blur-xl { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 }
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
