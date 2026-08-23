@@ -63,7 +63,7 @@ export default function SideSocial() {
   if (items.length === 0) return null;
 
   return (
-    <div className="fixed right-3 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2">
+    <div className="fixed right-3 top-1/2 -translate-y-1/2 z-[100] flex flex-col gap-2">
       {items.map((it) => (
         <a
           key={it.label}
