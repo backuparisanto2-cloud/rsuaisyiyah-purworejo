@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
+import SideButtons from "@/components/SideButtons";
 import { PagePreview } from "./administrator.pages";
 
 export const Route = createFileRoute("/p/$slug")({
