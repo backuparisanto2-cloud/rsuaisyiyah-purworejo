@@ -95,6 +95,7 @@ function CustomPage() {
 
   return (
     <PageLayout pageId={page.id}>
+      <SideButtons />
       <Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Beranda</Link>
       <h1 className="text-4xl font-bold mt-4 mb-6">{page.title}</h1>
       <PagePreview content={page.content} images={imgs} />
