@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo-pku.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +48,13 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
     })();
     return () => { cancelled = true; };
   }, [pageId]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [open]);
 
   const active = items.filter((i) => i.is_active);
   const roots = active.filter((i) => !i.parent_id);
@@ -112,27 +120,30 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
         </button>
       </div>
 
-      {open && (
-        <div className="lg:hidden fixed inset-0 bg-primary z-[10000] overflow-y-auto">
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <span className="font-bold">MENU</span>
-            <button onClick={() => setOpen(false)} aria-label="Tutup"><X className="h-6 w-6" /></button>
+      {open && createPortal(
+        <div className="fixed inset-0 z-[10000] flex min-h-dvh flex-col overflow-hidden bg-primary text-primary-foreground lg:hidden" role="dialog" aria-modal="true" aria-label="Menu navigasi">
+          <div className="grid h-20 shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center border-b border-primary-foreground/15 px-5 pt-[env(safe-area-inset-top)]">
+            <span className="min-w-0 truncate text-xl font-bold">MENU</span>
+            <button onClick={() => setOpen(false)} className="grid h-11 w-11 shrink-0 place-items-center" aria-label="Tutup menu">
+              <X className="h-7 w-7" />
+            </button>
           </div>
-          <nav className="p-4 space-y-1">
+          <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             {roots.map((n) => (
               <div key={n.id}>
-                <a href={hrefFor(n.href)} onClick={() => setOpen(false)} className="block py-3 border-b border-white/10 font-semibold">
+                <a href={hrefFor(n.href)} onClick={() => setOpen(false)} className="block border-b border-primary-foreground/15 py-4 text-base font-semibold">
                   {n.label.toUpperCase()}
                 </a>
                 {childrenOf(n.id).map((s) => (
-                  <a key={s.id} href={hrefFor(s.href)} onClick={() => setOpen(false)} className="block py-2 pl-4 border-b border-white/10 text-sm opacity-90">
+                  <a key={s.id} href={hrefFor(s.href)} onClick={() => setOpen(false)} className="block border-b border-primary-foreground/15 py-3 pl-4 text-sm opacity-90">
                     → {s.label.toUpperCase()}
                   </a>
                 ))}
               </div>
             ))}
           </nav>
-        </div>
+        </div>,
+        document.body,
       )}
     </header>
   );

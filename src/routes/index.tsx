@@ -47,6 +47,20 @@ const DEFAULT_ORDER: SectionRow[] = [
   { key: "ringkasan", display_order: 10, is_active: true },
 ];
 
+function InstagramEmbed() {
+  useEffect(() => {
+    const existing = document.querySelector<HTMLScriptElement>('script[data-elfsight-platform]');
+    if (existing) return;
+    const script = document.createElement("script");
+    script.src = "https://elfsightcdn.com/platform.js";
+    script.async = true;
+    script.dataset.elfsightPlatform = "true";
+    document.body.appendChild(script);
+  }, []);
+
+  return <div className="elfsight-app-feb3351d-45de-424a-a93b-4e602e938274" data-elfsight-app-lazy />;
+}
+
 function renderSection(key: string, light: boolean) {
   switch (key) {
     case "tentang": return <TentangSection key={key} />;
@@ -77,8 +91,7 @@ function renderSection(key: string, light: boolean) {
             </p>
             {!light && (
               <div className="mt-10 rounded-2xl overflow-hidden border border-white/15 bg-white shadow-2xl mx-auto w-full max-w-5xl">
-                <script src="https://elfsightcdn.com/platform.js" async />
-                <div className="elfsight-app-feb3351d-45de-424a-a93b-4e602e938274" data-elfsight-app-lazy />
+                <InstagramEmbed />
               </div>
             )}
             <div className="mt-10 text-center">
