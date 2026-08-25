@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Accessibility, Youtube, Facebook } from "lucide-react";
+import { getRouteApi } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { A11Y_OPEN_EVENT } from "./AccessibilityWidget";
 
@@ -13,14 +14,8 @@ type Row = {
   display_order: number;
 };
 
-const FALLBACK: Row[] = [
-  { id: "1", key: "whatsapp", label: "WhatsApp", url: "6289646710859", wa_prolog: "Hi RSU AISYIYAH Purworejo, saya ingin bertanya...", is_active: true, display_order: 1 },
-  { id: "2", key: "instagram", label: "Instagram", url: "https://www.instagram.com/rsu_aisyiyah", wa_prolog: null, is_active: true, display_order: 2 },
-  { id: "3", key: "youtube", label: "YouTube", url: "https://www.youtube.com/", wa_prolog: null, is_active: true, display_order: 3 },
-  { id: "4", key: "tiktok", label: "TikTok", url: "https://www.tiktok.com/", wa_prolog: null, is_active: true, display_order: 4 },
-  { id: "5", key: "facebook", label: "Facebook", url: "https://www.facebook.com/", wa_prolog: null, is_active: true, display_order: 5 },
-  { id: "6", key: "accessibility", label: "Aksesibilitas", url: null, wa_prolog: null, is_active: true, display_order: 6 },
-];
+const STORAGE_KEY = "app_side_buttons";
+const rootApi = getRouteApi("__root__");
 
 function IconFor({ k }: { k: string }) {
   switch (k) {
@@ -78,16 +73,31 @@ function hrefFor(r: Row): string | null {
 }
 
 export default function SideButtons() {
-  const [rows, setRows] = useState<Row[]>(FALLBACK);
+  const rootData = rootApi.useLoaderData() as { sideButtons?: Row[] | null } | undefined;
+  const initial = rootData?.sideButtons ?? null;
+  const [rows, setRows] = useState<Row[] | null>(initial);
 
   useEffect(() => {
+    if (initial && initial.length) {
+      setRows(initial);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(initial)); } catch { /* ignore */ }
+    } else {
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY);
+        if (cached) setRows(JSON.parse(cached) as Row[]);
+      } catch { /* ignore */ }
+    }
+
     const load = async () => {
       const { data } = await supabase
         .from("side_buttons")
         .select("*")
         .eq("is_active", true)
         .order("display_order", { ascending: true });
-      if (data && data.length) setRows(data as Row[]);
+      if (data) {
+        setRows(data as Row[]);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+      }
     };
     void load();
     const channel = supabase
@@ -95,7 +105,9 @@ export default function SideButtons() {
       .on("postgres_changes", { event: "*", schema: "public", table: "side_buttons" }, load)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [initial]);
+
+  if (!rows || rows.length === 0) return null;
 
   return (
     <div
