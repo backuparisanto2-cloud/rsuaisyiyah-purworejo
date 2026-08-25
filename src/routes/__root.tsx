@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { getThemeSettings } from "@/lib/theme.functions";
+import { themeCssText } from "@/lib/theme-vars";
 
 function NotFoundComponent() {
   return (
