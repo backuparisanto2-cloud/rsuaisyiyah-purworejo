@@ -53,11 +53,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   loader: async () => {
-    try {
-      return { theme: await getThemeSettings() };
-    } catch {
-      return { theme: null };
-    }
+    const [theme, sideButtons] = await Promise.all([
+      getThemeSettings().catch(() => null),
+      getSideButtons().catch(() => null),
+    ]);
+    return { theme, sideButtons };
   },
   head: ({ loaderData }) => ({
     styles: [{ children: themeCssText(loaderData?.theme) }],
