@@ -73,16 +73,31 @@ function hrefFor(r: Row): string | null {
 }
 
 export default function SideButtons() {
-  const [rows, setRows] = useState<Row[]>(FALLBACK);
+  const rootData = rootApi.useLoaderData() as { sideButtons?: Row[] | null } | undefined;
+  const initial = rootData?.sideButtons ?? null;
+  const [rows, setRows] = useState<Row[] | null>(initial);
 
   useEffect(() => {
+    if (initial && initial.length) {
+      setRows(initial);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(initial)); } catch { /* ignore */ }
+    } else {
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY);
+        if (cached) setRows(JSON.parse(cached) as Row[]);
+      } catch { /* ignore */ }
+    }
+
     const load = async () => {
       const { data } = await supabase
         .from("side_buttons")
         .select("*")
         .eq("is_active", true)
         .order("display_order", { ascending: true });
-      if (data && data.length) setRows(data as Row[]);
+      if (data) {
+        setRows(data as Row[]);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+      }
     };
     void load();
     const channel = supabase
@@ -90,7 +105,9 @@ export default function SideButtons() {
       .on("postgres_changes", { event: "*", schema: "public", table: "side_buttons" }, load)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [initial]);
+
+  if (!rows || rows.length === 0) return null;
 
   return (
     <div
