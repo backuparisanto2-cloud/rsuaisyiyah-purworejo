@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { getThemeSettings } from "@/lib/theme.functions";
+import { themeCssText } from "@/lib/theme-vars";
 
 function NotFoundComponent() {
   return (
@@ -50,7 +52,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  loader: async () => {
+    try {
+      return { theme: await getThemeSettings() };
+    } catch {
+      return { theme: null };
+    }
+  },
+  head: ({ loaderData }) => ({
+    styles: [{ children: themeCssText(loaderData?.theme) }],
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -101,10 +111,11 @@ import VisitorTracker from "@/components/VisitorTracker";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const loaderData = Route.useLoaderData();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider>
+        <ThemeProvider initialTheme={loaderData?.theme}>
           <VisitorTracker />
           <Outlet />
           <Toaster />
