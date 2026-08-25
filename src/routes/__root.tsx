@@ -111,10 +111,11 @@ import VisitorTracker from "@/components/VisitorTracker";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const loaderData = Route.useLoaderData();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider>
+        <ThemeProvider initialTheme={loaderData?.theme}>
           <VisitorTracker />
           <Outlet />
           <Toaster />
