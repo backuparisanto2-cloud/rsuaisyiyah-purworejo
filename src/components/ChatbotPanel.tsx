@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, RotateCcw, Square, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import arini from "@/assets/arini.png";
+import sprite from "@/assets/aisha-sprite.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
 type Msg = { role: "assistant" | "user"; content: string };
@@ -14,13 +14,21 @@ const DEFAULT_GREETING = "Assalamu'alaikum 👋 Saya Arini, asisten virtual RSU 
 export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
   const [input, setInput] = useState("");
   const [name, setName] = useState("Arini");
-  const [avatar, setAvatar] = useState<string>(arini);
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [frame, setFrame] = useState(0);
+  const FRAMES = 14;
   const [greeting, setGreeting] = useState(DEFAULT_GREETING);
   const [quick, setQuick] = useState<string[]>(FALLBACK_QUICK);
   const [msgs, setMsgs] = useState<Msg[]>([{ role: "assistant", content: DEFAULT_GREETING }]);
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (avatar) return;
+    const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES), 4000);
+    return () => clearInterval(id);
+  }, [avatar]);
 
   useEffect(() => {
     try {
@@ -181,8 +189,20 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed bottom-6 right-6 z-[10001] w-[92vw] max-w-sm rounded-2xl bg-card shadow-2xl border overflow-hidden flex flex-col" style={{ height: "min(560px, 80vh)" }}>
       <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
-        <div className="h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-white/50 shrink-0">
-          <img src={avatar} alt={name} className="h-full w-full object-cover object-top scale-110" />
+        <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-secondary shrink-0">
+          {avatar ? (
+            <img src={avatar} alt={name} className="h-full w-full object-cover object-top scale-110" />
+          ) : (
+            <span
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url(${sprite.url})`,
+                backgroundSize: `${FRAMES * 100}% 100%`,
+                backgroundPosition: `${(frame / (FRAMES - 1)) * 100}% center`,
+                backgroundRepeat: "no-repeat",
+              }}
+            />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-bold truncate">{name}</div>
