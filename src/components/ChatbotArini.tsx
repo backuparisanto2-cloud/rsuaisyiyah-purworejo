@@ -11,7 +11,7 @@ export default function ChatbotArini() {
 
   useEffect(() => {
     if (open) return;
-    const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES), 3000);
+    const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES), 4000);
     return () => clearInterval(id);
   }, [open]);
 
@@ -26,7 +26,7 @@ export default function ChatbotArini() {
         >
           <span className="relative block h-16 w-16 rounded-full overflow-hidden bg-white ring-2 ring-secondary shadow-2xl transition-transform hover:scale-105">
             <span
-              className="absolute inset-0 transition-[background-position] duration-500"
+              className="absolute inset-0"
               style={{
                 backgroundImage: `url(${sprite.url})`,
                 backgroundSize: `${FRAMES * 100}% 100%`,
