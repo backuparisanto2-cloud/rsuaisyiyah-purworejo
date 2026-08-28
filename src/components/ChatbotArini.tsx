@@ -27,6 +27,7 @@ export default function ChatbotArini() {
           <span className="relative block h-16 w-16 rounded-full overflow-hidden bg-white ring-2 ring-secondary shadow-2xl transition-transform hover:scale-105">
             <span
               className="absolute inset-0"
+              aria-hidden="true"
               style={{
                 backgroundImage: `url(${sprite.url})`,
                 backgroundSize: `${FRAMES * 100}% 100%`,
