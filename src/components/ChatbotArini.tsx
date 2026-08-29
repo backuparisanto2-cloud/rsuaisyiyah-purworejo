@@ -35,7 +35,7 @@ export default function ChatbotArini() {
                 backgroundRepeat: "no-repeat",
               }}
             />
-            <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-secondary ring-2 ring-white" />
+            
           </span>
           <span className="rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground shadow">
             Tanya Aisha
