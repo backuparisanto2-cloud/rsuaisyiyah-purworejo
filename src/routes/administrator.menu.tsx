@@ -34,6 +34,79 @@ const DEFAULTS = [
   { label: "Kontak", href: "#kontak" },
 ];
 
+type RowProps = {
+  item: Item;
+  depth: number;
+  dirty: boolean;
+  children: Item[];
+  childrenOf: (pid: string) => Item[];
+  dirtyIds: string[];
+  onPatch: (id: string, patch: Partial<Item>) => void;
+  onMove: (item: Item, dir: -1 | 1) => void;
+  onAdd: (parentId: string | null) => void;
+  onRemove: (id: string) => void;
+};
+
+const ItemRow = memo(function ItemRow({
+  item, depth, dirty, children, childrenOf, dirtyIds, onPatch, onMove, onAdd, onRemove,
+}: RowProps) {
+  return (
+    <div className="space-y-2">
+      <div
+        className={"flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 border rounded-md bg-card " + (dirty ? "border-primary/50" : "")}
+        style={{ marginLeft: depth * 12 }}
+      >
+        {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+        <div className="flex flex-col gap-0.5 shrink-0">
+          <button onClick={() => onMove(item, -1)} className="hover:text-primary"><ChevronUp className="h-3 w-3" /></button>
+          <button onClick={() => onMove(item, 1)} className="hover:text-primary"><ChevronDown className="h-3 w-3" /></button>
+        </div>
+        <Input
+          value={item.label}
+          onChange={(e) => onPatch(item.id, { label: e.target.value })}
+          placeholder="Label"
+          className="flex-1 min-w-[140px]"
+        />
+        <Input
+          value={item.href}
+          onChange={(e) => onPatch(item.id, { href: e.target.value })}
+          placeholder="#anchor atau /p/slug"
+          className="flex-1 min-w-[140px] font-mono text-xs"
+        />
+        <div className="flex items-center gap-1 ml-auto">
+          <Switch
+            checked={item.is_active}
+            onCheckedChange={(v) => onPatch(item.id, { is_active: v })}
+          />
+          {depth === 0 && (
+            <Button size="sm" variant="outline" onClick={() => onAdd(item.id)} title="Tambah submenu">
+              <Plus className="h-3 w-3" />
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" onClick={() => onRemove(item.id)}>
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+      </div>
+      {children.map((c) => (
+        <ItemRow
+          key={c.id}
+          item={c}
+          depth={depth + 1}
+          dirty={dirtyIds.includes(c.id)}
+          children={childrenOf(c.id)}
+          childrenOf={childrenOf}
+          dirtyIds={dirtyIds}
+          onPatch={onPatch}
+          onMove={onMove}
+          onAdd={onAdd}
+          onRemove={onRemove}
+        />
+      ))}
+    </div>
+  );
+});
+
 function MenuAdmin() {
   const [items, setItems] = useState<Item[]>([]);
   const [original, setOriginal] = useState<Record<string, Item>>({});
@@ -42,22 +115,29 @@ function MenuAdmin() {
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [lastError, setLastError] = useState<string>("");
+  const itemsRef = useRef<Item[]>([]);
+  itemsRef.current = items;
+  const savingRef = useRef(false);
 
-  async function load() {
-    setLoading(true);
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     const { data, error } = await supabase
       .from("menu_items").select("*").order("display_order");
     if (error) toast.error(error.message);
     const rows = (data ?? []) as Item[];
     setItems(rows);
     setOriginal(Object.fromEntries(rows.map((r) => [r.id, r])));
-    setLoading(false);
-  }
-  useEffect(() => { load(); }, []);
+    if (!opts?.silent) setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   const roots = items.filter((i) => !i.parent_id).sort((a, b) => a.display_order - b.display_order);
-  const childrenOf = (pid: string) =>
-    items.filter((i) => i.parent_id === pid).sort((a, b) => a.display_order - b.display_order);
+  const childrenOf = useCallback(
+    (pid: string) =>
+      itemsRef.current.filter((i) => i.parent_id === pid).sort((a, b) => a.display_order - b.display_order),
+    [],
+  );
 
   const dirtyIds = items.filter((i) => {
     const o = original[i.id];
@@ -65,39 +145,49 @@ function MenuAdmin() {
   }).map((i) => i.id);
   const isDirty = dirtyIds.length > 0;
 
-  function patchLocal(id: string, patch: Partial<Item>) {
+  const patchLocal = useCallback((id: string, patch: Partial<Item>) => {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
-    if (saveStatus === "saved" || saveStatus === "error") setSaveStatus("idle");
-  }
+    setSaveStatus((s) => (s === "saved" || s === "error" ? "idle" : s));
+  }, []);
 
-  async function saveAll() {
-    if (!isDirty) return;
+  const saveAll = useCallback(async () => {
+    if (savingRef.current) return;
+    const snapshot = itemsRef.current;
+    const pending = snapshot.filter((i) => {
+      const o = original[i.id];
+      return !o || o.label !== i.label || o.href !== i.href || o.is_active !== i.is_active;
+    });
+    if (!pending.length) return;
+    savingRef.current = true;
     setSaving(true);
     setSaveStatus("saving");
-    const count = dirtyIds.length;
-    const tId = toast.loading(`Menyimpan ${count} perubahan...`);
+    const tId = toast.loading(`Menyimpan ${pending.length} perubahan...`);
     const errors: string[] = [];
-    for (const id of dirtyIds) {
-      const it = items.find((x) => x.id === id);
-      if (!it) continue;
+    for (const it of pending) {
       const { error } = await supabase.from("menu_items")
         .update({ label: it.label, href: it.href, is_active: it.is_active })
-        .eq("id", id);
+        .eq("id", it.id);
       if (error) errors.push(error.message);
     }
+    savingRef.current = false;
     setSaving(false);
     if (errors.length) {
       setSaveStatus("error");
       setLastError(errors[0]);
       toast.error(`Gagal menyimpan: ${errors[0]}`, { id: tId });
-      load();
+      load({ silent: true });
     } else {
+      // Perbarui baseline saja — jangan timpa input yang sedang diketik.
+      setOriginal((prev) => {
+        const next = { ...prev };
+        for (const it of pending) next[it.id] = { ...it };
+        return next;
+      });
       setSaveStatus("saved");
       setLastError("");
-      toast.success(`Berhasil tersimpan (${count} item)`, { id: tId });
-      load();
+      toast.success(`Berhasil tersimpan (${pending.length} item)`, { id: tId });
     }
-  }
+  }, [original, load]);
 
   async function addItem(parent_id: string | null) {
     const siblings = parent_id ? childrenOf(parent_id) : roots;
@@ -106,7 +196,7 @@ function MenuAdmin() {
       label: "Menu Baru", href: "#", parent_id, display_order: nextOrder,
     });
     if (error) return toast.error(error.message);
-    load();
+    load({ silent: true });
   }
 
   async function remove(id: string) {
@@ -114,11 +204,12 @@ function MenuAdmin() {
     const { error } = await supabase.from("menu_items").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Item dihapus");
-    load();
+    load({ silent: true });
   }
 
   async function move(item: Item, dir: -1 | 1) {
-    const siblings = item.parent_id ? childrenOf(item.parent_id) : roots;
+    const siblings = item.parent_id ? childrenOf(item.parent_id) : itemsRef.current
+      .filter((i) => !i.parent_id).sort((a, b) => a.display_order - b.display_order);
     const idx = siblings.findIndex((s) => s.id === item.id);
     const swap = siblings[idx + dir];
     if (!swap) return;
@@ -126,7 +217,7 @@ function MenuAdmin() {
       supabase.from("menu_items").update({ display_order: swap.display_order }).eq("id", item.id),
       supabase.from("menu_items").update({ display_order: item.display_order }).eq("id", swap.id),
     ]);
-    load();
+    load({ silent: true });
   }
 
   async function resetDefault() {
@@ -140,7 +231,7 @@ function MenuAdmin() {
     setBusy(false);
     if (ins.error) return toast.error(ins.error.message);
     toast.success("Menu direset ke default");
-    load();
+    load({ silent: true });
   }
 
   // Keyboard: Cmd/Ctrl+S to save
@@ -155,59 +246,13 @@ function MenuAdmin() {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  // Auto-save dengan debounce 800ms
+  // Auto-save dengan debounce 1500ms (timer di-reset tiap ketikan)
   useEffect(() => {
     if (loading || saving || !isDirty) return;
-    const t = setTimeout(() => { saveAll(); }, 800);
+    const t = setTimeout(() => { saveAll(); }, 1500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, loading]);
-
-
-  function ItemRow({ item, depth }: { item: Item; depth: number }) {
-    const isItemDirty = dirtyIds.includes(item.id);
-    return (
-      <div className="space-y-2">
-        <div
-          className={"flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 border rounded-md bg-card " + (isItemDirty ? "border-primary/50" : "")}
-          style={{ marginLeft: depth * (typeof window !== "undefined" && window.innerWidth < 640 ? 12 : 24) }}
-        >
-          {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted-foreground shrink-0" />}
-          <div className="flex flex-col gap-0.5 shrink-0">
-            <button onClick={() => move(item, -1)} className="hover:text-primary"><ChevronUp className="h-3 w-3" /></button>
-            <button onClick={() => move(item, 1)} className="hover:text-primary"><ChevronDown className="h-3 w-3" /></button>
-          </div>
-          <Input
-            value={item.label}
-            onChange={(e) => patchLocal(item.id, { label: e.target.value })}
-            placeholder="Label"
-            className="flex-1 min-w-[140px]"
-          />
-          <Input
-            value={item.href}
-            onChange={(e) => patchLocal(item.id, { href: e.target.value })}
-            placeholder="#anchor atau /p/slug"
-            className="flex-1 min-w-[140px] font-mono text-xs"
-          />
-          <div className="flex items-center gap-1 ml-auto">
-            <Switch
-              checked={item.is_active}
-              onCheckedChange={(v) => patchLocal(item.id, { is_active: v })}
-            />
-            {depth === 0 && (
-              <Button size="sm" variant="outline" onClick={() => addItem(item.id)} title="Tambah submenu">
-                <Plus className="h-3 w-3" />
-              </Button>
-            )}
-            <Button size="sm" variant="ghost" onClick={() => remove(item.id)}>
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        </div>
-        {childrenOf(item.id).map((c) => <ItemRow key={c.id} item={c} depth={depth + 1} />)}
-      </div>
-    );
-  }
 
   const statusBadge = saveStatus === "saving" ? (
     <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Menyimpan...</span>
@@ -243,9 +288,7 @@ function MenuAdmin() {
         </div>
       </div>
 
-
       <Card data-tour="menu-list">
-
         <CardContent className="py-4">
           {loading ? (
             <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
@@ -255,7 +298,21 @@ function MenuAdmin() {
             </div>
           ) : (
             <div className="space-y-2">
-              {roots.map((r) => <ItemRow key={r.id} item={r} depth={0} />)}
+              {roots.map((r) => (
+                <ItemRow
+                  key={r.id}
+                  item={r}
+                  depth={0}
+                  dirty={dirtyIds.includes(r.id)}
+                  children={childrenOf(r.id)}
+                  childrenOf={childrenOf}
+                  dirtyIds={dirtyIds}
+                  onPatch={patchLocal}
+                  onMove={move}
+                  onAdd={addItem}
+                  onRemove={remove}
+                />
+              ))}
             </div>
           )}
         </CardContent>
