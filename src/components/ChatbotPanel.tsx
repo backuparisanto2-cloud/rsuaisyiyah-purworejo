@@ -188,7 +188,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
       <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-secondary shrink-0">
           <span
-            className="absolute inset-0"
+            className="absolute inset-0 scale-[0.85] origin-center"
             aria-label={`${name} - ekspresi ${frame + 1}`}
             style={{
               backgroundImage: `url(${sprite.url})`,
