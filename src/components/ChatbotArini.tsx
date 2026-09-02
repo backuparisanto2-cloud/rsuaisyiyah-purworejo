@@ -149,10 +149,9 @@ export default function ChatbotArini() {
                 backgroundSize: `${FRAMES * 100}% 100%`,
                 backgroundPosition: `${(frame / (FRAMES - 1)) * 100}% center`,
                 backgroundRepeat: "no-repeat",
-                transform: "scale(0.85)",
-                transformOrigin: "center",
               }}
             />
+
           </span>
           <span className="rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground shadow">
             Tanya Aisha
