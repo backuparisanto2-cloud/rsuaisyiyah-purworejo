@@ -142,13 +142,15 @@ export default function ChatbotArini() {
             }`}
           >
             <span
-              className="absolute inset-0 scale-[0.85] origin-center"
+              className="absolute inset-0"
               aria-hidden="true"
               style={{
                 backgroundImage: `url(${sprite.url})`,
                 backgroundSize: `${FRAMES * 100}% 100%`,
                 backgroundPosition: `${(frame / (FRAMES - 1)) * 100}% center`,
                 backgroundRepeat: "no-repeat",
+                transform: "scale(0.85)",
+                transformOrigin: "center",
               }}
             />
           </span>
