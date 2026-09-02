@@ -38,7 +38,7 @@ type RowProps = {
   item: Item;
   depth: number;
   dirty: boolean;
-  children: Item[];
+  childItems: Item[];
   childrenOf: (pid: string) => Item[];
   dirtyIds: string[];
   onPatch: (id: string, patch: Partial<Item>) => void;
@@ -48,7 +48,7 @@ type RowProps = {
 };
 
 const ItemRow = memo(function ItemRow({
-  item, depth, dirty, children, childrenOf, dirtyIds, onPatch, onMove, onAdd, onRemove,
+  item, depth, dirty, childItems, childrenOf, dirtyIds, onPatch, onMove, onAdd, onRemove,
 }: RowProps) {
   return (
     <div className="space-y-2">
@@ -88,13 +88,13 @@ const ItemRow = memo(function ItemRow({
           </Button>
         </div>
       </div>
-      {children.map((c) => (
+      {childItems.map((c) => (
         <ItemRow
           key={c.id}
           item={c}
           depth={depth + 1}
           dirty={dirtyIds.includes(c.id)}
-          children={childrenOf(c.id)}
+          childItems={childrenOf(c.id)}
           childrenOf={childrenOf}
           dirtyIds={dirtyIds}
           onPatch={onPatch}
@@ -304,7 +304,7 @@ function MenuAdmin() {
                   item={r}
                   depth={0}
                   dirty={dirtyIds.includes(r.id)}
-                  children={childrenOf(r.id)}
+                  childItems={childrenOf(r.id)}
                   childrenOf={childrenOf}
                   dirtyIds={dirtyIds}
                   onPatch={patchLocal}
