@@ -195,8 +195,11 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
               backgroundSize: `${FRAMES * 100}% 100%`,
               backgroundPosition: `${(frame / (FRAMES - 1)) * 100}% center`,
               backgroundRepeat: "no-repeat",
+              transform: "scale(0.78)",
+              transformOrigin: "center",
             }}
           />
+
 
         </div>
         <div className="flex-1 min-w-0">
