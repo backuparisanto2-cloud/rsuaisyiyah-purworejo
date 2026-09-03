@@ -149,8 +149,6 @@ export default function ChatbotArini() {
                 backgroundSize: `${FRAMES * 100}% 100%`,
                 backgroundPosition: `${(frame / (FRAMES - 1)) * 100}% center`,
                 backgroundRepeat: "no-repeat",
-                transform: "scale(0.78)",
-                transformOrigin: "center",
               }}
             />
 
