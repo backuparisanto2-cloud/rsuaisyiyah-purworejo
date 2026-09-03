@@ -50,18 +50,6 @@ function IconFor({ k }: { k: string }) {
   }
 }
 
-function bgFor(k: string) {
-  switch (k) {
-    case "whatsapp": return "bg-[#25D366]";
-    case "instagram": return "bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]";
-    case "youtube": return "bg-[#FF0000]";
-    case "tiktok": return "bg-black";
-    case "facebook": return "bg-[#1877F2]";
-    case "accessibility": return "bg-secondary";
-    default: return "bg-primary";
-  }
-}
-
 function hrefFor(r: Row): string | null {
   if (r.key === "whatsapp") {
     const digits = (r.url || "").replace(/\D/g, "");
@@ -115,7 +103,7 @@ export default function SideButtons() {
       style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}
     >
       {rows.map((r) => {
-        const common = `${bgFor(r.key)} h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/70 hover:scale-110 transition-transform`;
+        const common = `bg-black/50 backdrop-blur-md h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform`;
         if (r.key === "accessibility") {
           return (
             <button
