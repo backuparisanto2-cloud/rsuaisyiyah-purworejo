@@ -253,8 +253,9 @@ function HomePage() {
         if (light && idx > 0) {
           return <LazySection key={s.key} minHeight={500}>{node}</LazySection>;
         }
-        return node;
+        return <ParallaxSection key={s.key}>{node}</ParallaxSection>;
       })}
+
 
       <Footer />
     </div>
