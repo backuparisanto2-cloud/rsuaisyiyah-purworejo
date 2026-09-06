@@ -1,10 +1,28 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useLightMode } from "@/hooks/use-light-mode";
 
 /**
  * Reveals its children with a light parallax-style rise + fade when scrolled into view.
- * Runs once per section. Disabled on low-end devices and for reduced-motion users.
+ * Runs once per section.
+ * - Genuinely weak devices (reduced motion, save-data, slow network, low CPU/RAM)
+ *   get no animation at all: content renders immediately.
+ * - Small screens keep the effect, but with a shorter distance and duration.
  */
+
+function detectCapability(): "off" | "light" | "full" {
+  if (typeof window === "undefined") return "off";
+  const nav = navigator as Navigator & {
+    deviceMemory?: number;
+    connection?: { saveData?: boolean; effectiveType?: string };
+  };
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const saveData = nav.connection?.saveData === true;
+  const slowNet = ["slow-2g", "2g", "3g"].includes(nav.connection?.effectiveType ?? "");
+  const lowCpu = (nav.hardwareConcurrency ?? 8) <= 4;
+  const lowMem = (nav.deviceMemory ?? 8) <= 4;
+  if (reducedMotion || saveData || slowNet || lowCpu || lowMem) return "off";
+  return window.innerWidth < 768 ? "light" : "full";
+}
+
 export default function ParallaxSection({
   children,
   delay = 0,
@@ -12,20 +30,20 @@ export default function ParallaxSection({
   children: ReactNode;
   delay?: number;
 }) {
-  const light = useLightMode();
   const ref = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<"off" | "light" | "full">("full");
+  const [ready, setReady] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (light) {
-      setVisible(true);
-      return;
-    }
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(true);
-      return;
-    }
-    if (visible || !ref.current) return;
+    const m = detectCapability();
+    setMode(m);
+    setReady(true);
+    if (m === "off") setVisible(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready || mode === "off" || visible || !ref.current) return;
     if (typeof IntersectionObserver === "undefined") {
       setVisible(true);
       return;
@@ -37,21 +55,28 @@ export default function ParallaxSection({
           io.disconnect();
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      { threshold: 0.08, rootMargin: "0px 0px -6% 0px" },
     );
     io.observe(ref.current);
     return () => io.disconnect();
-  }, [light, visible]);
+  }, [ready, mode, visible]);
 
-  if (light) return <>{children}</>;
+  if (ready && mode === "off") return <>{children}</>;
+
+  const distance = mode === "light" ? 14 : 26;
+  const duration = mode === "light" ? 420 : 650;
 
   return (
     <div
       ref={ref}
-      className={`parallax-section transition-[opacity,transform] duration-700 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-      }`}
-      style={{ transitionDelay: visible && delay ? `${delay}ms` : undefined, willChange: visible ? undefined : "opacity, transform" }}
+      className="parallax-section"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translate3d(0,0,0)" : `translate3d(0,${distance}px,0)`,
+        transition: `opacity ${duration}ms ease-out, transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+        transitionDelay: visible && delay ? `${delay}ms` : undefined,
+        willChange: visible ? "auto" : "opacity, transform",
+      }}
     >
       {children}
     </div>
