@@ -20,6 +20,7 @@ import Footer from "@/components/Footer";
 import logo from "@/assets/logo-hero.png";
 import LazySection from "@/components/LazySection";
 import RingkasanSection from "@/components/RingkasanSection";
+import ParallaxSection from "@/components/ParallaxSection";
 import { useLightMode } from "@/hooks/use-light-mode";
 
 export const Route = createFileRoute("/")({
@@ -253,8 +254,9 @@ function HomePage() {
         if (light && idx > 0) {
           return <LazySection key={s.key} minHeight={500}>{node}</LazySection>;
         }
-        return node;
+        return <ParallaxSection key={s.key}>{node}</ParallaxSection>;
       })}
+
 
       <Footer />
     </div>
