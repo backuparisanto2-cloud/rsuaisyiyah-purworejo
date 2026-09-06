@@ -200,6 +200,7 @@ html.a11y-big-cursor, html.a11y-big-cursor * {
   .animate-float,
   .animate-bounce,
   .shine-text { animation: none !important; }
+  .parallax-section { opacity: 1 !important; transform: none !important; }
   *,
   *::before,
   *::after { transition-duration: 0.001ms !important; }
