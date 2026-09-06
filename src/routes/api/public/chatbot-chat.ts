@@ -150,6 +150,49 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
     }
   }
 
+  if (about) {
+    lines.push("\n[TENTANG KAMI] (tautan: /#tentang)");
+    lines.push(`${about.title}${about.subtitle ? ` — ${about.subtitle}` : ""}`);
+    if (about.body) lines.push(stripHtml(about.body).slice(0, 1500));
+  }
+
+  if (services?.length) {
+    lines.push("\n[LAYANAN] (tautan: /#layanan)");
+    for (const s of services) lines.push(`- ${s.title}: ${stripHtml(s.content ?? "").slice(0, 300)}`);
+  }
+
+  if (faqs?.length) {
+    lines.push("\n[FAQ]");
+    for (const f of faqs) lines.push(`- T: ${f.question}\n  J: ${stripHtml(f.answer ?? "").slice(0, 400)}`);
+  }
+
+  if (summaries?.length) {
+    lines.push("\n[RINGKASAN BERANDA]");
+    for (const s of summaries)
+      lines.push(`- ${s.title}: ${stripHtml(s.summary ?? "").slice(0, 300)}${s.cta_href ? ` (tautan: ${s.cta_href})` : ""}`);
+  }
+
+  if (menus?.length) {
+    lines.push("\n[MENU NAVIGASI SITUS] (label → tautan)");
+    for (const m of menus) lines.push(`- ${m.label} → ${m.href}`);
+  }
+
+  if (pages?.length) {
+    lines.push("\n[DAFTAR HALAMAN WEBSITE] (semua tautan relatif, boleh dipakai dalam jawaban)");
+    for (const p of pages) lines.push(`- ${p.title} → /p/${p.slug}${p.meta_description ? ` — ${p.meta_description}` : ""}`);
+
+    // Include the full text of the pages most relevant to the question.
+    const relevant = scoreKnowledge(
+      userQuery,
+      pages.map((p) => ({ title: p.title, content: `${p.meta_description ?? ""} ${stripHtml(p.content ?? "")}`, slug: p.slug })) as never,
+      3
+    ) as unknown as { title: string; content: string; slug: string }[];
+    if (relevant.length) {
+      lines.push("\n[ISI HALAMAN TERKAIT]");
+      for (const p of relevant) lines.push(`### ${p.title} (/p/${p.slug})\n${p.content.slice(0, 2500)}`);
+    }
+  }
+
   if (top.length) {
     lines.push("\n[BASIS PENGETAHUAN TERKAIT]");
     for (const k of top) lines.push(`• ${k.title}\n  ${k.content}`);
