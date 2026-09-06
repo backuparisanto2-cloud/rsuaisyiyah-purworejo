@@ -49,16 +49,49 @@ function scoreKnowledge(query: string, items: { title: string; content: string }
   return top.length ? top : items.slice(0, Math.min(3, items.length));
 }
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function buildSystemContext(userQuery: string, apiKey: string) {
-  const [{ data: settings }, { data: kbAll }, { data: contact }, { data: visiting }, { data: doctors }, { data: schedules }] =
-    await Promise.all([
-      supabaseAdmin.from("chatbot_settings").select("*").maybeSingle(),
-      supabaseAdmin.from("chatbot_knowledge").select("title,content,category").eq("is_active", true),
-      supabaseAdmin.from("contact_settings").select("whatsapp,phone,address,email,instagram").maybeSingle(),
-      supabaseAdmin.from("visiting_hours").select("label,time_range").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("doctors").select("id,name,specialty").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("doctor_schedules").select("doctor_id,day_of_week,time_start,time_end,poli"),
-    ]);
+  const [
+    { data: settings },
+    { data: kbAll },
+    { data: contact },
+    { data: visiting },
+    { data: doctors },
+    { data: schedules },
+    { data: pages },
+    { data: menus },
+    { data: services },
+    { data: faqs },
+    { data: about },
+    { data: summaries },
+  ] = await Promise.all([
+    supabaseAdmin.from("chatbot_settings").select("*").maybeSingle(),
+    supabaseAdmin.from("chatbot_knowledge").select("title,content,category").eq("is_active", true),
+    supabaseAdmin.from("contact_settings").select("whatsapp,phone,address,email,instagram").maybeSingle(),
+    supabaseAdmin.from("visiting_hours").select("label,time_range").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("doctors").select("id,name,specialty").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("doctor_schedules").select("doctor_id,day_of_week,time_start,time_end,poli"),
+    supabaseAdmin.from("custom_pages").select("title,slug,meta_description,content").eq("is_published", true),
+    supabaseAdmin.from("menu_items").select("label,href,parent_id,display_order").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("services").select("title,content").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("faqs").select("question,answer").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("about_page").select("title,subtitle,body").maybeSingle(),
+    supabaseAdmin.from("home_summary_sections").select("title,summary,cta_href,cta_label").eq("is_active", true).order("display_order"),
+  ]);
 
   // Try semantic match first; fall back to keyword scoring if it fails or returns nothing.
   let top: { title: string; content: string; category?: string | null }[] = [];
