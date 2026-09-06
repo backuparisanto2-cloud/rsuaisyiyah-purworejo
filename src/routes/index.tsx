@@ -252,10 +252,15 @@ function HomePage() {
         if (!node) return null;
         // On light devices, defer below-the-fold sections until they near the viewport.
         if (light && idx > 0) {
-          return <LazySection key={s.key} minHeight={500}>{node}</LazySection>;
+          return (
+            <LazySection key={s.key} minHeight={500}>
+              <ParallaxSection>{node}</ParallaxSection>
+            </LazySection>
+          );
         }
         return <ParallaxSection key={s.key}>{node}</ParallaxSection>;
       })}
+
 
 
       <Footer />
