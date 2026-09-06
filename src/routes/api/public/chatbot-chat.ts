@@ -49,16 +49,49 @@ function scoreKnowledge(query: string, items: { title: string; content: string }
   return top.length ? top : items.slice(0, Math.min(3, items.length));
 }
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function buildSystemContext(userQuery: string, apiKey: string) {
-  const [{ data: settings }, { data: kbAll }, { data: contact }, { data: visiting }, { data: doctors }, { data: schedules }] =
-    await Promise.all([
-      supabaseAdmin.from("chatbot_settings").select("*").maybeSingle(),
-      supabaseAdmin.from("chatbot_knowledge").select("title,content,category").eq("is_active", true),
-      supabaseAdmin.from("contact_settings").select("whatsapp,phone,address,email,instagram").maybeSingle(),
-      supabaseAdmin.from("visiting_hours").select("label,time_range").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("doctors").select("id,name,specialty").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("doctor_schedules").select("doctor_id,day_of_week,time_start,time_end,poli"),
-    ]);
+  const [
+    { data: settings },
+    { data: kbAll },
+    { data: contact },
+    { data: visiting },
+    { data: doctors },
+    { data: schedules },
+    { data: pages },
+    { data: menus },
+    { data: services },
+    { data: faqs },
+    { data: about },
+    { data: summaries },
+  ] = await Promise.all([
+    supabaseAdmin.from("chatbot_settings").select("*").maybeSingle(),
+    supabaseAdmin.from("chatbot_knowledge").select("title,content,category").eq("is_active", true),
+    supabaseAdmin.from("contact_settings").select("whatsapp,phone,address,email,instagram").maybeSingle(),
+    supabaseAdmin.from("visiting_hours").select("label,time_range").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("doctors").select("id,name,specialty").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("doctor_schedules").select("doctor_id,day_of_week,time_start,time_end,poli"),
+    supabaseAdmin.from("custom_pages").select("title,slug,meta_description,content").eq("is_published", true),
+    supabaseAdmin.from("menu_items").select("label,href,parent_id,display_order").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("services").select("title,content").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("faqs").select("question,answer").eq("is_active", true).order("display_order"),
+    supabaseAdmin.from("about_page").select("title,subtitle,body").maybeSingle(),
+    supabaseAdmin.from("home_summary_sections").select("title,summary,cta_href,cta_label").eq("is_active", true).order("display_order"),
+  ]);
 
   // Try semantic match first; fall back to keyword scoring if it fails or returns nothing.
   let top: { title: string; content: string; category?: string | null }[] = [];
@@ -114,6 +147,49 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
         ? sch.map((s) => `${DAYS[s.day_of_week] ?? s.day_of_week} ${s.time_start.slice(0, 5)}-${s.time_end.slice(0, 5)}${s.poli ? ` (${s.poli})` : ""}`).join("; ")
         : "jadwal belum tercatat";
       lines.push(`- ${d.name} — ${d.specialty}: ${schStr}`);
+    }
+  }
+
+  if (about) {
+    lines.push("\n[TENTANG KAMI] (tautan: /#tentang)");
+    lines.push(`${about.title}${about.subtitle ? ` — ${about.subtitle}` : ""}`);
+    if (about.body) lines.push(stripHtml(about.body).slice(0, 1500));
+  }
+
+  if (services?.length) {
+    lines.push("\n[LAYANAN] (tautan: /#layanan)");
+    for (const s of services) lines.push(`- ${s.title}: ${stripHtml(s.content ?? "").slice(0, 300)}`);
+  }
+
+  if (faqs?.length) {
+    lines.push("\n[FAQ]");
+    for (const f of faqs) lines.push(`- T: ${f.question}\n  J: ${stripHtml(f.answer ?? "").slice(0, 400)}`);
+  }
+
+  if (summaries?.length) {
+    lines.push("\n[RINGKASAN BERANDA]");
+    for (const s of summaries)
+      lines.push(`- ${s.title}: ${stripHtml(s.summary ?? "").slice(0, 300)}${s.cta_href ? ` (tautan: ${s.cta_href})` : ""}`);
+  }
+
+  if (menus?.length) {
+    lines.push("\n[MENU NAVIGASI SITUS] (label → tautan)");
+    for (const m of menus) lines.push(`- ${m.label} → ${m.href}`);
+  }
+
+  if (pages?.length) {
+    lines.push("\n[DAFTAR HALAMAN WEBSITE] (semua tautan relatif, boleh dipakai dalam jawaban)");
+    for (const p of pages) lines.push(`- ${p.title} → /p/${p.slug}${p.meta_description ? ` — ${p.meta_description}` : ""}`);
+
+    // Include the full text of the pages most relevant to the question.
+    const relevant = scoreKnowledge(
+      userQuery,
+      pages.map((p) => ({ title: p.title, content: `${p.meta_description ?? ""} ${stripHtml(p.content ?? "")}`, slug: p.slug })) as never,
+      3
+    ) as unknown as { title: string; content: string; slug: string }[];
+    if (relevant.length) {
+      lines.push("\n[ISI HALAMAN TERKAIT]");
+      for (const p of relevant) lines.push(`### ${p.title} (/p/${p.slug})\n${p.content.slice(0, 2500)}`);
     }
   }
 
