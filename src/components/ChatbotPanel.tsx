@@ -13,6 +13,7 @@ const FALLBACK_QUICK = ["Jadwal dokter", "Pendaftaran online", "Layanan unggulan
 const DEFAULT_GREETING = "Assalamu'alaikum 👋 Saya Arini, asisten virtual RSU Aisyiyah Purworejo. Ada yang bisa saya bantu?";
 
 export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [name, setName] = useState("Arini");
   const [frame, setFrame] = useState(0);
