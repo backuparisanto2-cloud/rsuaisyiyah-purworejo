@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, RotateCcw, Square, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { useRouter } from "@tanstack/react-router";
 import sprite from "@/assets/aisha-sprite.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
