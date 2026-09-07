@@ -121,60 +121,8 @@ export const syncKnowledgeFromWebsite = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY belum dikonfigurasi");
-
-    // 1) Aggregate from existing DB tables (structured, reliable).
-    const [about, services, faqs, visiting, doctors, contact] = await Promise.all([
-      supabaseAdmin.from("about_page").select("title,subtitle,body").maybeSingle(),
-      supabaseAdmin.from("services").select("title,content").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("faqs").select("question,answer").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("visiting_hours").select("label,time_range").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("doctors").select("name,specialty").eq("is_active", true).order("display_order"),
-      supabaseAdmin.from("contact_settings").select("whatsapp,phone,address,email,instagram,footer_text").maybeSingle(),
-    ]);
-
-    const entries: { title: string; content: string; source: string; source_url: string | null; is_active: boolean }[] = [];
-    const push = (title: string, content: string, source_url: string | null = SITE_URL) =>
-      entries.push({ title, content, source: "website", source_url, is_active: data.isActive });
-
-    if (about.data) push(`Tentang: ${about.data.title}`, `${about.data.subtitle}\n\n${about.data.body}`);
-    for (const s of services.data ?? []) push(`Layanan: ${s.title}`, s.content || s.title);
-    for (const f of faqs.data ?? []) push(`FAQ: ${f.question}`, f.answer);
-    if ((visiting.data ?? []).length)
-      push("Jam Besuk", (visiting.data ?? []).map((v) => `${v.label}: ${v.time_range}`).join("\n"));
-    if ((doctors.data ?? []).length)
-      push("Daftar Dokter", (doctors.data ?? []).map((d) => `- ${d.name} (${d.specialty})`).join("\n"));
-    if (contact.data) {
-      const c = contact.data;
-      push("Kontak Rumah Sakit",
-        `WhatsApp: ${c.whatsapp}\nTelepon: ${c.phone}\nEmail: ${c.email}\nAlamat: ${c.address}\nInstagram: ${c.instagram}`);
-    }
-
-    // 2) Fetch the live website and let AI extract additional Q&A-style entries.
-    try {
-      const res = await fetch(SITE_URL, { headers: { "user-agent": "ChatbotKnowledgeSync/1.0" } });
-      if (res.ok) {
-        const text = htmlToText(await res.text()).slice(0, 12000);
-        if (text.length > 200) {
-          const parsed = await callLovableAI(
-            apiKey,
-            "Anda mengekstrak basis pengetahuan chatbot dari konten website rumah sakit. Balas hanya JSON valid berbentuk {\"entries\":[{\"title\":\"...\",\"content\":\"...\"}]}. Setiap entri singkat (1-3 kalimat), faktual, dalam Bahasa Indonesia, dan unik (tidak duplikat).",
-            `Konten website RSU Aisyiyah Purworejo:\n\n${text}\n\nBuat 6-10 entri pengetahuan paling berguna untuk pasien/pengunjung.`
-          );
-          for (const e of parsed.entries ?? []) {
-            if (e?.title && e?.content) push(`Web: ${e.title}`, e.content);
-          }
-        }
-      }
-    } catch (e) {
-      console.warn("Website fetch failed:", (e as Error).message);
-    }
-
-    await supabaseAdmin.from("chatbot_knowledge").delete().eq("source", "website");
-    if (entries.length) {
-      const { error } = await supabaseAdmin.from("chatbot_knowledge").insert(entries);
-      if (error) throw new Error(error.message);
-    }
-    return { count: entries.length };
+    const { runKnowledgeSync } = await import("@/lib/chatbot-sync.server");
+    return await runKnowledgeSync(apiKey, data.isActive);
   });
 
 /**
