@@ -265,7 +265,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
                   </div>
                 ) : m.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
-                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                    <ReactMarkdown components={mdComponents}>{m.content}</ReactMarkdown>
                   </div>
                 ) : (
                   <span className="whitespace-pre-wrap">{m.content}</span>
