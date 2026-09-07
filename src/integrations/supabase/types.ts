@@ -648,6 +648,27 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_sync_state: {
+        Row: {
+          dirty: boolean
+          id: boolean
+          last_synced_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          dirty?: boolean
+          id?: boolean
+          last_synced_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          dirty?: boolean
+          id?: boolean
+          last_synced_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           created_at: string
