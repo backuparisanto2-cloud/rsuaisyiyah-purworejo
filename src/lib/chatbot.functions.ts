@@ -3,7 +3,7 @@ import { requireSupabaseAdmin } from "@/integrations/supabase/admin-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
-const SITE_URL = "https://rsuaisyiyah-purworejo.lovable.app";
+
 const EMBEDDING_MODEL = "openai/text-embedding-3-small"; // 1536 dims
 const EMBEDDING_DIMS = 1536;
 
