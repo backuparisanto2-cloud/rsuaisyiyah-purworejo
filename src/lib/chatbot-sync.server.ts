@@ -101,7 +101,7 @@ export async function runKnowledgeSync(apiKey: string, isActive = true) {
       push(`Halaman: ${p.title}`, `Halaman "${p.title}" tersedia di ${path}`, "halaman", `${SITE_URL}${path}`);
       continue;
     }
-    chunks.forEach((chunk, i) => {
+    chunks.forEach((chunk: string, i: number) => {
       push(
         chunks.length === 1 ? `Halaman: ${p.title}` : `Halaman: ${p.title} — bagian ${i + 1}`,
         `${chunk}\n\n(Tautan halaman: ${path})`,

@@ -7,7 +7,7 @@ const SITE_URL = "https://rsuaisyiyah-purworejo.lovable.app";
 const EMBEDDING_MODEL = "openai/text-embedding-3-small"; // 1536 dims
 const EMBEDDING_DIMS = 1536;
 
-function htmlToText(html: string): string {
+export function htmlToText(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
@@ -63,7 +63,7 @@ export async function embedTexts(apiKey: string, inputs: string[]): Promise<numb
   return (j.data ?? []).map((d: { embedding: number[] }) => d.embedding);
 }
 
-function chunkText(text: string, target = 800, overlap = 80): string[] {
+export function chunkText(text: string, target = 800, overlap = 80): string[] {
   const cleaned = text.replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").trim();
   if (!cleaned) return [];
   // Split by paragraphs first
