@@ -238,6 +238,14 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
           });
         }
 
+        // Refresh knowledge first when site content changed (throttled internally).
+        try {
+          const { maybeAutoSync } = await import("@/lib/chatbot-sync.server");
+          await maybeAutoSync(apiKey);
+        } catch (e) {
+          console.warn("auto sync skipped:", (e as Error).message);
+        }
+
         const lastUser = [...body.messages].reverse().find((m) => m.role === "user");
         const { settings, contextText } = await buildSystemContext(lastUser?.content ?? "", apiKey);
 
@@ -267,6 +275,16 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
             stream: true,
             messages: [
               { role: "system", content: persona },
+              {
+                role: "system",
+                content:
+                  "Format jawaban dengan Markdown (tebal, daftar bernomor, tautan). " +
+                  "Selalu sisipkan tautan halaman yang relevan bila tersedia dalam konteks, " +
+                  "misalnya [Rawat Inap](/p/rawat-inap) atau [Layanan](/#layanan). " +
+                  "Gunakan path relatif situs (diawali / atau #) untuk halaman internal, " +
+                  "dan URL lengkap https:// hanya untuk sumber di luar situs ini. " +
+                  "Jangan mengarang tautan yang tidak ada di konteks.",
+              },
               { role: "system", content: contextText },
               ...trimmed,
             ],

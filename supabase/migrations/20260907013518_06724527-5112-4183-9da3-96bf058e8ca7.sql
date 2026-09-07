@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.mark_knowledge_dirty() FROM PUBLIC, anon, authenticated;

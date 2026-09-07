@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, RotateCcw, Square, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { useRouter } from "@tanstack/react-router";
 import sprite from "@/assets/aisha-sprite.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,6 +13,7 @@ const FALLBACK_QUICK = ["Jadwal dokter", "Pendaftaran online", "Layanan unggulan
 const DEFAULT_GREETING = "Assalamu'alaikum 👋 Saya Arini, asisten virtual RSU Aisyiyah Purworejo. Ada yang bisa saya bantu?";
 
 export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [name, setName] = useState("Arini");
   const [frame, setFrame] = useState(0);
@@ -67,6 +69,39 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, streaming]);
+
+  const handleLink = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      const isInternal = href.startsWith("/") || href.startsWith("#");
+      if (!isInternal) return; // external / tel: / wa.me open in a new tab
+      e.preventDefault();
+      if (href.startsWith("#")) {
+        document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        void router.navigate({ href });
+      }
+      onClose();
+    },
+    [router, onClose],
+  );
+
+  const mdComponents = {
+    a: ({ href, children, ...rest }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+      const url = href ?? "#";
+      const isInternal = url.startsWith("/") || url.startsWith("#");
+      return (
+        <a
+          {...rest}
+          href={url}
+          onClick={(e) => handleLink(e, url)}
+          {...(isInternal ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+          className="underline underline-offset-2 font-medium"
+        >
+          {children}
+        </a>
+      );
+    },
+  };
 
   const stopStream = useCallback(() => {
     abortRef.current?.abort();
@@ -230,7 +265,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
                   </div>
                 ) : m.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
-                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                    <ReactMarkdown components={mdComponents}>{m.content}</ReactMarkdown>
                   </div>
                 ) : (
                   <span className="whitespace-pre-wrap">{m.content}</span>
