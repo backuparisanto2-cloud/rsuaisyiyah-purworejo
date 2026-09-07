@@ -238,6 +238,14 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
           });
         }
 
+        // Refresh knowledge first when site content changed (throttled internally).
+        try {
+          const { maybeAutoSync } = await import("@/lib/chatbot-sync.server");
+          await maybeAutoSync(apiKey);
+        } catch (e) {
+          console.warn("auto sync skipped:", (e as Error).message);
+        }
+
         const lastUser = [...body.messages].reverse().find((m) => m.role === "user");
         const { settings, contextText } = await buildSystemContext(lastUser?.content ?? "", apiKey);
 
