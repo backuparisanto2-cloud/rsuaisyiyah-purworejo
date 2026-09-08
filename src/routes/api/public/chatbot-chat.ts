@@ -120,10 +120,15 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
   lines.push("KONTEKS RSU AISYIYAH PURWOREJO (gunakan hanya info ini untuk fakta spesifik):");
 
   if (contact) {
+    const waDigits = (contact.whatsapp ?? "").replace(/\D/g, "").replace(/^0/, "62");
+    const telDigits = (contact.phone ?? "").replace(/[^\d+]/g, "");
     lines.push("\n[KONTAK]");
-    if (contact.whatsapp) lines.push(`WhatsApp CS: ${contact.whatsapp}`);
-    if (contact.phone) lines.push(`Telepon: ${contact.phone}`);
-    if (contact.email) lines.push(`Email: ${contact.email}`);
+    if (contact.whatsapp && waDigits)
+      lines.push(`WhatsApp CS: ${contact.whatsapp} (tautan: https://wa.me/${waDigits})`);
+    if (contact.phone && telDigits)
+      lines.push(`Telepon: ${contact.phone} (tautan: tel:${telDigits})`);
+    if (contact.email)
+      lines.push(`Email: ${contact.email} (tautan: mailto:${contact.email.trim()})`);
     if (contact.address) lines.push(`Alamat: ${contact.address}`);
     if (contact.instagram) lines.push(`Instagram: ${contact.instagram}`);
   }
@@ -283,6 +288,10 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
                   "misalnya [Rawat Inap](/p/rawat-inap) atau [Layanan](/#layanan). " +
                   "Gunakan path relatif situs (diawali / atau #) untuk halaman internal, " +
                   "dan URL lengkap https:// hanya untuk sumber di luar situs ini. " +
+                  "Setiap kali menyebut nomor telepon, WhatsApp, atau email, WAJIB tulis sebagai tautan Markdown " +
+                  "yang bisa diklik, bukan teks polos: telepon [0896-4671-0859](tel:089646710859), " +
+                  "WhatsApp [Chat CS](https://wa.me/6289646710859), email [info@rs.id](mailto:info@rs.id). " +
+                  "Pakai tautan siap pakai yang tercantum di blok [KONTAK]. " +
                   "Jangan mengarang tautan yang tidak ada di konteks.",
               },
               { role: "system", content: contextText },

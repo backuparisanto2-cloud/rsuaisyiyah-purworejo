@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, RotateCcw, Square, X } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import { useRouter } from "@tanstack/react-router";
 import sprite from "@/assets/aisha-sprite.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,7 +73,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
   const handleLink = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
       const isInternal = href.startsWith("/") || href.startsWith("#");
-      if (!isInternal) return; // external / tel: / wa.me open in a new tab
+      if (!isInternal) return; // external / tel: / mailto: / wa.me handled natively
       e.preventDefault();
       if (href.startsWith("#")) {
         document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
@@ -89,12 +89,13 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
     a: ({ href, children, ...rest }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
       const url = href ?? "#";
       const isInternal = url.startsWith("/") || url.startsWith("#");
+      const isDirect = url.startsWith("tel:") || url.startsWith("mailto:"); // dialer/email open directly
       return (
         <a
           {...rest}
           href={url}
           onClick={(e) => handleLink(e, url)}
-          {...(isInternal ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+          {...(isInternal || isDirect ? {} : { target: "_blank", rel: "noopener noreferrer" })}
           className="underline underline-offset-2 font-medium"
         >
           {children}
@@ -265,7 +266,12 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
                   </div>
                 ) : m.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
-                    <ReactMarkdown components={mdComponents}>{m.content}</ReactMarkdown>
+                    <ReactMarkdown
+                      components={mdComponents}
+                      urlTransform={(url) => (url.startsWith("tel:") ? url : defaultUrlTransform(url))}
+                    >
+                      {m.content}
+                    </ReactMarkdown>
                   </div>
                 ) : (
                   <span className="whitespace-pre-wrap">{m.content}</span>
