@@ -22,6 +22,18 @@ import LazySection from "@/components/LazySection";
 import RingkasanSection from "@/components/RingkasanSection";
 import ParallaxSection from "@/components/ParallaxSection";
 import { useLightMode } from "@/hooks/use-light-mode";
+import { scrollToAnchor } from "@/lib/scroll-to-anchor";
+
+const SECTION_ANCHORS: Record<string, string> = {
+  tentang: "tentang",
+  layanan: "layanan",
+  berita: "berita",
+  dokter: "jadwal",
+  instagram: "instagram",
+  mitra: "mitra",
+  faq: "faq",
+  kontak: "kontak",
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -194,6 +206,14 @@ function HomePage() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
+  // Deep links (/#jadwal) and hash changes: wait for lazy sections before scrolling.
+  useEffect(() => {
+    const jump = () => { if (window.location.hash) scrollToAnchor(window.location.hash); };
+    const t = window.setTimeout(jump, 300);
+    window.addEventListener("hashchange", jump);
+    return () => { window.clearTimeout(t); window.removeEventListener("hashchange", jump); };
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -253,7 +273,7 @@ function HomePage() {
         // On light devices, defer below-the-fold sections until they near the viewport.
         if (light && idx > 0) {
           return (
-            <LazySection key={s.key} minHeight={500}>
+            <LazySection key={s.key} minHeight={500} anchorId={SECTION_ANCHORS[s.key]}>
               <ParallaxSection>{node}</ParallaxSection>
             </LazySection>
           );

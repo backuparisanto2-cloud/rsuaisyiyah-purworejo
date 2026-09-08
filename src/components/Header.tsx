@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo-pku.png";
 import { supabase } from "@/integrations/supabase/client";
+import { scrollToAnchor } from "@/lib/scroll-to-anchor";
 
 type MenuItem = {
   id: string;
@@ -64,11 +65,20 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
   // so links jump to the section on the home page.
   const hrefFor = (h: string) => (pageId && h.startsWith("#") ? `/${h}` : h);
 
+  // Same-page anchors: scroll manually so lazily rendered sections are awaited.
+  const onNavClick = (e: React.MouseEvent<HTMLAnchorElement>, rawHref: string) => {
+    setOpen(false);
+    if (pageId || !rawHref.startsWith("#")) return;
+    e.preventDefault();
+    window.history.replaceState(null, "", rawHref);
+    scrollToAnchor(rawHref);
+  };
+
 
   return (
     <header className="fixed top-0 inset-x-0 z-30 bg-primary/90 backdrop-blur-md text-primary-foreground shadow-md">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 h-24 flex items-center gap-4">
-        <a href={pageId ? "/#beranda" : "#beranda"} className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
+        <a href={pageId ? "/#beranda" : "#beranda"} onClick={(e) => onNavClick(e, "#beranda")} className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
           <span className="shrink-0 inline-flex items-center justify-center rounded-full ring-[3px] ring-gold shadow-[0_0_18px_rgba(234,179,8,0.55)]">
             <img src={logo} alt="RSU Aisyiyah Purworejo" className="h-16 w-16 sm:h-20 sm:w-20 object-contain rounded-full" />
           </span>
@@ -86,20 +96,20 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
             const subs = childrenOf(n.id);
             if (subs.length === 0) {
               return (
-                <a key={n.id} href={hrefFor(n.href)} className="px-3 py-2 hover:text-gold transition-colors">
+                <a key={n.id} href={hrefFor(n.href)} onClick={(e) => onNavClick(e, n.href)} className="px-3 py-2 hover:text-gold transition-colors">
                   {n.label.toUpperCase()}
                 </a>
               );
             }
             return (
               <div key={n.id} className="relative group">
-                <a href={hrefFor(n.href)} className="px-3 py-2 hover:text-gold transition-colors inline-flex items-center gap-1">
+                <a href={hrefFor(n.href)} onClick={(e) => onNavClick(e, n.href)} className="px-3 py-2 hover:text-gold transition-colors inline-flex items-center gap-1">
                   {n.label.toUpperCase()}
                   <ChevronDown className="h-3 w-3" />
                 </a>
                 <div className="absolute left-0 top-full hidden group-hover:block bg-primary border border-white/10 shadow-xl min-w-[200px] z-40">
                   {subs.map((s) => (
-                    <a key={s.id} href={hrefFor(s.href)} className="block px-4 py-2 text-xs hover:bg-white/10 hover:text-gold">
+                    <a key={s.id} href={hrefFor(s.href)} onClick={(e) => onNavClick(e, s.href)} className="block px-4 py-2 text-xs hover:bg-white/10 hover:text-gold">
                       {s.label.toUpperCase()}
                     </a>
                   ))}
@@ -131,11 +141,11 @@ export default function Header({ pageId }: { pageId?: string } = {}) {
           <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             {roots.map((n) => (
               <div key={n.id}>
-                <a href={hrefFor(n.href)} onClick={() => setOpen(false)} className="block border-b border-primary-foreground/15 py-4 text-base font-semibold">
+                <a href={hrefFor(n.href)} onClick={(e) => onNavClick(e, n.href)} className="block border-b border-primary-foreground/15 py-4 text-base font-semibold">
                   {n.label.toUpperCase()}
                 </a>
                 {childrenOf(n.id).map((s) => (
-                  <a key={s.id} href={hrefFor(s.href)} onClick={() => setOpen(false)} className="block border-b border-primary-foreground/15 py-3 pl-4 text-sm opacity-90">
+                  <a key={s.id} href={hrefFor(s.href)} onClick={(e) => onNavClick(e, s.href)} className="block border-b border-primary-foreground/15 py-3 pl-4 text-sm opacity-90">
                     → {s.label.toUpperCase()}
                   </a>
                 ))}
