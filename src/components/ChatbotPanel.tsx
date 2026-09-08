@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, RotateCcw, Square, X } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import { useRouter } from "@tanstack/react-router";
 import sprite from "@/assets/aisha-sprite.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
@@ -266,7 +266,12 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
                   </div>
                 ) : m.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
-                    <ReactMarkdown components={mdComponents}>{m.content}</ReactMarkdown>
+                    <ReactMarkdown
+                      components={mdComponents}
+                      urlTransform={(url) => (url.startsWith("tel:") ? url : defaultUrlTransform(url))}
+                    >
+                      {m.content}
+                    </ReactMarkdown>
                   </div>
                 ) : (
                   <span className="whitespace-pre-wrap">{m.content}</span>
