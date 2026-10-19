@@ -279,7 +279,7 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
           });
         }
 
-        const persona = settings?.system_prompt ?? "Anda adalah Arini, asisten virtual RSU Aisyiyah Purworejo. Jawab ringkas dan ramah dalam Bahasa Indonesia.";
+        const persona = settings?.system_prompt ?? DEFAULT_PERSONA;
         const model = settings?.model ?? "google/gemini-3-flash-preview";
         const temperature = typeof settings?.temperature === "number" ? settings.temperature : 0.4;
 
