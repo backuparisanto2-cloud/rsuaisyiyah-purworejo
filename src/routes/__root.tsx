@@ -105,12 +105,29 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
 import ThemeProvider from "@/components/ThemeProvider";
 import VisitorTracker from "@/components/VisitorTracker";
 
+const PARENT_SITE = "https://www.rsaisyiyahpurworejo.com";
+
+function useFrameGuard() {
+  useEffect(() => {
+    const { hostname, pathname, search, hash } = window.location;
+    // Only the published lovable.app URL; skip editor preview, admin & login.
+    if (!hostname.endsWith(".lovable.app") || hostname.startsWith("id-preview--")) return;
+    if (pathname.startsWith("/administrator") || pathname.startsWith("/auth")) return;
+    let framed = true;
+    try { framed = window.self !== window.top; } catch { framed = true; }
+    if (framed) return;
+    window.location.replace(PARENT_SITE + "/" + hash);
+  }, []);
+}
+
 function RootComponent() {
+  useFrameGuard();
   const { queryClient } = Route.useRouteContext();
   const loaderData = Route.useLoaderData();
   return (
