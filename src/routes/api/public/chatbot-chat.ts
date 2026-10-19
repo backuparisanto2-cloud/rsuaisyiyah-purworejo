@@ -34,7 +34,7 @@ const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 function scoreKnowledge(query: string, items: { title: string; content: string }[], topN = 6) {
   const q = query.toLowerCase();
   const tokens = Array.from(new Set(q.split(/\s+/).filter((t) => t.length > 2)));
-  if (!tokens.length) return items.slice(0, topN);
+  if (!tokens.length) return { items: items.slice(0, topN), matched: false };
   const scored = items.map((it) => {
     const hay = `${it.title}\n${it.content}`.toLowerCase();
     let score = 0;
@@ -46,7 +46,9 @@ function scoreKnowledge(query: string, items: { title: string; content: string }
   scored.sort((a, b) => b.score - a.score);
   const top = scored.filter((s) => s.score > 0).slice(0, topN).map((s) => s.it);
   // If nothing matched, fall back to the first few entries so the model still has context.
-  return top.length ? top : items.slice(0, Math.min(3, items.length));
+  return top.length
+    ? { items: top, matched: true }
+    : { items: items.slice(0, Math.min(3, items.length)), matched: false };
 }
 
 function stripHtml(html: string): string {
@@ -95,6 +97,7 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
 
   // Try semantic match first; fall back to keyword scoring if it fails or returns nothing.
   let top: { title: string; content: string; category?: string | null }[] = [];
+  let knowledgeMatched = false;
   if (userQuery.trim().length > 1) {
     try {
       const [vec] = await embedTexts(apiKey, [userQuery]);
@@ -108,13 +111,18 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
           top = matched.map((m: { title: string; content: string; category: string | null }) => ({
             title: m.title, content: m.content, category: m.category,
           }));
+          knowledgeMatched = true;
         }
       }
     } catch (e) {
       console.warn("semantic match failed:", (e as Error).message);
     }
   }
-  if (!top.length) top = scoreKnowledge(userQuery, kbAll ?? []);
+  if (!top.length) {
+    const kw = scoreKnowledge(userQuery, kbAll ?? []);
+    top = kw.items;
+    knowledgeMatched = kw.matched;
+  }
 
   const lines: string[] = [];
   lines.push("KONTEKS RSU AISYIYAH PURWOREJO (gunakan hanya info ini untuk fakta spesifik):");
@@ -191,7 +199,7 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
       userQuery,
       pages.map((p) => ({ title: p.title, content: `${p.meta_description ?? ""} ${stripHtml(p.content ?? "")}`, slug: p.slug })) as never,
       3
-    ) as unknown as { title: string; content: string; slug: string }[];
+    ).items as unknown as { title: string; content: string; slug: string }[];
     if (relevant.length) {
       lines.push("\n[ISI HALAMAN TERKAIT]");
       for (const p of relevant) lines.push(`### ${p.title} (/p/${p.slug})\n${p.content.slice(0, 2500)}`);
@@ -206,6 +214,7 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
   return {
     settings,
     contextText: lines.join("\n"),
+    knowledgeMatched,
   };
 }
 
@@ -252,7 +261,16 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
         }
 
         const lastUser = [...body.messages].reverse().find((m) => m.role === "user");
-        const { settings, contextText } = await buildSystemContext(lastUser?.content ?? "", apiKey);
+        const { settings, contextText, knowledgeMatched } = await buildSystemContext(lastUser?.content ?? "", apiKey);
+
+        // Catat pertanyaan pengunjung (fire-and-forget) agar admin bisa memantau
+        // pertanyaan yang belum terjawab basis pengetahuan.
+        if (lastUser?.content) {
+          void supabaseAdmin
+            .from("chatbot_questions")
+            .insert({ question: lastUser.content.slice(0, 500), had_match: knowledgeMatched })
+            .then(({ error }) => { if (error) console.warn("log question failed:", error.message); });
+        }
 
         if (settings && settings.ai_enabled === false) {
           return new Response(JSON.stringify({ error: "Mode AI sedang dinonaktifkan." }), {
@@ -261,7 +279,7 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
           });
         }
 
-        const persona = settings?.system_prompt ?? "Anda adalah Arini, asisten virtual RSU Aisyiyah Purworejo. Jawab ringkas dan ramah dalam Bahasa Indonesia.";
+        const persona = settings?.system_prompt ?? DEFAULT_PERSONA;
         const model = settings?.model ?? "google/gemini-3-flash-preview";
         const temperature = typeof settings?.temperature === "number" ? settings.temperature : 0.4;
 
