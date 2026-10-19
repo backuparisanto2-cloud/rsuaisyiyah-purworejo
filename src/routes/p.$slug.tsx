@@ -17,7 +17,7 @@ export const Route = createFileRoute("/p/$slug")({
   errorComponent: ({ error }) => (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3">
       <h1 className="text-2xl font-bold">Terjadi kesalahan</h1>
-      <p className="text-sm text-muted-foreground">{error.message}</p>
+      <p className="text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
     </div>
   ),
 });
