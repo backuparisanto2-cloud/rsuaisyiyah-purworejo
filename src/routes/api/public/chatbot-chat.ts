@@ -34,7 +34,7 @@ const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 function scoreKnowledge(query: string, items: { title: string; content: string }[], topN = 6) {
   const q = query.toLowerCase();
   const tokens = Array.from(new Set(q.split(/\s+/).filter((t) => t.length > 2)));
-  if (!tokens.length) return items.slice(0, topN);
+  if (!tokens.length) return { items: items.slice(0, topN), matched: false };
   const scored = items.map((it) => {
     const hay = `${it.title}\n${it.content}`.toLowerCase();
     let score = 0;
@@ -46,7 +46,9 @@ function scoreKnowledge(query: string, items: { title: string; content: string }
   scored.sort((a, b) => b.score - a.score);
   const top = scored.filter((s) => s.score > 0).slice(0, topN).map((s) => s.it);
   // If nothing matched, fall back to the first few entries so the model still has context.
-  return top.length ? top : items.slice(0, Math.min(3, items.length));
+  return top.length
+    ? { items: top, matched: true }
+    : { items: items.slice(0, Math.min(3, items.length)), matched: false };
 }
 
 function stripHtml(html: string): string {
