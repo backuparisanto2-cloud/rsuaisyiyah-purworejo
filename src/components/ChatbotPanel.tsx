@@ -16,19 +16,12 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [input, setInput] = useState("");
   const [name, setName] = useState("Arini");
-  const [frame, setFrame] = useState(0);
-  const FRAMES = 14;
   const [greeting, setGreeting] = useState(DEFAULT_GREETING);
   const [quick, setQuick] = useState<string[]>(FALLBACK_QUICK);
   const [msgs, setMsgs] = useState<Msg[]>([{ role: "assistant", content: DEFAULT_GREETING }]);
   const [streaming, setStreaming] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES), 4000);
-    return () => clearInterval(id);
-  }, []);
 
   useEffect(() => {
     try {

@@ -24,12 +24,6 @@ export default function ChatbotArini() {
   const btnRef = useRef<HTMLButtonElement>(null);
   const dragState = useRef<{ startX: number; startY: number; origX: number; origY: number; moved: boolean } | null>(null);
 
-  useEffect(() => {
-    if (open) return;
-    const id = 0;
-    return () => clearInterval(id);
-  }, [open]);
-
   // Restore saved position on mount
   useEffect(() => {
     try {
