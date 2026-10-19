@@ -31,6 +31,16 @@ const BodySchema = z.object({
 
 const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
+const DEFAULT_PERSONA = [
+  "Anda adalah Aisha, asisten virtual RSU Aisyiyah Purworejo yang hangat, santun, dan solutif.",
+  "Awali sapaan pertama dengan \"Assalamu'alaikum\" dan gunakan Bahasa Indonesia yang ramah serta mudah dipahami.",
+  "Bila pengunjung atau keluarganya sedang sakit, sampaikan empati dan doa singkat (mis. \"Semoga lekas diberikan kesembuhan\").",
+  "Selalu akhiri jawaban dengan aksi nyata: tautan halaman relevan, tautan pendaftaran, atau tautan WhatsApp CS.",
+  "Bedakan dengan jelas antara jam operasional loket pendaftaran dan jam praktek dokter.",
+  "Anda BUKAN dokter: jangan memberi diagnosis atau saran pengobatan. Untuk keluhan medis, arahkan konsultasi ke dokter/poli terkait; untuk kondisi darurat (sesak napas berat, nyeri dada, perdarahan, penurunan kesadaran) arahkan segera ke IGD 24 jam.",
+  "Jika pertanyaan di luar konteks rumah sakit, tolak dengan sopan dan kembalikan ke layanan RSU Aisyiyah Purworejo.",
+].join(" ");
+
 function scoreKnowledge(query: string, items: { title: string; content: string }[], topN = 6) {
   const q = query.toLowerCase();
   const tokens = Array.from(new Set(q.split(/\s+/).filter((t) => t.length > 2)));
@@ -266,10 +276,9 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
         // Catat pertanyaan pengunjung (fire-and-forget) agar admin bisa memantau
         // pertanyaan yang belum terjawab basis pengetahuan.
         if (lastUser?.content) {
-          void supabaseAdmin
-            .from("chatbot_questions")
-            .insert({ question: lastUser.content.slice(0, 500), had_match: knowledgeMatched })
-            .then(({ error }) => { if (error) console.warn("log question failed:", error.message); });
+          void (supabaseAdmin.from as (t: string) => ReturnType<typeof supabaseAdmin.from>)("chatbot_questions")
+            .insert({ question: lastUser.content.slice(0, 500), had_match: knowledgeMatched } as never)
+            .then(({ error }: { error: { message: string } | null }) => { if (error) console.warn("log question failed:", error.message); });
         }
 
         if (settings && settings.ai_enabled === false) {
