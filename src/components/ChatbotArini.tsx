@@ -141,16 +141,7 @@ export default function ChatbotArini() {
               dragging ? "scale-110 cursor-grabbing" : "hover:scale-105 cursor-grab"
             }`}
           >
-            <span
-              className="absolute inset-0"
-              aria-hidden="true"
-              style={{
-                backgroundImage: `url(${sprite.url})`,
-                backgroundSize: `${FRAMES * 100}% 100%`,
-                backgroundPosition: `${(frame / (FRAMES - 1)) * 100}% center`,
-                backgroundRepeat: "no-repeat",
-              }}
-            />
+            <AishaAvatar />
 
 
           </span>

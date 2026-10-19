@@ -223,16 +223,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
     <div className="fixed bottom-6 right-6 z-[10001] w-[92vw] max-w-sm rounded-2xl bg-card shadow-2xl border overflow-hidden flex flex-col" style={{ height: "min(560px, 80vh)" }}>
       <div className="bg-primary text-primary-foreground p-4 flex items-center gap-3">
         <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white ring-2 ring-secondary shrink-0">
-          <span
-            className="absolute inset-0"
-            aria-label={`${name} - ekspresi ${frame + 1}`}
-            style={{
-              backgroundImage: `url(${sprite.url})`,
-              backgroundSize: `${FRAMES * 100}% 100%`,
-              backgroundPosition: `${(frame / (FRAMES - 1)) * 100}% center`,
-              backgroundRepeat: "no-repeat",
-            }}
-          />
+          <AishaAvatar label={name} />
 
 
         </div>
