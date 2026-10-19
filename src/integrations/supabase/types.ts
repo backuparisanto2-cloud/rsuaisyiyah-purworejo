@@ -128,6 +128,27 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbot_questions: {
+        Row: {
+          created_at: string
+          had_match: boolean
+          id: string
+          question: string
+        }
+        Insert: {
+          created_at?: string
+          had_match?: boolean
+          id?: string
+          question: string
+        }
+        Update: {
+          created_at?: string
+          had_match?: boolean
+          id?: string
+          question?: string
+        }
+        Relationships: []
+      }
       chatbot_settings: {
         Row: {
           ai_enabled: boolean
