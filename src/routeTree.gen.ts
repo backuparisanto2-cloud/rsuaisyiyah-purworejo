@@ -9,39 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AdministratorRouteImport } from './routes/administrator'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdministratorRouteImport } from './routes/administrator'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdministratorIndexRouteImport } from './routes/administrator.index'
-import { Route as PSlugRouteImport } from './routes/p.$slug'
-import { Route as AdministratorUsersRouteImport } from './routes/administrator.users'
-import { Route as AdministratorThemeRouteImport } from './routes/administrator.theme'
-import { Route as AdministratorTestPageEditorRouteImport } from './routes/administrator.test-page-editor'
-import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
-import { Route as AdministratorSideButtonsRouteImport } from './routes/administrator.side-buttons'
-import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
-import { Route as AdministratorPagesRouteImport } from './routes/administrator.pages'
-import { Route as AdministratorMitraRouteImport } from './routes/administrator.mitra'
-import { Route as AdministratorMenuRouteImport } from './routes/administrator.menu'
-import { Route as AdministratorLayananRouteImport } from './routes/administrator.layanan'
-import { Route as AdministratorKontakRouteImport } from './routes/administrator.kontak'
-import { Route as AdministratorJamBesukRouteImport } from './routes/administrator.jam-besuk'
-import { Route as AdministratorInstagramRouteImport } from './routes/administrator.instagram'
-import { Route as AdministratorHeroSliderRouteImport } from './routes/administrator.hero-slider'
-import { Route as AdministratorHeroSettingsRouteImport } from './routes/administrator.hero-settings'
-import { Route as AdministratorHeroContentRouteImport } from './routes/administrator.hero-content'
-import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq'
-import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
-import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
-import { Route as AdministratorBackupRouteImport } from './routes/administrator.backup'
 import { Route as AdministratorAnalyticsRouteImport } from './routes/administrator.analytics'
-import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
-import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
+import { Route as AdministratorBackupRouteImport } from './routes/administrator.backup'
+import { Route as AdministratorChatbotRouteImport } from './routes/administrator.chatbot'
+import { Route as AdministratorDokterRouteImport } from './routes/administrator.dokter'
+import { Route as AdministratorFaqRouteImport } from './routes/administrator.faq'
+import { Route as AdministratorHeroContentRouteImport } from './routes/administrator.hero-content'
+import { Route as AdministratorHeroSettingsRouteImport } from './routes/administrator.hero-settings'
+import { Route as AdministratorHeroSliderRouteImport } from './routes/administrator.hero-slider'
+import { Route as AdministratorInstagramRouteImport } from './routes/administrator.instagram'
+import { Route as AdministratorJamBesukRouteImport } from './routes/administrator.jam-besuk'
+import { Route as AdministratorKontakRouteImport } from './routes/administrator.kontak'
+import { Route as AdministratorLayananRouteImport } from './routes/administrator.layanan'
+import { Route as AdministratorMenuRouteImport } from './routes/administrator.menu'
+import { Route as AdministratorMitraRouteImport } from './routes/administrator.mitra'
+import { Route as AdministratorPagesRouteImport } from './routes/administrator.pages'
+import { Route as AdministratorSectionsRouteImport } from './routes/administrator.sections'
+import { Route as AdministratorSideButtonsRouteImport } from './routes/administrator.side-buttons'
+import { Route as AdministratorTentangRouteImport } from './routes/administrator.tentang'
+import { Route as AdministratorTestPageEditorRouteImport } from './routes/administrator.test-page-editor'
+import { Route as AdministratorThemeRouteImport } from './routes/administrator.theme'
+import { Route as AdministratorUsersRouteImport } from './routes/administrator.users'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as ApiPublicChatbotChatRouteImport } from './routes/api/public/chatbot-chat'
+import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdministratorRoute = AdministratorRouteImport.update({
@@ -49,9 +49,9 @@ const AdministratorRoute = AdministratorRouteImport.update({
   path: '/administrator',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
@@ -59,30 +59,86 @@ const AdministratorIndexRoute = AdministratorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdministratorRoute,
 } as any)
-const PSlugRoute = PSlugRouteImport.update({
-  id: '/p/$slug',
-  path: '/p/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdministratorUsersRoute = AdministratorUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
+const AdministratorAnalyticsRoute = AdministratorAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => AdministratorRoute,
 } as any)
-const AdministratorThemeRoute = AdministratorThemeRouteImport.update({
-  id: '/theme',
-  path: '/theme',
+const AdministratorBackupRoute = AdministratorBackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
   getParentRoute: () => AdministratorRoute,
 } as any)
-const AdministratorTestPageEditorRoute =
-  AdministratorTestPageEditorRouteImport.update({
-    id: '/test-page-editor',
-    path: '/test-page-editor',
+const AdministratorChatbotRoute = AdministratorChatbotRouteImport.update({
+  id: '/chatbot',
+  path: '/chatbot',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorDokterRoute = AdministratorDokterRouteImport.update({
+  id: '/dokter',
+  path: '/dokter',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorFaqRoute = AdministratorFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorHeroContentRoute =
+  AdministratorHeroContentRouteImport.update({
+    id: '/hero-content',
+    path: '/hero-content',
     getParentRoute: () => AdministratorRoute,
   } as any)
-const AdministratorTentangRoute = AdministratorTentangRouteImport.update({
-  id: '/tentang',
-  path: '/tentang',
+const AdministratorHeroSettingsRoute =
+  AdministratorHeroSettingsRouteImport.update({
+    id: '/hero-settings',
+    path: '/hero-settings',
+    getParentRoute: () => AdministratorRoute,
+  } as any)
+const AdministratorHeroSliderRoute = AdministratorHeroSliderRouteImport.update({
+  id: '/hero-slider',
+  path: '/hero-slider',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorInstagramRoute = AdministratorInstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorJamBesukRoute = AdministratorJamBesukRouteImport.update({
+  id: '/jam-besuk',
+  path: '/jam-besuk',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorKontakRoute = AdministratorKontakRouteImport.update({
+  id: '/kontak',
+  path: '/kontak',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorLayananRoute = AdministratorLayananRouteImport.update({
+  id: '/layanan',
+  path: '/layanan',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorMenuRoute = AdministratorMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorMitraRoute = AdministratorMitraRouteImport.update({
+  id: '/mitra',
+  path: '/mitra',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorPagesRoute = AdministratorPagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
+  getParentRoute: () => AdministratorRoute,
+} as any)
+const AdministratorSectionsRoute = AdministratorSectionsRouteImport.update({
+  id: '/sections',
+  path: '/sections',
   getParentRoute: () => AdministratorRoute,
 } as any)
 const AdministratorSideButtonsRoute =
@@ -91,91 +147,35 @@ const AdministratorSideButtonsRoute =
     path: '/side-buttons',
     getParentRoute: () => AdministratorRoute,
   } as any)
-const AdministratorSectionsRoute = AdministratorSectionsRouteImport.update({
-  id: '/sections',
-  path: '/sections',
+const AdministratorTentangRoute = AdministratorTentangRouteImport.update({
+  id: '/tentang',
+  path: '/tentang',
   getParentRoute: () => AdministratorRoute,
 } as any)
-const AdministratorPagesRoute = AdministratorPagesRouteImport.update({
-  id: '/pages',
-  path: '/pages',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorMitraRoute = AdministratorMitraRouteImport.update({
-  id: '/mitra',
-  path: '/mitra',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorMenuRoute = AdministratorMenuRouteImport.update({
-  id: '/menu',
-  path: '/menu',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorLayananRoute = AdministratorLayananRouteImport.update({
-  id: '/layanan',
-  path: '/layanan',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorKontakRoute = AdministratorKontakRouteImport.update({
-  id: '/kontak',
-  path: '/kontak',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorJamBesukRoute = AdministratorJamBesukRouteImport.update({
-  id: '/jam-besuk',
-  path: '/jam-besuk',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorInstagramRoute = AdministratorInstagramRouteImport.update({
-  id: '/instagram',
-  path: '/instagram',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorHeroSliderRoute = AdministratorHeroSliderRouteImport.update({
-  id: '/hero-slider',
-  path: '/hero-slider',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorHeroSettingsRoute =
-  AdministratorHeroSettingsRouteImport.update({
-    id: '/hero-settings',
-    path: '/hero-settings',
+const AdministratorTestPageEditorRoute =
+  AdministratorTestPageEditorRouteImport.update({
+    id: '/test-page-editor',
+    path: '/test-page-editor',
     getParentRoute: () => AdministratorRoute,
   } as any)
-const AdministratorHeroContentRoute =
-  AdministratorHeroContentRouteImport.update({
-    id: '/hero-content',
-    path: '/hero-content',
-    getParentRoute: () => AdministratorRoute,
-  } as any)
-const AdministratorFaqRoute = AdministratorFaqRouteImport.update({
-  id: '/faq',
-  path: '/faq',
+const AdministratorThemeRoute = AdministratorThemeRouteImport.update({
+  id: '/theme',
+  path: '/theme',
   getParentRoute: () => AdministratorRoute,
 } as any)
-const AdministratorDokterRoute = AdministratorDokterRouteImport.update({
-  id: '/dokter',
-  path: '/dokter',
+const AdministratorUsersRoute = AdministratorUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => AdministratorRoute,
 } as any)
-const AdministratorChatbotRoute = AdministratorChatbotRouteImport.update({
-  id: '/chatbot',
-  path: '/chatbot',
-  getParentRoute: () => AdministratorRoute,
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdministratorBackupRoute = AdministratorBackupRouteImport.update({
-  id: '/backup',
-  path: '/backup',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const AdministratorAnalyticsRoute = AdministratorAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => AdministratorRoute,
-} as any)
-const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
-  id: '/api/public/track',
-  path: '/api/public/track',
+const ApiPublicChatbotChatRoute = ApiPublicChatbotChatRouteImport.update({
+  id: '/api/public/chatbot-chat',
+  path: '/api/public/chatbot-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicIgImageRoute = ApiPublicIgImageRouteImport.update({
@@ -183,9 +183,9 @@ const ApiPublicIgImageRoute = ApiPublicIgImageRouteImport.update({
   path: '/api/public/ig-image',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicChatbotChatRoute = ApiPublicChatbotChatRouteImport.update({
-  id: '/api/public/chatbot-chat',
-  path: '/api/public/chatbot-chat',
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -389,11 +389,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/administrator': {
@@ -403,11 +403,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/administrator/': {
@@ -417,144 +417,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorIndexRouteImport
       parentRoute: typeof AdministratorRoute
     }
-    '/p/$slug': {
-      id: '/p/$slug'
-      path: '/p/$slug'
-      fullPath: '/p/$slug'
-      preLoaderRoute: typeof PSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/administrator/users': {
-      id: '/administrator/users'
-      path: '/users'
-      fullPath: '/administrator/users'
-      preLoaderRoute: typeof AdministratorUsersRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/theme': {
-      id: '/administrator/theme'
-      path: '/theme'
-      fullPath: '/administrator/theme'
-      preLoaderRoute: typeof AdministratorThemeRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/test-page-editor': {
-      id: '/administrator/test-page-editor'
-      path: '/test-page-editor'
-      fullPath: '/administrator/test-page-editor'
-      preLoaderRoute: typeof AdministratorTestPageEditorRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/tentang': {
-      id: '/administrator/tentang'
-      path: '/tentang'
-      fullPath: '/administrator/tentang'
-      preLoaderRoute: typeof AdministratorTentangRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/side-buttons': {
-      id: '/administrator/side-buttons'
-      path: '/side-buttons'
-      fullPath: '/administrator/side-buttons'
-      preLoaderRoute: typeof AdministratorSideButtonsRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/sections': {
-      id: '/administrator/sections'
-      path: '/sections'
-      fullPath: '/administrator/sections'
-      preLoaderRoute: typeof AdministratorSectionsRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/pages': {
-      id: '/administrator/pages'
-      path: '/pages'
-      fullPath: '/administrator/pages'
-      preLoaderRoute: typeof AdministratorPagesRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/mitra': {
-      id: '/administrator/mitra'
-      path: '/mitra'
-      fullPath: '/administrator/mitra'
-      preLoaderRoute: typeof AdministratorMitraRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/menu': {
-      id: '/administrator/menu'
-      path: '/menu'
-      fullPath: '/administrator/menu'
-      preLoaderRoute: typeof AdministratorMenuRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/layanan': {
-      id: '/administrator/layanan'
-      path: '/layanan'
-      fullPath: '/administrator/layanan'
-      preLoaderRoute: typeof AdministratorLayananRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/kontak': {
-      id: '/administrator/kontak'
-      path: '/kontak'
-      fullPath: '/administrator/kontak'
-      preLoaderRoute: typeof AdministratorKontakRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/jam-besuk': {
-      id: '/administrator/jam-besuk'
-      path: '/jam-besuk'
-      fullPath: '/administrator/jam-besuk'
-      preLoaderRoute: typeof AdministratorJamBesukRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/instagram': {
-      id: '/administrator/instagram'
-      path: '/instagram'
-      fullPath: '/administrator/instagram'
-      preLoaderRoute: typeof AdministratorInstagramRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/hero-slider': {
-      id: '/administrator/hero-slider'
-      path: '/hero-slider'
-      fullPath: '/administrator/hero-slider'
-      preLoaderRoute: typeof AdministratorHeroSliderRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/hero-settings': {
-      id: '/administrator/hero-settings'
-      path: '/hero-settings'
-      fullPath: '/administrator/hero-settings'
-      preLoaderRoute: typeof AdministratorHeroSettingsRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/hero-content': {
-      id: '/administrator/hero-content'
-      path: '/hero-content'
-      fullPath: '/administrator/hero-content'
-      preLoaderRoute: typeof AdministratorHeroContentRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/faq': {
-      id: '/administrator/faq'
-      path: '/faq'
-      fullPath: '/administrator/faq'
-      preLoaderRoute: typeof AdministratorFaqRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/dokter': {
-      id: '/administrator/dokter'
-      path: '/dokter'
-      fullPath: '/administrator/dokter'
-      preLoaderRoute: typeof AdministratorDokterRouteImport
-      parentRoute: typeof AdministratorRoute
-    }
-    '/administrator/chatbot': {
-      id: '/administrator/chatbot'
-      path: '/chatbot'
-      fullPath: '/administrator/chatbot'
-      preLoaderRoute: typeof AdministratorChatbotRouteImport
+    '/administrator/analytics': {
+      id: '/administrator/analytics'
+      path: '/analytics'
+      fullPath: '/administrator/analytics'
+      preLoaderRoute: typeof AdministratorAnalyticsRouteImport
       parentRoute: typeof AdministratorRoute
     }
     '/administrator/backup': {
@@ -564,18 +431,151 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdministratorBackupRouteImport
       parentRoute: typeof AdministratorRoute
     }
-    '/administrator/analytics': {
-      id: '/administrator/analytics'
-      path: '/analytics'
-      fullPath: '/administrator/analytics'
-      preLoaderRoute: typeof AdministratorAnalyticsRouteImport
+    '/administrator/chatbot': {
+      id: '/administrator/chatbot'
+      path: '/chatbot'
+      fullPath: '/administrator/chatbot'
+      preLoaderRoute: typeof AdministratorChatbotRouteImport
       parentRoute: typeof AdministratorRoute
     }
-    '/api/public/track': {
-      id: '/api/public/track'
-      path: '/api/public/track'
-      fullPath: '/api/public/track'
-      preLoaderRoute: typeof ApiPublicTrackRouteImport
+    '/administrator/dokter': {
+      id: '/administrator/dokter'
+      path: '/dokter'
+      fullPath: '/administrator/dokter'
+      preLoaderRoute: typeof AdministratorDokterRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/faq': {
+      id: '/administrator/faq'
+      path: '/faq'
+      fullPath: '/administrator/faq'
+      preLoaderRoute: typeof AdministratorFaqRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/hero-content': {
+      id: '/administrator/hero-content'
+      path: '/hero-content'
+      fullPath: '/administrator/hero-content'
+      preLoaderRoute: typeof AdministratorHeroContentRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/hero-settings': {
+      id: '/administrator/hero-settings'
+      path: '/hero-settings'
+      fullPath: '/administrator/hero-settings'
+      preLoaderRoute: typeof AdministratorHeroSettingsRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/hero-slider': {
+      id: '/administrator/hero-slider'
+      path: '/hero-slider'
+      fullPath: '/administrator/hero-slider'
+      preLoaderRoute: typeof AdministratorHeroSliderRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/instagram': {
+      id: '/administrator/instagram'
+      path: '/instagram'
+      fullPath: '/administrator/instagram'
+      preLoaderRoute: typeof AdministratorInstagramRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/jam-besuk': {
+      id: '/administrator/jam-besuk'
+      path: '/jam-besuk'
+      fullPath: '/administrator/jam-besuk'
+      preLoaderRoute: typeof AdministratorJamBesukRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/kontak': {
+      id: '/administrator/kontak'
+      path: '/kontak'
+      fullPath: '/administrator/kontak'
+      preLoaderRoute: typeof AdministratorKontakRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/layanan': {
+      id: '/administrator/layanan'
+      path: '/layanan'
+      fullPath: '/administrator/layanan'
+      preLoaderRoute: typeof AdministratorLayananRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/menu': {
+      id: '/administrator/menu'
+      path: '/menu'
+      fullPath: '/administrator/menu'
+      preLoaderRoute: typeof AdministratorMenuRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/mitra': {
+      id: '/administrator/mitra'
+      path: '/mitra'
+      fullPath: '/administrator/mitra'
+      preLoaderRoute: typeof AdministratorMitraRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/pages': {
+      id: '/administrator/pages'
+      path: '/pages'
+      fullPath: '/administrator/pages'
+      preLoaderRoute: typeof AdministratorPagesRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/sections': {
+      id: '/administrator/sections'
+      path: '/sections'
+      fullPath: '/administrator/sections'
+      preLoaderRoute: typeof AdministratorSectionsRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/side-buttons': {
+      id: '/administrator/side-buttons'
+      path: '/side-buttons'
+      fullPath: '/administrator/side-buttons'
+      preLoaderRoute: typeof AdministratorSideButtonsRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/tentang': {
+      id: '/administrator/tentang'
+      path: '/tentang'
+      fullPath: '/administrator/tentang'
+      preLoaderRoute: typeof AdministratorTentangRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/test-page-editor': {
+      id: '/administrator/test-page-editor'
+      path: '/test-page-editor'
+      fullPath: '/administrator/test-page-editor'
+      preLoaderRoute: typeof AdministratorTestPageEditorRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/theme': {
+      id: '/administrator/theme'
+      path: '/theme'
+      fullPath: '/administrator/theme'
+      preLoaderRoute: typeof AdministratorThemeRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/administrator/users': {
+      id: '/administrator/users'
+      path: '/users'
+      fullPath: '/administrator/users'
+      preLoaderRoute: typeof AdministratorUsersRouteImport
+      parentRoute: typeof AdministratorRoute
+    }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/chatbot-chat': {
+      id: '/api/public/chatbot-chat'
+      path: '/api/public/chatbot-chat'
+      fullPath: '/api/public/chatbot-chat'
+      preLoaderRoute: typeof ApiPublicChatbotChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/ig-image': {
@@ -585,11 +585,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIgImageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/chatbot-chat': {
-      id: '/api/public/chatbot-chat'
-      path: '/api/public/chatbot-chat'
-      fullPath: '/api/public/chatbot-chat'
-      preLoaderRoute: typeof ApiPublicChatbotChatRouteImport
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
