@@ -122,7 +122,7 @@ function useFrameGuard() {
     let framed = true;
     try { framed = window.self !== window.top; } catch { framed = true; }
     if (framed) return;
-    window.location.replace(PARENT_SITE + (pathname === "/" ? "/" : pathname) + search + hash);
+    window.location.replace(PARENT_SITE + "/" + hash);
   }, []);
 }
 

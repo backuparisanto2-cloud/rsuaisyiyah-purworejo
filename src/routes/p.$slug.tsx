@@ -7,11 +7,11 @@ import SideButtons from "@/components/SideButtons";
 import { PagePreview } from "./administrator.pages";
 
 export const Route = createFileRoute("/p/$slug")({
-  head: ({ params }) => ({
+  head: () => ({
     meta: [
-      { property: "og:url", content: `https://www.rsaisyiyahpurworejo.com/p/${params.slug}` },
+      { property: "og:url", content: "https://www.rsaisyiyahpurworejo.com/" },
     ],
-    links: [{ rel: "canonical", href: `https://www.rsaisyiyahpurworejo.com/p/${params.slug}` }],
+    links: [{ rel: "canonical", href: "https://www.rsaisyiyahpurworejo.com/" }],
   }),
   component: CustomPage,
   notFoundComponent: () => (
