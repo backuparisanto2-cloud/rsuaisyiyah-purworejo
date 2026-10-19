@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, RotateCcw, Square, X } from "lucide-react";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import { useRouter } from "@tanstack/react-router";
-import sprite from "@/assets/aisha-sprite.png.asset.json";
+import AishaAvatar from "./AishaAvatar";
 import { supabase } from "@/integrations/supabase/client";
 
 type Msg = { role: "assistant" | "user"; content: string };

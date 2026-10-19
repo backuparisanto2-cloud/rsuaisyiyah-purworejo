@@ -1,9 +1,8 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import sprite from "@/assets/aisha-sprite.png.asset.json";
+import AishaAvatar from "./AishaAvatar";
 
 const ChatbotPanel = lazy(() => import("./ChatbotPanel"));
 
-const FRAMES = 14;
 const POS_KEY = "aisha-fab-pos";
 const EDGE_MARGIN = 8;
 const DRAG_THRESHOLD = 6;
@@ -19,7 +18,6 @@ function clampPos(x: number, y: number, w: number, h: number): Pos {
 
 export default function ChatbotArini() {
   const [open, setOpen] = useState(false);
-  const [frame, setFrame] = useState(0);
   const [pos, setPos] = useState<Pos | null>(null);
   const [dragging, setDragging] = useState(false);
   const [snapping, setSnapping] = useState(false);
@@ -28,7 +26,7 @@ export default function ChatbotArini() {
 
   useEffect(() => {
     if (open) return;
-    const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES), 4000);
+    const id = 0;
     return () => clearInterval(id);
   }, [open]);
 
