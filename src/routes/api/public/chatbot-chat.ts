@@ -261,7 +261,16 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
         }
 
         const lastUser = [...body.messages].reverse().find((m) => m.role === "user");
-        const { settings, contextText } = await buildSystemContext(lastUser?.content ?? "", apiKey);
+        const { settings, contextText, knowledgeMatched } = await buildSystemContext(lastUser?.content ?? "", apiKey);
+
+        // Catat pertanyaan pengunjung (fire-and-forget) agar admin bisa memantau
+        // pertanyaan yang belum terjawab basis pengetahuan.
+        if (lastUser?.content) {
+          void supabaseAdmin
+            .from("chatbot_questions")
+            .insert({ question: lastUser.content.slice(0, 500), had_match: knowledgeMatched })
+            .then(({ error }) => { if (error) console.warn("log question failed:", error.message); });
+        }
 
         if (settings && settings.ai_enabled === false) {
           return new Response(JSON.stringify({ error: "Mode AI sedang dinonaktifkan." }), {
