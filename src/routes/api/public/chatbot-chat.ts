@@ -199,7 +199,7 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
       userQuery,
       pages.map((p) => ({ title: p.title, content: `${p.meta_description ?? ""} ${stripHtml(p.content ?? "")}`, slug: p.slug })) as never,
       3
-    ) as unknown as { title: string; content: string; slug: string }[];
+    ).items as unknown as { title: string; content: string; slug: string }[];
     if (relevant.length) {
       lines.push("\n[ISI HALAMAN TERKAIT]");
       for (const p of relevant) lines.push(`### ${p.title} (/p/${p.slug})\n${p.content.slice(0, 2500)}`);
