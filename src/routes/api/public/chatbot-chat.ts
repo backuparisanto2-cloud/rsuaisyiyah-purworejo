@@ -214,6 +214,7 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
   return {
     settings,
     contextText: lines.join("\n"),
+    knowledgeMatched,
   };
 }
 
