@@ -40,7 +40,9 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "RSU Aisyiyah Purworejo — Keramahan Sebenarnya" },
       { name: "description", content: "RSU Aisyiyah Purworejo — pelayanan kesehatan prima berbasis syariah dengan fasilitas modern, dokter spesialis berpengalaman, dan layanan ramah difabel." },
+      { property: "og:url", content: "https://www.rsaisyiyahpurworejo.com/" },
     ],
+    links: [{ rel: "canonical", href: "https://www.rsaisyiyahpurworejo.com/" }],
   }),
   component: HomePage,
 });

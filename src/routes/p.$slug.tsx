@@ -7,6 +7,12 @@ import SideButtons from "@/components/SideButtons";
 import { PagePreview } from "./administrator.pages";
 
 export const Route = createFileRoute("/p/$slug")({
+  head: ({ params }) => ({
+    meta: [
+      { property: "og:url", content: `https://www.rsaisyiyahpurworejo.com/p/${params.slug}` },
+    ],
+    links: [{ rel: "canonical", href: `https://www.rsaisyiyahpurworejo.com/p/${params.slug}` }],
+  }),
   component: CustomPage,
   notFoundComponent: () => (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3">
