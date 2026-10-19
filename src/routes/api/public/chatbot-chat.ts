@@ -97,6 +97,7 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
 
   // Try semantic match first; fall back to keyword scoring if it fails or returns nothing.
   let top: { title: string; content: string; category?: string | null }[] = [];
+  let knowledgeMatched = false;
   if (userQuery.trim().length > 1) {
     try {
       const [vec] = await embedTexts(apiKey, [userQuery]);
@@ -110,13 +111,18 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
           top = matched.map((m: { title: string; content: string; category: string | null }) => ({
             title: m.title, content: m.content, category: m.category,
           }));
+          knowledgeMatched = true;
         }
       }
     } catch (e) {
       console.warn("semantic match failed:", (e as Error).message);
     }
   }
-  if (!top.length) top = scoreKnowledge(userQuery, kbAll ?? []);
+  if (!top.length) {
+    const kw = scoreKnowledge(userQuery, kbAll ?? []);
+    top = kw.items;
+    knowledgeMatched = kw.matched;
+  }
 
   const lines: string[] = [];
   lines.push("KONTEKS RSU AISYIYAH PURWOREJO (gunakan hanya info ini untuk fakta spesifik):");
