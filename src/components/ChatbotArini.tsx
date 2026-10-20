@@ -108,7 +108,7 @@ export default function ChatbotArini() {
       }
     : {
         right: "1.5rem",
-        bottom: "calc(1.5rem + 23px)",
+        bottom: "calc(1.5rem + 28px)",
         touchAction: "none",
       };
 
