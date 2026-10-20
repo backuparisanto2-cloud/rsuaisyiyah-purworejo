@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792462173101,
+      "tag": "0000_lock_chatbot_questions_admin",
+      "breakpoints": true
+    }
+  ]
+}
