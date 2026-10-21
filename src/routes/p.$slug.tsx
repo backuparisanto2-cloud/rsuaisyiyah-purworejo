@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
 import SideButtons from "@/components/SideButtons";
+import NotFoundPage from "@/components/NotFoundPage";
 import { PagePreview } from "./administrator.pages";
 
 export const Route = createFileRoute("/p/$slug")({
@@ -80,12 +81,7 @@ function CustomPage() {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
   if (notFoundFlag || !page) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-        <h1 className="text-2xl font-bold">Halaman tidak ditemukan</h1>
-        <Link to="/" className="text-primary underline">Kembali ke beranda</Link>
-      </div>
-    );
+    return <NotFoundPage description="Halaman yang Anda tuju tidak tersedia." />;
   }
 
   // Merge legacy image_url into images if no images set
