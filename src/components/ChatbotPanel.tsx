@@ -264,7 +264,7 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
             </div>
           );
         })}
-        {!streaming && msgs.length <= 2 && (
+        {!streaming && !msgs.some((m) => m.role === "user") && (
           <div className="flex flex-wrap gap-2 pt-2">
             {quick.map((q) => (
               <button key={q} onClick={() => send(q)} className="text-xs px-3 py-1.5 rounded-full bg-card border hover:bg-accent">
