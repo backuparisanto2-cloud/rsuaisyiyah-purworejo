@@ -149,6 +149,21 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
       lines.push(`Email: ${contact.email} (tautan: mailto:${contact.email.trim()})`);
     if (contact.address) lines.push(`Alamat: ${contact.address}`);
     if (contact.instagram) lines.push(`Instagram: ${contact.instagram}`);
+
+    // Bloco de rotas: Aisha monta links do Google Maps Directions (sem API key)
+    // a partir do destino fixo abaixo; origem vem da fala do visitante.
+    const destinoMapa = encodeURIComponent(`RSU Aisyiyah Purworejo, ${contact.address ?? "Purworejo"}`);
+    lines.push("\n[LOKASI & PANDUAN RUTE GOOGLE MAPS]");
+    lines.push(`Destino oficial para todos os links: RSU Aisyiyah Purworejo — ${contact.address ?? "Purworejo"}`);
+    lines.push(`Link de navegação que usa o GPS do visitante (quando NÃO souber a origem): https://www.google.com/maps/dir/?api=1&destination=${destinoMapa}`);
+    lines.push(`Link com origem informada (troque ORIGEM pela cidade/ponto de partida do visitante, em formato URL, ex.: ${encodeURIComponent("Kutoarjo")}): https://www.google.com/maps/dir/?api=1&origin=ORIGEM&destination=${destinoMapa}`);
+    lines.push("Link para compartilhar a rota via WhatsApp: https://api.whatsapp.com/send?text=Roteiro%20para%20o%20RSU%20Aisyiyah%20Purworejo");
+    lines.push(
+      "Patokan por região: Oeste (Kutoarjo, Kebumen) via Jl. Raya Kutoarjo–Purworejo; " +
+      "Norte (Magelang, Salaman, Loano) via Jl. Magelang–Purworejo; " +
+      "Leste (Yogyakarta, Wates, Kulon Progo, aeroporto YIA) via Jl. Nasional III Wates–Purworejo; " +
+      "Sul (Purwodadi, Pantai Congot, Jatimalang) via Jl. Purwodadi–Purworejo."
+    );
   }
 
   if (visiting?.length) {
