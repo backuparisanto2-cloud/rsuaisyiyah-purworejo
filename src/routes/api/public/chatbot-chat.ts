@@ -334,13 +334,13 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
                   "yang bisa diklik, bukan teks polos: telepon [0896-4671-0859](tel:089646710859), " +
                   "WhatsApp [Chat CS](https://wa.me/6289646710859), email [info@rs.id](mailto:info@rs.id). " +
                   "Pakai tautan siap pakai yang tercantum di blok [KONTAK]. " +
-                  "Para perguntas de localização, rota, 'como chegar' ou quando o visitante parecer perdido: " +
-                  "detecte a cidade ou ponto de partida citado e monte um link do blok [LOKASI & PANDUAN RUTE GOOGLE MAPS] " +
-                  "trocando ORIGEM pela origem em formato URL (ex.: origin=Kutoarjo); " +
-                  "se a origem não for citada, use o link de navegação com GPS (destination apenas) " +
-                  "e diga que ele parte da localização atual do visitante. " +
-                  "Sempre ofereça também o link para compartilhar a rota via WhatsApp e o contato do petugas/ambulans; " +
-                  "em emergência no caminho, direcione ao IGD 24h. Use os patokan por região para descrever o caminho. " +
+                  "Untuk pertanyaan lokasi, rute, 'lewatan mana', atau saat pengunjung tampak tersesat: " +
+                  "kenali kota atau titik awal yang disebut, lalu susun tautan dari blok [LOKASI & PANDUAN RUTE GOOGLE MAPS] " +
+                  "dengan mengganti ORIGEM dengan titik awal dalam format URL (mis. origin=Kutoarjo); " +
+                  "bila titik awal tidak disebut, gunakan tautan navigasi dengan GPS (destination saja) " +
+                  "dan katakan bahwa rute dimulai dari lokasi saat ini pengunjung. " +
+                  "Selalu tawarkan juga tautan berbagi rute via WhatsApp dan kontak petugas/ambulans; " +
+                  "bila darurat di jalan, arahkan ke IGD 24 jam. Gunakan patokan per wilayah untuk menjelaskan jalan. " +
                   "Jangan mengarang tautan yang tidak ada di konteks.",
               },
               { role: "system", content: contextText },
