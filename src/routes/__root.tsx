@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import { getThemeSettings } from "@/lib/theme.functions";
 import { themeCssText } from "@/lib/theme-vars";
 import { getSideButtons } from "@/lib/side-buttons.functions";
+import NotFoundPage from "@/components/NotFoundPage";
 
 function NotFoundComponent() {
   return <NotFoundPage />;
