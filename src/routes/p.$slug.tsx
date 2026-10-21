@@ -14,12 +14,7 @@ export const Route = createFileRoute("/p/$slug")({
     links: [{ rel: "canonical", href: "https://www.rsaisyiyahpurworejo.com/" }],
   }),
   component: CustomPage,
-  notFoundComponent: () => (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-      <h1 className="text-2xl font-bold">Halaman tidak ditemukan</h1>
-      <Link to="/" className="text-primary underline">Kembali ke beranda</Link>
-    </div>
-  ),
+  notFoundComponent: () => <NotFoundPage description="Halaman yang Anda tuju tidak tersedia." />,
   errorComponent: ({ error }) => (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3">
       <h1 className="text-2xl font-bold">Terjadi kesalahan</h1>
