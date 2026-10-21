@@ -149,6 +149,21 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
       lines.push(`Email: ${contact.email} (tautan: mailto:${contact.email.trim()})`);
     if (contact.address) lines.push(`Alamat: ${contact.address}`);
     if (contact.instagram) lines.push(`Instagram: ${contact.instagram}`);
+
+    // Bloco de rotas: Aisha monta links do Google Maps Directions (sem API key)
+    // a partir do destino fixo abaixo; origem vem da fala do visitante.
+    const destinoMapa = encodeURIComponent(`RSU Aisyiyah Purworejo, ${contact.address ?? "Purworejo"}`);
+    lines.push("\n[LOKASI & PANDUAN RUTE GOOGLE MAPS]");
+    lines.push(`Destino oficial para todos os links: RSU Aisyiyah Purworejo — ${contact.address ?? "Purworejo"}`);
+    lines.push(`Link de navegação que usa o GPS do visitante (quando NÃO souber a origem): https://www.google.com/maps/dir/?api=1&destination=${destinoMapa}`);
+    lines.push(`Link com origem informada (troque ORIGEM pela cidade/ponto de partida do visitante, em formato URL, ex.: ${encodeURIComponent("Kutoarjo")}): https://www.google.com/maps/dir/?api=1&origin=ORIGEM&destination=${destinoMapa}`);
+    lines.push("Link para compartilhar a rota via WhatsApp: https://api.whatsapp.com/send?text=Roteiro%20para%20o%20RSU%20Aisyiyah%20Purworejo");
+    lines.push(
+      "Patokan por região: Oeste (Kutoarjo, Kebumen) via Jl. Raya Kutoarjo–Purworejo; " +
+      "Norte (Magelang, Salaman, Loano) via Jl. Magelang–Purworejo; " +
+      "Leste (Yogyakarta, Wates, Kulon Progo, aeroporto YIA) via Jl. Nasional III Wates–Purworejo; " +
+      "Sul (Purwodadi, Pantai Congot, Jatimalang) via Jl. Purwodadi–Purworejo."
+    );
   }
 
   if (visiting?.length) {
@@ -319,6 +334,13 @@ export const Route = createFileRoute("/api/public/chatbot-chat")({
                   "yang bisa diklik, bukan teks polos: telepon [0896-4671-0859](tel:089646710859), " +
                   "WhatsApp [Chat CS](https://wa.me/6289646710859), email [info@rs.id](mailto:info@rs.id). " +
                   "Pakai tautan siap pakai yang tercantum di blok [KONTAK]. " +
+                  "Untuk pertanyaan lokasi, rute, 'lewatan mana', atau saat pengunjung tampak tersesat: " +
+                  "kenali kota atau titik awal yang disebut, lalu susun tautan dari blok [LOKASI & PANDUAN RUTE GOOGLE MAPS] " +
+                  "dengan mengganti ORIGEM dengan titik awal dalam format URL (mis. origin=Kutoarjo); " +
+                  "bila titik awal tidak disebut, gunakan tautan navigasi dengan GPS (destination saja) " +
+                  "dan katakan bahwa rute dimulai dari lokasi saat ini pengunjung. " +
+                  "Selalu tawarkan juga tautan berbagi rute via WhatsApp dan kontak petugas/ambulans; " +
+                  "bila darurat di jalan, arahkan ke IGD 24 jam. Gunakan patokan per wilayah untuk menjelaskan jalan. " +
                   "Jangan mengarang tautan yang tidak ada di konteks.",
               },
               { role: "system", content: contextText },
