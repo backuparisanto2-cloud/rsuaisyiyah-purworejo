@@ -201,7 +201,11 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
               acc += delta;
               setMsgs((m) => {
                 const copy = [...m];
-                copy[copy.length - 1] = { role: "assistant", content: acc };
+                copy[copy.length - 1] = {
+                  role: "assistant",
+                  content: acc,
+                  route: copy[copy.length - 1].route ?? routeResolved ?? undefined,
+                };
                 return copy;
               });
             }
