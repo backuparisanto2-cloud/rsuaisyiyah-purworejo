@@ -283,13 +283,16 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
                     <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
                 ) : m.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
-                    <ReactMarkdown
-                      components={mdComponents}
-                      urlTransform={(url) => (url.startsWith("tel:") ? url : defaultUrlTransform(url))}
-                    >
-                      {m.content}
-                    </ReactMarkdown>
+                  <div>
+                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
+                      <ReactMarkdown
+                        components={mdComponents}
+                        urlTransform={(url) => (url.startsWith("tel:") ? url : defaultUrlTransform(url))}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
+                    </div>
+                    {m.route && <RouteCard info={m.route} />}
                   </div>
                 ) : (
                   <span className="whitespace-pre-wrap">{m.content}</span>
