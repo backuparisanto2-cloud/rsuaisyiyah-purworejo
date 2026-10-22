@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, RotateCcw, Square, X } from "lucide-react";
+import { Send, RotateCcw, Square, X, Navigation, Share2 } from "lucide-react";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import { useRouter } from "@tanstack/react-router";
 import AishaAvatar from "./AishaAvatar";
 import { supabase } from "@/integrations/supabase/client";
+import { detectRouteOrigin, type RouteInfo } from "@/lib/route-info";
 
-type Msg = { role: "assistant" | "user"; content: string };
+type Msg = { role: "assistant" | "user"; content: string; route?: RouteInfo };
 
 const STORAGE_KEY = "arini_chat_v2";
 const ENDPOINT = "/api/public/chatbot-chat";
@@ -121,6 +122,35 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    // Live route card (map + duration + road status) when the visitor
+    // mentions a known origin city; fetched in parallel with the AI stream.
+    let routeResolved: RouteInfo | null = null;
+    const originKey = detectRouteOrigin(v);
+    if (originKey) {
+      fetch("/api/public/chatbot-route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ origin: v }),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((info: RouteInfo | null) => {
+          routeResolved = info;
+          if (!info) return;
+          setMsgs((m) => {
+            const copy = [...m];
+            for (let i = copy.length - 1; i >= 0; i--) {
+              if (copy[i].role === "assistant") {
+                copy[i] = { ...copy[i], route: copy[i].route ?? info };
+                break;
+              }
+            }
+            return copy;
+          });
+        })
+        .catch(() => {});
+    }
+
+
     try {
       const resp = await fetch(ENDPOINT, {
         method: "POST",
@@ -171,7 +201,11 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
               acc += delta;
               setMsgs((m) => {
                 const copy = [...m];
-                copy[copy.length - 1] = { role: "assistant", content: acc };
+                copy[copy.length - 1] = {
+                  role: "assistant",
+                  content: acc,
+                  route: copy[copy.length - 1].route ?? routeResolved ?? undefined,
+                };
                 return copy;
               });
             }
@@ -249,13 +283,16 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
                     <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
                 ) : m.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
-                    <ReactMarkdown
-                      components={mdComponents}
-                      urlTransform={(url) => (url.startsWith("tel:") ? url : defaultUrlTransform(url))}
-                    >
-                      {m.content}
-                    </ReactMarkdown>
+                  <div>
+                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-primary">
+                      <ReactMarkdown
+                        components={mdComponents}
+                        urlTransform={(url) => (url.startsWith("tel:") ? url : defaultUrlTransform(url))}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
+                    </div>
+                    {m.route && <RouteCard info={m.route} />}
                   </div>
                 ) : (
                   <span className="whitespace-pre-wrap">{m.content}</span>
@@ -293,6 +330,63 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
           </button>
         )}
       </form>
+    </div>
+  );
+}
+
+function RouteCard({ info }: { info: RouteInfo }) {
+  const trafficClass =
+    info.traffic === "Lancar"
+      ? "bg-green-100 text-green-800"
+      : info.traffic === "Cukup padat"
+        ? "bg-amber-100 text-amber-800"
+        : info.traffic === "Padat"
+          ? "bg-red-100 text-red-800"
+          : "";
+  return (
+    <div className="mt-2 rounded-xl border bg-muted/40 overflow-hidden">
+      <iframe
+        title={`Rute dari ${info.originLabel} ke RSU Aisyiyah Purworejo`}
+        src={info.embedUrl}
+        className="w-full h-40 border-0"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+      <div className="p-2.5 space-y-2">
+        {info.available && info.durationText ? (
+          <div className="flex items-center justify-between gap-2 text-xs">
+            <span className="font-semibold text-foreground">
+              ± {info.durationText}
+              {info.distanceText ? ` • ${info.distanceText}` : ""}
+            </span>
+            <span className={`px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${trafficClass}`}>
+              {info.traffic}
+            </span>
+          </div>
+        ) : (
+          <div className="text-xs text-muted-foreground">
+            Estimasi durasi &amp; kondisi jalan sedang tidak tersedia.
+          </div>
+        )}
+        <div className="flex gap-2">
+          <a
+            href={info.gmapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90"
+          >
+            <Navigation className="h-3.5 w-3.5" /> Buka Navigasi
+          </a>
+          <a
+            href={info.waShareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border hover:bg-accent"
+          >
+            <Share2 className="h-3.5 w-3.5" /> Bagikan
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
