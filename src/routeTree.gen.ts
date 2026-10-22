@@ -36,6 +36,7 @@ import { Route as AdministratorThemeRouteImport } from './routes/administrator.t
 import { Route as AdministratorUsersRouteImport } from './routes/administrator.users'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as ApiPublicChatbotChatRouteImport } from './routes/api/public/chatbot-chat'
+import { Route as ApiPublicChatbotRouteRouteImport } from './routes/api/public/chatbot-route'
 import { Route as ApiPublicIgImageRouteImport } from './routes/api/public/ig-image'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 
@@ -178,6 +179,11 @@ const ApiPublicChatbotChatRoute = ApiPublicChatbotChatRouteImport.update({
   path: '/api/public/chatbot-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicChatbotRouteRoute = ApiPublicChatbotRouteRouteImport.update({
+  id: '/api/public/chatbot-route',
+  path: '/api/public/chatbot-route',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIgImageRoute = ApiPublicIgImageRouteImport.update({
   id: '/api/public/ig-image',
   path: '/api/public/ig-image',
@@ -217,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
+  '/api/public/chatbot-route': typeof ApiPublicChatbotRouteRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
@@ -247,6 +254,7 @@ export interface FileRoutesByTo {
   '/p/$slug': typeof PSlugRoute
   '/administrator': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
+  '/api/public/chatbot-route': typeof ApiPublicChatbotRouteRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
@@ -279,6 +287,7 @@ export interface FileRoutesById {
   '/p/$slug': typeof PSlugRoute
   '/administrator/': typeof AdministratorIndexRoute
   '/api/public/chatbot-chat': typeof ApiPublicChatbotChatRoute
+  '/api/public/chatbot-route': typeof ApiPublicChatbotRouteRoute
   '/api/public/ig-image': typeof ApiPublicIgImageRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/administrator/'
     | '/api/public/chatbot-chat'
+    | '/api/public/chatbot-route'
     | '/api/public/ig-image'
     | '/api/public/track'
   fileRoutesByTo: FileRoutesByTo
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/administrator'
     | '/api/public/chatbot-chat'
+    | '/api/public/chatbot-route'
     | '/api/public/ig-image'
     | '/api/public/track'
   id:
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/p/$slug'
     | '/administrator/'
     | '/api/public/chatbot-chat'
+    | '/api/public/chatbot-route'
     | '/api/public/ig-image'
     | '/api/public/track'
   fileRoutesById: FileRoutesById
@@ -383,6 +395,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PSlugRoute: typeof PSlugRoute
   ApiPublicChatbotChatRoute: typeof ApiPublicChatbotChatRoute
+  ApiPublicChatbotRouteRoute: typeof ApiPublicChatbotRouteRoute
   ApiPublicIgImageRoute: typeof ApiPublicIgImageRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
@@ -578,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicChatbotChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/chatbot-route': {
+      id: '/api/public/chatbot-route'
+      path: '/api/public/chatbot-route'
+      fullPath: '/api/public/chatbot-route'
+      preLoaderRoute: typeof ApiPublicChatbotRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ig-image': {
       id: '/api/public/ig-image'
       path: '/api/public/ig-image'
@@ -655,6 +675,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PSlugRoute: PSlugRoute,
   ApiPublicChatbotChatRoute: ApiPublicChatbotChatRoute,
+  ApiPublicChatbotRouteRoute: ApiPublicChatbotRouteRoute,
   ApiPublicIgImageRoute: ApiPublicIgImageRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
 }

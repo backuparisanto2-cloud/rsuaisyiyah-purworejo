@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, RotateCcw, Square, X } from "lucide-react";
+import { Send, RotateCcw, Square, X, Navigation, Share2 } from "lucide-react";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import { useRouter } from "@tanstack/react-router";
 import AishaAvatar from "./AishaAvatar";
 import { supabase } from "@/integrations/supabase/client";
+import { detectRouteOrigin, type RouteInfo } from "@/lib/route-info";
 
-type Msg = { role: "assistant" | "user"; content: string };
+type Msg = { role: "assistant" | "user"; content: string; route?: RouteInfo };
 
 const STORAGE_KEY = "arini_chat_v2";
 const ENDPOINT = "/api/public/chatbot-chat";
@@ -120,6 +121,35 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
 
     const controller = new AbortController();
     abortRef.current = controller;
+
+    // Live route card (map + duration + road status) when the visitor
+    // mentions a known origin city; fetched in parallel with the AI stream.
+    let routeResolved: RouteInfo | null = null;
+    const originKey = detectRouteOrigin(v);
+    if (originKey) {
+      fetch("/api/public/chatbot-route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ origin: v }),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((info: RouteInfo | null) => {
+          routeResolved = info;
+          if (!info) return;
+          setMsgs((m) => {
+            const copy = [...m];
+            for (let i = copy.length - 1; i >= 0; i--) {
+              if (copy[i].role === "assistant") {
+                copy[i] = { ...copy[i], route: copy[i].route ?? info };
+                break;
+              }
+            }
+            return copy;
+          });
+        })
+        .catch(() => {});
+    }
+
 
     try {
       const resp = await fetch(ENDPOINT, {
