@@ -333,3 +333,60 @@ export default function ChatbotPanel({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+
+function RouteCard({ info }: { info: RouteInfo }) {
+  const trafficClass =
+    info.traffic === "Lancar"
+      ? "bg-green-100 text-green-800"
+      : info.traffic === "Cukup padat"
+        ? "bg-amber-100 text-amber-800"
+        : info.traffic === "Padat"
+          ? "bg-red-100 text-red-800"
+          : "";
+  return (
+    <div className="mt-2 rounded-xl border bg-muted/40 overflow-hidden">
+      <iframe
+        title={`Rute dari ${info.originLabel} ke RSU Aisyiyah Purworejo`}
+        src={info.embedUrl}
+        className="w-full h-40 border-0"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+      <div className="p-2.5 space-y-2">
+        {info.available && info.durationText ? (
+          <div className="flex items-center justify-between gap-2 text-xs">
+            <span className="font-semibold text-foreground">
+              ± {info.durationText}
+              {info.distanceText ? ` • ${info.distanceText}` : ""}
+            </span>
+            <span className={`px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${trafficClass}`}>
+              {info.traffic}
+            </span>
+          </div>
+        ) : (
+          <div className="text-xs text-muted-foreground">
+            Estimasi durasi &amp; kondisi jalan sedang tidak tersedia.
+          </div>
+        )}
+        <div className="flex gap-2">
+          <a
+            href={info.gmapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90"
+          >
+            <Navigation className="h-3.5 w-3.5" /> Buka Navigasi
+          </a>
+          <a
+            href={info.waShareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border hover:bg-accent"
+          >
+            <Share2 className="h-3.5 w-3.5" /> Bagikan
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
