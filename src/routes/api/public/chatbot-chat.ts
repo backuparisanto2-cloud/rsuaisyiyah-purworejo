@@ -166,6 +166,37 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
     );
   }
 
+  // Live route data (travel duration & road status) when the visitor
+  // mentions a known origin (Yogyakarta, Magelang, Kebumen, Bandara YIA).
+  // Cached server-side so Maps calls stay bounded.
+  if (userQuery.trim()) {
+    try {
+      const { detectRouteOrigin, getRouteInfo } = await import("@/lib/route-info.server");
+      const originKey = detectRouteOrigin(userQuery);
+      if (originKey) {
+        const info = await getRouteInfo(originKey);
+        lines.push("\n[DURASI & STATUS JALAN SAAT INI]");
+        if (info.available) {
+          lines.push(
+            `Dari ${info.originLabel} menuju rumah sakit: sekitar ${info.durationText}` +
+              (info.distanceText ? ` (${info.distanceText})` : "") +
+              `. Kondisi jalan saat ini: ${info.traffic}.`
+          );
+        } else {
+          lines.push(`Dari ${info.originLabel}: data durasi/kondisi jalan sedang tidak tersedia.`);
+        }
+        lines.push(`Tautan navigasi dari ${info.originLabel}: ${info.gmapsUrl}`);
+        lines.push(
+          "Saat memberi info rute dari " +
+            info.originLabel +
+            ", sebutkan estimasi durasi dan kondisi jalan di atas, lalu sertakan tautan navigasi tersebut."
+        );
+      }
+    } catch (e) {
+      console.warn("route info skipped:", (e as Error).message);
+    }
+  }
+
   if (visiting?.length) {
     lines.push("\n[JAM BESUK]");
     for (const v of visiting) lines.push(`- ${v.label}: ${v.time_range}`);
