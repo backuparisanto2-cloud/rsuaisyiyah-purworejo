@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { embedTexts } from "@/lib/chatbot.functions";
+import { detectRouteOrigin } from "@/lib/route-info";
 import { z } from "zod";
 
 // Naive in-worker rate limiter (resets on cold start).
@@ -171,7 +172,7 @@ async function buildSystemContext(userQuery: string, apiKey: string) {
   // Cached server-side so Maps calls stay bounded.
   if (userQuery.trim()) {
     try {
-      const { detectRouteOrigin, getRouteInfo } = await import("@/lib/route-info.server");
+      const { getRouteInfo } = await import("@/lib/route-info.server");
       const originKey = detectRouteOrigin(userQuery);
       if (originKey) {
         const info = await getRouteInfo(originKey);
